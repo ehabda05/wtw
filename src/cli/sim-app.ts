@@ -276,6 +276,7 @@ async function main(): Promise<void> {
     handlers: ext.handlers,
     photoStore: ext.photoStore,
     repairWithLlm: llm.repair ?? undefined,
+    llmFirst: llm.first,
     extraNames: DEFAULT_PERSONAS.map(personaName),
   });
   voice.onResult((r) => {

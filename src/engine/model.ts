@@ -21,6 +21,14 @@ export type LockReason = 'deadline' | 'everyone' | 'threshold' | 'forced' | 'bri
 
 export interface EnginePlan extends Plan {
   hungry?: EngineHungry;
+  /** Members seeded from the platform roster at plan start (core.ts seedRoster); the place vote waits for a majority of them. */
+  rosterSize?: number;
+  /** The trigger named no activity ("homi plan something"); Homi asked, and the next answer sets it. */
+  activityUnknown?: boolean;
+  /** A window named before the activity was known; opened once the activity arrives. */
+  pendingWindow?: WindowSpec;
+  /** Demo quorum: when the silent were asked; a pending member's bare "yes"/"no"/"1" after that counts even unaddressed. */
+  quorumAskedAt?: number;
   /** Cuisine tags named in the plan trigger ("thai dinner next week?"), seeded into the hungry flow. */
   cuisineHint?: string[];
   /** Bridge questions already asked ("day_conflict", "time_shift:2"); each is asked once per plan. */
@@ -83,6 +91,7 @@ export type Command =
   | { kind: 'tz'; place: string }
   | { kind: 'headcount'; n: number }
   | { kind: 'place_set'; place: string }
+  | { kind: 'set_time'; time: string }
   | { kind: 'no_place' }
   | { kind: 'change_place'; cuisines?: string[] }
   | { kind: 'remind' }

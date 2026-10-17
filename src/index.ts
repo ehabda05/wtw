@@ -81,6 +81,7 @@ async function main(): Promise<void> {
       : undefined,
     hostedLlm: hostedLlmEnabled(llmCfg) ? (text, labels, names) => classifyAvailability(llmCfg, text, labels, names) : undefined,
     repairWithLlm: llmRouter.repair ?? undefined,
+    llmFirst: config.llmFirst,
     handlers: ext.handlers,
     photoStore: ext.photoStore,
     publicBaseUrl: config.publicBaseUrl,
@@ -151,6 +152,7 @@ async function main(): Promise<void> {
     places: places.real ? config.places.provider : 'stub (fallback)',
     hostedLlm: !config.disableHostedLlm && !!config.anthropicApiKey,
     llmFallback: llmRouter.note,
+    llmFirst: config.llmFirst ? (llmRouter.repair ? 'on (Claude reads every addressed message first)' : 'requested, but the LLM switch is off') : 'off',
     ephemeralKeys: config.ephemeralKeys,
   });
 

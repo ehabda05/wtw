@@ -132,6 +132,23 @@ export const TEMPLATES = {
     `${p.day} works for ${p.everyone ? 'everyone' : p.count} if we push to ${p.time}. Want ${p.day} ${p.time}?`,
   timeShiftDone: (p: { bubble: string }) => `Moved it: ${p.bubble}.`,
   timeShiftKeep: (p: { time: string }) => `Okay, keeping ${p.time}.`,
+  timeMoved: (p: { time: string }) => `Changed the time to ${p.time}:`,
+  timeNoted: (p: { time: string }) => `Got it, ${p.time}. Which day?`,
+  timeTooSoon: (p: { time: string }) => `${p.time} has passed or is too soon; keeping the options as they are.`,
+  timeAlready: (p: { time: string; ids: string; how: 'tap' | 'reply' }) =>
+    `${p.time} is already there, options ${p.ids}; ${p.how === 'tap' ? 'tap ❤️ on' : 'reply with'} the one that works.`,
+
+  // ── intake ──
+  askActivity: () => `I'm in. What are we doing: dinner, drinks, brunch, or something else?`,
+
+  // ── demo quorum (QUORUM_DM_AFTER_MS) ──
+  quorumPing: (p: { who: string; dmd: boolean; by: string }) =>
+    p.dmd ? `Still need ${p.who}; I've asked them privately. No word by ${p.by} counts as not coming.` : `Still need ${p.who}: does any of these work? No word by ${p.by} counts as not coming.`,
+  dmQuorum: (p: { activity: string; options: string }) => `Homi here, from the group chat: does ${p.options} work for you for ${p.activity}? Reply yes, no, or a number.`,
+  dmThanks: () => `Got it, thanks. I'll tell the group.`,
+  quorumOut: (p: { who: string }) => `No word from ${p.who}, so I'm counting them as not coming.`,
+  noQuorum: (p: { yes: number; activity: string }) =>
+    `Only ${p.yes} can make it, so no ${p.activity} this time. Say "homi ${p.activity} next week" to try again.`,
 
   // ── commands ──
   statusNone: () => `No plan yet. Say "homi dinner next week?" to start one.`,
@@ -309,6 +326,16 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   timeShift: [[{ day: 'Fri', time: '8:30pm', count: 5, everyone: true }], [{ day: 'Fri', time: '8:30pm', count: 4, everyone: false }]],
   timeShiftDone: [[{ bubble: '2 · Fri Oct 23 · 8:30pm' }]],
   timeShiftKeep: [[{ time: '7pm' }]],
+  timeMoved: [[{ time: '8pm' }]],
+  timeNoted: [[{ time: '8pm' }]],
+  timeTooSoon: [[{ time: '8pm' }]],
+  timeAlready: [[{ time: '8pm', ids: '1 and 2', how: 'tap' }], [{ time: '8pm', ids: '1 and 2', how: 'reply' }]],
+  askActivity: [[]],
+  quorumPing: [[{ who: 'Sam and Jo', dmd: true, by: '6:45pm' }], [{ who: '2 people', dmd: false, by: 'tonight 6:45pm' }]],
+  dmQuorum: [[{ activity: 'dinner', options: '1 · Fri Oct 23 · 7pm' }]],
+  dmThanks: [[]],
+  quorumOut: [[{ who: 'Sam' }]],
+  noQuorum: [[{ yes: 1, activity: 'dinner' }]],
   statusNone: [[]],
   statusDates: [[{ activity: 'dinner' }]],
   statusAvail: [

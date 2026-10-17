@@ -336,3 +336,34 @@ test('logs never contain the token, message text, names or ids', async () => {
   assert.ok(cap.lines.length >= 4, 'something was logged');
   for (const bad of [TOKEN, TOKEN.split(':')[1], 'SECRET', '6175550123', 'Ana', 'ana_b', '987654321', '1001234567890']) assert.ok(!all.includes(bad), `log leaked ${bad}`);
 });
+
+test('group size: getChatMemberCount once per chat, delivered as a headcount (minus the bot) before the first group message; never for DMs', async () => {
+  const fake = fakeTelegram({
+    getChatMemberCount: () => 3,
+    getUpdates: pages(
+      [{ update_id: 20, message: msg(70, 'homi dinner next week?') }],
+      [{ update_id: 21, message: msg(71, 'fri works') }],
+      [{ update_id: 22, message: { ...msg(72, 'hi'), chat: { id: 987654321, type: 'private', first_name: 'Ana' } } }],
+    ),
+  });
+  const { ch, got } = channel(fake);
+  await ch.pollOnce();
+  await ch.pollOnce();
+  await ch.pollOnce();
+  assert.deepEqual(got.map((m) => m.kind), ['headcount', 'text', 'text', 'text']);
+  assert.equal(got[0].headcount, 2, '3 members including the bot -> 2 people');
+  assert.equal(got[0].spaceId, '-1001234567890');
+  assert.ok(got[0].msgId.startsWith('headcount:'));
+  assert.equal(fake.of('getChatMemberCount').length, 1, 'counted once per chat per process');
+  assert.deepEqual(fake.of('getChatMemberCount')[0].body, { chat_id: -1001234567890 });
+});
+
+test('group size: a failed getChatMemberCount is silent; the group is then learned as people speak', async () => {
+  const fake = fakeTelegram({
+    getChatMemberCount: () => apiErr(400, 'Bad Request: chat not found'),
+    getUpdates: pages([{ update_id: 30, message: msg(80, 'homi dinner next week?') }]),
+  });
+  const { ch, got } = channel(fake);
+  await ch.pollOnce();
+  assert.deepEqual(got.map((m) => m.kind), ['text']);
+});

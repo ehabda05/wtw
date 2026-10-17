@@ -191,6 +191,13 @@ export interface SpaceSettings {
   notice: boolean;                        // opt-in "offer when a plan is forming"
   lastNoticeOfferAt?: number;
   muted: boolean;                         // tombstone after stop on platforms that can't leave
+  /**
+   * Last roster the platform reported (surfaces with `roster`), kept so a plan that starts later knows who is in the
+   * group and waits for them, instead of treating the first speaker as "everyone". Hashed keys + display names only.
+   */
+  roster?: MemberRef[];
+  /** Member count from a platform that cannot list members (Telegram); the next plan's expected head count. */
+  headcount?: number;
   /** Group-level extension data (bill tab, trip, album), sealed with the settings. Each extension types its slot. */
   ext?: Partial<Record<ExtName, unknown>>;
 }
@@ -212,12 +219,20 @@ export interface Ctx {
   newId: () => string;        // injected so the engine stays deterministic in tests
   /** Public base URL for member-only links (shared album). Unset in tests; the sim uses a labeled demo URL. */
   publicBaseUrl?: string;
+  /**
+   * Demo quorum (QUORUM_DM_AFTER_MS > 0): `dmAfterMs` after the options go out, everyone who has not answered is
+   * asked privately (or named in the group); `replyMs` later the silent count as not coming, and the plan locks
+   * with at least `minYes` yes votes or is cancelled. Off in production unless set.
+   */
+  quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
   hostedLlm?: false;          // the pure engine never calls an LLM; runner may pre-annotate events
 }
 
 // ───────────────────────── events ─────────────────────────
 
 export type JobKind =
+  | 'quorum_dm'               // demo quorum: ping everyone who has not answered (DM where possible)
+  | 'quorum_close'            // demo quorum: count the silent as not coming, then lock (>= minYes) or cancel
   | 'availability_nudge'      // 50% of window
   | 'availability_escalate'   // ~2h before deadline (opt-in DM/call)
   | 'availability_deadline'
@@ -253,6 +268,8 @@ export type EngineEvent =
   | { kind: 'poll_vote'; from: MemberRef; poll: MsgRef; optionIndexes: number[] }
   | { kind: 'member_seen'; from: MemberRef; msgRef?: MsgRef }
   | { kind: 'members_snapshot'; members: MemberRef[] }
+  /** The platform only knows how many people are in the chat (Telegram getChatMemberCount, minus the bot). */
+  | { kind: 'headcount'; n: number }
   | { kind: 'added_to_group' }
   | { kind: 'sent'; tag: string; msgRef: MsgRef; at: number }
   | { kind: 'timer'; job: JobKind; planId: string; payload?: Record<string, unknown> }

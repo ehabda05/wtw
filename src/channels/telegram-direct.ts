@@ -186,6 +186,8 @@ export class TelegramDirectChannel implements ChannelAdapter {
   readonly #movedTo = new Map<string, string>();
   /** new chat id -> the space id the runner already knows (inbound alias, from live migrate notices only). */
   readonly #aliasOf = new Map<string, string>();
+  /** Chats whose member count was delivered this process (see #headcount). */
+  readonly #counted = new Set<string>();
   readonly #abort = new AbortController();
   #botId?: string;
   #botUsername?: string;
@@ -330,12 +332,29 @@ export class TelegramDirectChannel implements ChannelAdapter {
       }
       const alias = this.#aliasOf.get(ev.inbound.spaceId);
       const inbound = alias ? { ...ev.inbound, spaceId: alias } : ev.inbound;
+      if (inbound.isGroup) await this.#headcount(inbound.spaceId, inbound.at);
       const m = ev.file ? await this.#withPhoto(inbound, ev.file) : inbound;
       try {
         await this.#onInbound?.(m);
       } catch (err) {
         this.#log.warn('telegram-direct: inbound handler failed', { kind: m.kind, err });
       }
+    }
+  }
+
+  /**
+   * The Bot API cannot list group members, but it can count them. Once per chat per process (first group event),
+   * deliver the count minus the bot as a 'headcount' inbound, so the engine knows how many people to wait for.
+   */
+  async #headcount(spaceId: string, at: number): Promise<void> {
+    if (this.#counted.has(spaceId)) return;
+    this.#counted.add(spaceId);
+    try {
+      const n = num(await this.#toChat(spaceId, (chat_id) => this.#api.call('getChatMemberCount', { chat_id }, { timeoutMs: 5_000 })));
+      if (n === undefined || n < 2) return;
+      await this.#onInbound?.({ surface: 'telegram', spaceId, isGroup: true, kind: 'headcount', headcount: n - 1, msgId: `headcount:${spaceId}:${at}`, mentionsAgent: false, at });
+    } catch (err) {
+      this.#log.debug('telegram-direct: getChatMemberCount failed; the group size is learned as people speak', { err });
     }
   }
 

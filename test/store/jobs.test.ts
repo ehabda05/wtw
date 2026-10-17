@@ -73,3 +73,32 @@ test('job keys with spaces (i.e. text) are rejected by the schema', () => {
   const repo = mk();
   assert.throws(() => repo.jobs.upsert({ key: 'see you at 7', planId: 'p1', kind: 'remind_day', dueAt: 1 }));
 });
+
+test('every engine job kind is accepted by the jobs.kind CHECK (schema v3 adds the demo quorum jobs)', () => {
+  const repo = mk();
+  const kinds = [
+    'availability_nudge', 'availability_escalate', 'availability_deadline', 'bridge_timeout', 'dates_nudge', 'dates_abandon',
+    'details_nudge', 'hungry_deadline', 'remind_day', 'remind_hour', 'remind_30', 'complete', 'purge', 'ext', 'quorum_dm', 'quorum_close',
+  ] as const;
+  for (const kind of kinds) repo.jobs.upsert({ key: `p1:${kind}`, planId: 'p1', kind, dueAt: 100 });
+  assert.equal(repo.jobs.list().length, kinds.length);
+});
+
+test('migration v2 -> v3 rebuilds the jobs table and keeps its rows', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const { migrate, SCHEMA_VERSION } = await import('../../src/store/db.js');
+  const db = new DatabaseSync(':memory:');
+  // A v2 database: the jobs table without the quorum kinds, one pending job in it.
+  db.exec(`CREATE TABLE jobs (
+    job_key TEXT PRIMARY KEY, plan_id TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('availability_nudge', 'availability_deadline', 'remind_day', 'ext')),
+    due_at INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', payload BLOB, claimed_at INTEGER) STRICT;
+    CREATE INDEX jobs_by_due ON jobs (status, due_at); CREATE INDEX jobs_by_plan ON jobs (plan_id);
+    INSERT INTO jobs (job_key, plan_id, kind, due_at) VALUES ('p1:availability_deadline', 'p1', 'availability_deadline', 5);
+    PRAGMA user_version = 2;`);
+  migrate(db);
+  assert.equal((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, SCHEMA_VERSION);
+  assert.equal((db.prepare("SELECT count(*) AS n FROM jobs WHERE job_key = 'p1:availability_deadline'").get() as { n: number }).n, 1);
+  db.prepare("INSERT INTO jobs (job_key, plan_id, kind, due_at) VALUES ('p1:quorum_dm', 'p1', 'quorum_dm', 6)").run();
+  assert.equal(db.prepare("SELECT 1 FROM sqlite_master WHERE name = 'jobs_old'").get(), undefined, 'the old table is gone');
+});

@@ -43,7 +43,7 @@ One question:
 If the plan already has a neighborhood, the question drops "and roughly where".
 
 **Collect answers** until the first of these happens:
-- every known active member has answered;
+- every known active member has answered ("known" is the group roster where the platform reports one, such as a dedicated iMessage line; on Telegram the member count from `getChatMemberCount`; else everyone who has spoken since the plan started, and the first speaker alone is never "everyone" when a count is known);
 - someone says "just pick", "homi go" or "whatever you think";
 - 10 minutes pass (job `hungry_deadline`). Food is urgent, so there are no nudges here.
 

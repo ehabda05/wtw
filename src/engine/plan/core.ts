@@ -90,6 +90,34 @@ export function member(st: Step, ref: MemberRef): Member {
   return m;
 }
 
+/**
+ * A new plan starts with everyone the platform listed (iMessage dedicated lines report the roster), so "everyone
+ * answered" means the group, not just whoever spoke first. No roster: members appear as they speak, as before.
+ */
+export function seedRoster(st: Step): void {
+  const p = planOf(st);
+  if (!p) return;
+  const roster = st.s.space.roster ?? [];
+  if (roster.length) {
+    for (const ref of roster) member(st, ref);
+    p.rosterSize = roster.length;
+  } else if (st.s.space.headcount && !p.expectedHeadcount) {
+    // Telegram: only a count. "k of n" and the food flow wait for that many people.
+    p.expectedHeadcount = st.s.space.headcount;
+  }
+}
+
+/**
+ * Demo quorum: make the current group speaker reachable privately (the runner seals their handle). Replies the
+ * runner routed from a DM carry a "dm:" ref and have no group handle to remember.
+ */
+export function reachable(st: Step, m: Member | null, msgRef?: MsgRef): void {
+  const p = planOf(st);
+  if (!p || !m || !st.ctx.quorum || !st.ctx.caps.dm || m.hasDelivery || msgRef?.startsWith('dm:')) return;
+  m.hasDelivery = true;
+  st.acts.push({ type: 'remember_handle', member: m.key, planId: p.id });
+}
+
 /** Head-counting while a plan is open: the member exists, plus their last message ID (never text). */
 export function touch(st: Step, ref: MemberRef, msgRef?: MsgRef): Member | null {
   const p = planOf(st);

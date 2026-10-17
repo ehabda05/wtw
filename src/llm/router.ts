@@ -59,8 +59,14 @@ Rules:
 - One line, at most 200 characters, no explanation.
 - Casual wording maps onto the plain command: "break down the 84 between the 3 of us" -> "homi split 84 3 ways"; "everyone"/"all of us" with an amount -> "homi split <amount> <members> ways". Never write "me and 2 others".
 - When date options are open and the person says any day, whichever day, whatever most people pick, or that they are flexible, answer "all work". If they rule days out, answer like "anything but thu".
+- A message that names a time or a day for going out is a PLAN ("homi dinner tonight at 8pm", "homi lunch friday at 12:30"), even when it talks about eating; keep the exact time and day from the message. "homi find food" is only for picking a restaurant right now with no time named.
+- A day nobody proposed, while options are open, is a vote for that day ("wednesday works"). Correcting the time is "homi make it 8pm".
 Worked examples:
 "wait who's actually coming so far" -> "homi where are we at"
+"plan something for 8 pm to eat out" -> "homi dinner tonight at 8pm"
+"can we grab lunch sat around 1" -> "homi lunch saturday at 1pm"
+"i was thinking wednesday tbh" (options Thu, Fri, Sat) -> "wednesday works"
+"i said 8 not 9" -> "homi make it 8pm"
 "can u break down the 84 dollar uber between the 3 of us" -> "homi split 84 3 ways"
 "honestly whatever day most people can do is fine by me" -> "all work"
 "im down for whenever just not the weekend" (options Thu, Fri, Sat) -> "anything but sat"
@@ -212,14 +218,19 @@ export interface RouterSetup {
   repair: RepairFn | null;
   /** One startup line; never contains the key. */
   note: string;
+  /** HOMI_LLM_FIRST=on: Claude reads every addressed message first (Runner dep `llmFirst`). */
+  first: boolean;
 }
+
+const FLAG_ON = /^(1|true|yes|on)$/i;
 
 export const NOTE_ON = 'LLM fallback ON (Claude, redacted snippets)';
 
 /** The production switch (src/index.ts): DISABLE_HOSTED_LLM=false AND ANTHROPIC_API_KEY. */
 export function routerFromConfig(c: { disableHostedLlm: boolean; anthropicApiKey?: string }, env: NodeJS.ProcessEnv = process.env): RouterSetup {
   const cfg: RouterConfig = { disableHostedLlm: c.disableHostedLlm, apiKey: c.anthropicApiKey, model: env.HOMI_LLM_MODEL?.trim() || undefined };
-  return isEnabled(cfg) ? { repair: makeRepair(cfg), note: NOTE_ON } : { repair: null, note: 'LLM fallback OFF' };
+  const first = FLAG_ON.test((env.HOMI_LLM_FIRST ?? '').trim());
+  return isEnabled(cfg) ? { repair: makeRepair(cfg), note: NOTE_ON, first } : { repair: null, note: 'LLM fallback OFF', first };
 }
 
 /**
@@ -237,9 +248,10 @@ export function routerFromEnv(env: NodeJS.ProcessEnv = process.env, dotEnvPath =
   const get = (k: string) => (env[k] || file[k] || '').trim();
   const flag = get('HOMI_LLM');
   const off = /^(0|false|no|off)$/i.test(flag);
-  const optedIn = !off && (/^(1|true|yes|on)$/i.test(flag) || /^(0|false|no|off)$/i.test(get('DISABLE_HOSTED_LLM')));
-  if (!optedIn) return { repair: null, note: 'LLM fallback OFF (set HOMI_LLM=on and ANTHROPIC_API_KEY to enable)' };
+  const optedIn = !off && (FLAG_ON.test(flag) || /^(0|false|no|off)$/i.test(get('DISABLE_HOSTED_LLM')));
+  const first = FLAG_ON.test(get('HOMI_LLM_FIRST'));
+  if (!optedIn) return { repair: null, note: 'LLM fallback OFF (set HOMI_LLM=on and ANTHROPIC_API_KEY to enable)', first };
   const apiKey = get('ANTHROPIC_API_KEY');
-  if (!apiKey) return { repair: null, note: 'LLM fallback OFF: HOMI_LLM is on but ANTHROPIC_API_KEY is not set' };
-  return { repair: makeRepair({ disableHostedLlm: false, apiKey, model: get('HOMI_LLM_MODEL') || undefined }), note: NOTE_ON };
+  if (!apiKey) return { repair: null, note: 'LLM fallback OFF: HOMI_LLM is on but ANTHROPIC_API_KEY is not set', first };
+  return { repair: makeRepair({ disableHostedLlm: false, apiKey, model: get('HOMI_LLM_MODEL') || undefined }), note: first ? `${NOTE_ON}; Claude-first ON` : NOTE_ON, first };
 }

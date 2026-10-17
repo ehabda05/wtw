@@ -16,7 +16,7 @@ export interface ChannelInbound {
   /** Raw platform space (chat) id. The runner hashes it into a SpaceKey and seals the raw value for routing. */
   spaceId: string;
   isGroup: boolean;
-  kind: 'text' | 'reaction' | 'poll_vote' | 'added_to_group' | 'members' | 'photo' | 'other';
+  kind: 'text' | 'reaction' | 'poll_vote' | 'added_to_group' | 'members' | 'headcount' | 'photo' | 'other';
   from?: InboundUser;
   /** Transient. Never persisted, never logged. */
   text?: string;
@@ -29,6 +29,8 @@ export interface ChannelInbound {
   reaction?: { emoji: string; target: MsgRef; removed?: boolean };
   poll?: { pollId: MsgRef; optionIndexes: number[] };
   members?: InboundUser[];
+  /** kind 'headcount': people in the chat besides the agent, where the platform only gives a count (Telegram). */
+  headcount?: number;
   /** kind 'photo': image bytes (in memory only until the runner hands them to the album store); caption in `text`. */
   photo?: { mime: string; bytes: Uint8Array; name?: string };
   at: number;

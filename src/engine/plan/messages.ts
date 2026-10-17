@@ -4,14 +4,14 @@
 
 import type { MessageEvent } from '../types.js';
 import { TEMPLATES as T } from '../templates.js';
-import { UNADDRESSED_COMMANDS, detectAddressed, isHangoutPhrase, parseCommand, stripAddress } from '../parse.js';
+import { UNADDRESSED_COMMANDS, detectAddressed, isBareNo, isBareYes, isHangoutPhrase, parseCommand, preferredTime, stripAddress } from '../parse.js';
 import { foodTrigger, planOrFood } from '../intent.js';
 import { gateUnprompted } from '../nudge.js';
 import { activeOptions } from '../schedule.js';
 import { DAY } from '../util.js';
-import { type Step, P, intro, isHomiRef, member, planOf, say, touch, tzOf } from './core.js';
+import { type Step, P, intro, isHomiRef, member, planOf, reachable, say, touch, tzOf } from './core.js';
 import { onCommand } from './commands.js';
-import { openAvailability, startPlan, tryTextVote, windowReply } from './availability.js';
+import { activityReply, openAvailability, proposeDay, rollPastDay, startPlan, tryTextVote, windowReply } from './availability.js';
 import { timeShiftAnswer } from './bridges.js';
 import { maybeEarlyLock } from './lock.js';
 import { onPlaceMessage, pushHungry, startInstant } from './place.js';
@@ -50,7 +50,7 @@ export function onMessage(st: Step, ev: MessageEvent): void {
   const text = ev.text ?? '';
   const addressed = ev.addressed || detectAddressed(text) || isHomiRef(planOf(st), ev.replyTo);
   const body = stripAddress(text);
-  if (planOf(st)) touch(st, ev.from, ev.msgRef);
+  if (planOf(st)) reachable(st, touch(st, ev.from, ev.msgRef), ev.msgRef);
   // Bills, travel, commitments and the album get first look (src/engine/ext).
   for (const x of EXTENSIONS) if (x.onMessage?.(st, ev, body, addressed)) return;
   const cmd = parseCommand(body);
@@ -65,18 +65,27 @@ export function onMessage(st: Step, ev: MessageEvent): void {
   };
   switch (p.state) {
     case 'collecting_dates': {
-      const win = windowReply(st, body, addressed);
+      if (activityReply(st, body, addressed)) return;
+      let win = windowReply(st, body, addressed);
+      // "friday 7pm" as the answer to "when?": the time counts too.
+      const pt = win ? preferredTime(body) : undefined;
+      if (pt) p.preferredTime = pt;
+      if (win && p.preferredTime) win = rollPastDay(win, p.preferredTime, now, tz);
       if (win && openAvailability(st, win, 'prompted')) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, T.askWhen());
       return;
     }
     case 'collecting_availability': {
+      // Someone Homi just asked (demo quorum) answers with a bare "yes" / "no" / "1": that is their vote, addressed or not.
+      const askedMe = p.quorumAskedAt !== undefined && member(st, ev.from).status === 'pending' && (isBareYes(body) || isBareNo(body) || /^[1-9]$/.test(body.trim()));
+      const voteAddressed = addressed || askedMe;
       if (timeShiftAnswer(st, ev, body)) {
-        if (!tryTextVote(st, ev, body, addressed)) maybeEarlyLock(st, 'prompted');
+        if (!tryTextVote(st, ev, body, voteAddressed)) maybeEarlyLock(st, 'prompted');
         return;
       }
-      if (tryTextVote(st, ev, body, addressed)) return;
+      if (tryTextVote(st, ev, body, voteAddressed)) return;
+      if (proposeDay(st, ev, body, addressed)) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, planOrFood(body, now, tz) === 'plan' ? T.alreadyPlan() : T.whichOnes({ ids: idList(st) }));
       return;

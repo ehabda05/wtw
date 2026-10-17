@@ -10,21 +10,22 @@ import { cuisinesIn } from './hungry.js';
 
 // ───────────────────────── addressing ─────────────────────────
 
-const LEAD = /^\s*(?:(?:hey|hi|hello|yo|ok|okay|oi)\s*,?\s+)?@?homi(?![\w'’])[\s,:;!.\-]*/i;
+// "homi", and the typos people actually make on a phone: "hommi", "homii", "hommii" (never "homie", which is slang).
+const LEAD = /^\s*(?:(?:hey|hi|hello|yo|ok|okay|oi)\s*,?\s+)?@?hom+i+(?![\w'’])[\s,:;!.\-]*/i;
 
 /** True for a leading "homi" / "@homi" / "hey homi", a "/command", an @homi mention, or "homi" followed by , or ?. */
 export function detectAddressed(text: string): boolean {
   const t = normText(text);
   if (/^\/[a-z]/.test(t)) return true;
   if (LEAD.test(t)) return true;
-  if (/@homi(?![\w'])/.test(t)) return true;
-  if (/(?:^|[^\w'])homi\s*[,?]/.test(t)) return true;
+  if (/@hom+i+(?![\w'])/.test(t)) return true;
+  if (/(?:^|[^\w'])hom+i+\s*[,?]/.test(t)) return true;
   return midCommand(t) !== null;
 }
 
 /** "wait homi what do you know": a short lead-in, then "homi" and a recognized command. */
 function midCommand(text: string): string | null {
-  const m = text.match(/^((?:[\w']+[\s,]+){1,3})homi(?![\w'])[\s,:]+(.+)$/i);
+  const m = text.match(/^((?:[\w']+[\s,]+){1,3})hom+i+(?![\w'])[\s,:]+(.+)$/i);
   if (!m) return null;
   const cmd = parseCommand(m[2]);
   return cmd && !['yes', 'no', 'go'].includes(cmd.kind) ? m[2] : null;
@@ -34,8 +35,8 @@ function midCommand(text: string): string | null {
 export function stripAddress(text: string): string {
   let t = text.replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"').replace(/️/g, '').trim();
   t = midCommand(t) ?? t.replace(LEAD, '');
-  t = t.replace(/[\s,]*@?homi[\s?!.]*$/i, (m) => (m.includes('?') ? '?' : ''));
-  t = t.replace(/@homi(?![\w'])\s*/gi, '');
+  t = t.replace(/[\s,]*@?hom+i+[\s?!.]*$/i, (m) => (m.includes('?') ? '?' : ''));
+  t = t.replace(/@hom+i+(?![\w'])\s*/gi, '');
   t = t.replace(/^\/([a-z]+)@\w+/i, '/$1');
   return t.replace(/\s+/g, ' ').trim();
 }
@@ -102,7 +103,7 @@ const MONTHS: Record<string, number> = {
   jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
 };
 
-function nextOccurrence(today: string, wd: number, includeToday = true): string {
+export function nextOccurrence(today: string, wd: number, includeToday = true): string {
   const cur = weekdayOf(today);
   let delta = (wd - cur + 7) % 7;
   if (delta === 0 && !includeToday) delta = 7;
@@ -234,11 +235,28 @@ function ordSuffix(n: number): string {
 
 /** "at 8", "at 7:30pm" in a trigger -> "HH:mm" (evening by default). */
 export function preferredTime(text: string): string | undefined {
-  const m = normText(text).match(/\bat (\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
+  const t = normText(text);
+  // "at 8", "at 7:30pm", or a bare clock time with am/pm anywhere ("dinner friday 7pm").
+  const m = t.match(/\bat (\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/) ?? t.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/);
   if (!m) return undefined;
   const h = toHour(Number(m[1]), m[3], true);
   if (h === null) return undefined;
   return hm(h, Number(m[2] ?? 0));
+}
+
+/**
+ * A trailing "at <place>" in a plan trigger ("dinner tonight at 8pm at halal guys" -> "halal guys"). Never a time,
+ * a day or a meal word; at most six words. The place text is something the member handed Homi on purpose.
+ */
+export function placeIn(text: string): string | undefined {
+  const m = text.trim().replace(/[?!.]+$/, '').match(/\b(?:at|@)\s+([a-z][\w'&.-]*(?:\s+[\w'&.-]+){0,5})$/i);
+  if (!m) return undefined;
+  const cand = m[1].trim();
+  const n = normText(cand);
+  if (/^\d/.test(n)) return undefined;
+  if (/\b(?:am|pm|tonight|today|tomorrow|noon|midnight|night|evening|morning|lunch|dinner|brunch|breakfast|least|most|all|some|first|last|latest|earliest|home|mine|yours|ours)\b/.test(n)) return undefined;
+  if (dayTokens(n).length) return undefined;
+  return clean(cand, 80) || undefined;
 }
 
 function toHour(h: number, ampm: string | undefined, evening: boolean): number | null {
@@ -420,6 +438,16 @@ export function parseCommand(body: string): Command | null {
   if (head) return { kind: 'headcount', n: Number(head[1]) };
   const tz = raw.match(/^(?:we'?re|we are) (?:in|based in|located in) (.+?)(?: time)?[.!]*$/i) ?? raw.match(/^(?:time ?zone|tz)[:\s]+(.+)$/i);
   if (tz && !/^(?:for|on|at)\b/i.test(tz[1])) return { kind: 'tz', place: tz[1].trim() };
+
+  // "make it 8pm", "can we do 7:30 instead", "I said 8 pm why ...", "8pm instead": a time for the open plan.
+  const setTime =
+    b.match(/^(?:(?:can|could) we |let'?s |lets |pls |please |ok |okay )?(?:make it|do it at|do|change (?:it|the time|time) to|move (?:it )?to|push (?:it )?to|switch (?:it )?to|how about|what about|at)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?(?:\s+(?:instead|please|pls|tonight|today|then|works|is better|would be better))*$/) ??
+    b.match(/^(?:i said|i meant|i wanted|i asked for|it was|it'?s|its)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/) ??
+    b.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)(?:\s+(?:instead|please|pls|tonight|today|works|is better|would be better))*$/);
+  if (setTime) {
+    const h = toHour(Number(setTime[1]), setTime[3], true);
+    if (h !== null) return { kind: 'set_time', time: hm(h, Number(setTime[2] ?? 0)) };
+  }
 
   const place =
     raw.match(/^(?:we'?re|we are) (?:going|heading|meeting|eating) (?:to|at) (.+)$/i) ??

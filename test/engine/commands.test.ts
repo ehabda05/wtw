@@ -84,7 +84,8 @@ test('notice mode: opt-in, offers once per 24h on "we should hang out", gated li
   assert.equal(joined(offer), 'Want me to make that happen? Reply "homi yes" and I\'ll find a date.');
   assert.equal(ofType(offer, 'send')[0].prompting, 'unprompted');
   assert.deepEqual(h.say('jo', 'yes we should hang out'), []);
-  assert.match(joined(h.say('ana', 'homi yes')), /Roughly when/);
+  assert.match(joined(h.say('ana', 'homi yes')), /What are we doing/);
+  assert.match(joined(h.say('ana', 'dinner')), /Roughly when/);
   const off = new Harness({ start: '2026-10-17T12:00:00-04:00' });
   off.say('x', 'hey all');
   assert.deepEqual(off.say('ben', 'we should hang out this week!!'), []);

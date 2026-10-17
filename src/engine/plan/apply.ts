@@ -87,8 +87,17 @@ export function applyEvent(state: GroupState, event: EngineEvent, ctx: Ctx): App
       break;
     case 'members_snapshot': {
       intro(st);
+      // Remembered for the next plan (first sight is usually before any plan exists), and applied to an open one.
+      st.s.space.roster = event.members.slice(0, 64).map((r) => ({ key: r.key, ...(r.platformName ? { platformName: r.platformName } : {}) }));
       const p = planOf(st);
       if (p && isOpen(p)) for (const ref of event.members) member(st, ref);
+      break;
+    }
+    case 'headcount': {
+      // Telegram: no member list, but a count. Remembered for the next plan; an open plan gets it as its head count.
+      st.s.space.headcount = event.n;
+      const p = planOf(st);
+      if (p && isOpen(p) && !p.expectedHeadcount) p.expectedHeadcount = event.n;
       break;
     }
     case 'added_to_group': intro(st); break;

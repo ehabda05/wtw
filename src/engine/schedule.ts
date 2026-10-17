@@ -92,6 +92,9 @@ export function generateOptions(input: GenerateInput): Option[] {
 
   if (window.single || days.length === 1) {
     const day = days[0];
+    // "dinner tonight at 8pm": the member named the time, so that is the option (30 min notice is their call,
+    // not ours). Only when it has already passed do we fall back to generated times.
+    if (input.time && atLocal(day, input.time, tz) >= now + 30 * MIN) return mk([{ day, time: input.time }]);
     const base = input.time ? [shiftTime(input.time, -60), input.time, shiftTime(input.time, 60)] : dayTimes(activity);
     const slots = base.map((time) => ({ day, time })).filter((s) => atLocal(s.day, s.time, tz) >= minStart);
     // Late in the day: offer what is left, in one-hour steps until 22:30.
@@ -105,7 +108,8 @@ export function generateOptions(input: GenerateInput): Option[] {
     return mk(slots.slice(0, 3));
   }
 
-  const cands = days.filter((d) => atLocal(d, timeFor(d), tz) >= minStart);
+  // An explicit time keeps a same-day option that is less than 3h away ("fri or sat at 8" said Friday at 6).
+  const cands = days.filter((d) => atLocal(d, timeFor(d), tz) >= (input.time ? now + 30 * MIN : minStart));
   if (cands.length === 0) return [];
 
   if (window.explicit) return mk(cands.slice(0, 5).map((d) => ({ day: d, time: timeFor(d) })));
@@ -133,6 +137,11 @@ export function generateOptions(input: GenerateInput): Option[] {
  * half hour. In quiet hours it moves to 9:30am, or to 10:30pm the evening before if 9:30am would be too late.
  */
 export function computeDeadline(firstStartsAt: number, now: number, tz: string, qh: [number, number]): number {
+  // Short notice ("dinner tonight at 8pm" said at 5:45): decide halfway there, never at or after the start.
+  if (firstStartsAt - now < 4 * HOUR) {
+    const half = roundUp(now + Math.max(30 * MIN, (firstStartsAt - now) / 2), 15 * MIN);
+    return Math.max(now + 15 * MIN, Math.min(half, firstStartsAt - 30 * MIN));
+  }
   let d = Math.min(now + 24 * HOUR, firstStartsAt - 6 * HOUR);
   d = Math.max(d, now + 2 * HOUR);
   d = roundUp(d, 30 * MIN);

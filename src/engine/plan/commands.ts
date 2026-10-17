@@ -11,7 +11,7 @@ import { activeOptions, chooseOption } from '../schedule.js';
 import { DAY, MIN, isValidZone } from '../util.js';
 import { type Step, P, newGroupState, planOf, purgePlan, say, schedule, member, tzOf } from './core.js';
 import { confirmPlan, lockOption, maybeEarlyLock } from './lock.js';
-import { openAvailability, startPlan } from './availability.js';
+import { openAvailability, setTime, startPlan } from './availability.js';
 import { closePlaces, pushHungry, setPlaceText, startInstant, startSearch } from './place.js';
 import { calendar, noteGet, notesList, splitText, statusText, whyText } from './status.js';
 import { EXTENSIONS } from '../ext/index.js';
@@ -180,6 +180,7 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
     case 'note_get': say(st, noteGet(st, cmd.key)); return true;
     case 'notes': say(st, notesList(st)); return true;
     case 'place_set': setPlaceText(st, cmd.place); return true;
+    case 'set_time': return p ? setTime(st, ev, cmd.time) : false;
     case 'no_place':
       if (p.state !== 'collecting_details') return false;
       confirmPlan(st, 'prompted');

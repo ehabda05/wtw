@@ -4,14 +4,14 @@ import type { MemberKey, Prompting } from '../types.js';
 import type { LockReason } from '../model.js';
 import { TEMPLATES as T } from '../templates.js';
 import {
-  activeOptions, answeredCount, chooseOption, counts, detectStranded, effectiveVote, everyoneAnswered, optionShortNames,
+  activeOptions, answeredCount, chooseOption, counts, detectStranded, effectiveVote, everyoneAnswered, groupSize, optionShortNames,
 } from '../schedule.js';
 import { outOfQuiet, whoLabel } from '../nudge.js';
 import { DAY, HOUR, MIN, cardWhen } from '../util.js';
-import { type Step, P, cancel, say, schedule, tzOf } from './core.js';
+import { type Step, P, cancel, purgePlan, say, schedule, tzOf } from './core.js';
 
 export function cancelAvailabilityJobs(st: Step): void {
-  cancel(st, 'availability_nudge', 'availability_escalate', 'availability_deadline', 'escalate-timeout', 'dates_abandon', 'dates_nudge', 'bridge_timeout');
+  cancel(st, 'availability_nudge', 'availability_escalate', 'availability_deadline', 'escalate-timeout', 'dates_abandon', 'dates_nudge', 'bridge_timeout', 'quorum_dm', 'quorum_close');
 }
 
 const EVENT_JOBS = ['remind_day', 'weather', 'remind_hour', 'remind_30', 'complete', 'purge', 'details_nudge'];
@@ -117,6 +117,13 @@ export function lockOption(st: Step, id: number, how: LockReason, prompting: Pro
   const o = activeOptions(p).find((x) => x.id === id);
   if (!o) return;
   const now = st.ctx.now;
+  // Demo quorum: an automatic lock needs at least minYes people; one person is not a plan. (A forced "homi lock fri" still is.)
+  const q = st.ctx.quorum;
+  if (q && (how === 'everyone' || how === 'deadline' || how === 'threshold') && counts(p, o).yes < q.minYes) {
+    say(st, T.noQuorum({ yes: counts(p, o).yes, activity: p.activity }), prompting);
+    purgePlan(st);
+    return;
+  }
   p.chosenOptionId = id;
   p.eventAt = o.startsAt;
   p.lockedBy = how;
@@ -165,6 +172,16 @@ export function maybeEarlyLock(st: Step, prompting: Prompting): boolean {
   const p = P(st);
   if (p.state !== 'collecting_availability' || p.bridge) return false;
   const ch = chooseOption(p);
+  // Demo quorum: once everyone is accounted for (answered or out) and fewer than minYes can make it, it is no plan.
+  const q = st.ctx.quorum;
+  if (q && answeredCount(p) >= groupSize(p) && !Object.values(p.members).some((m) => m.status === 'pending')) {
+    const yes = ch ? (ch.ranked.find((r) => r.id === ch.optionId)?.yes ?? 0) : 0;
+    if (yes < q.minYes) {
+      say(st, T.noQuorum({ yes, activity: p.activity }), prompting);
+      purgePlan(st);
+      return true;
+    }
+  }
   if (!ch) return false;
   const score = (id: number) => ch.ranked.find((r) => r.id === id)?.score ?? 0;
   if (p.threshold) {

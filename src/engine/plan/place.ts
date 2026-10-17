@@ -9,8 +9,9 @@ import {
   hasTaste, mergeTaste, placeEmoji, placesHeader, nearOf, newHungry, parseTaste, placeBubbleParts, placesQuery, rankPlaces,
 } from '../hungry.js';
 import { TRAIL, detectActivity, stripAddress } from '../parse.js';
+import { activeMembers, groupSize } from '../schedule.js';
 import { MIN, local, normText } from '../util.js';
-import { type Step, P, availabilityOpen, cancel, howOf, member, planOf, purgePlan, react, say, schedule, touch, tzOf } from './core.js';
+import { type Step, P, availabilityOpen, cancel, howOf, member, planOf, purgePlan, reachable, react, say, schedule, seedRoster, touch, tzOf } from './core.js';
 import { confirmPlan, maybeEarlyLock, scheduleEventJobs } from './lock.js';
 import { tryTextVote } from './availability.js';
 
@@ -57,13 +58,15 @@ export function startInstant(st: Step, from: MemberRef, msgRef: string | undefin
     members: {}, notes: {}, nudges: [], refs: { options: {}, placeOptions: {} }, createdAt: now, updatedAt: now,
   };
   st.s.plan = p;
-  touch(st, from, msgRef);
+  reachable(st, touch(st, from, msgRef), msgRef);
+  seedRoster(st);
   pushHungry(st, from, body, prompting, true);
 }
 
+/** Everyone Homi knows is in (roster, people seen, or the stated / platform head count) has answered. */
 function allAnswered(p: EnginePlan, h: EngineHungry): boolean {
   const active = Object.values(p.members).filter((m) => m.status !== 'out');
-  return active.length > 0 && active.every((m) => h.answeredBy.includes(m.key));
+  return active.length > 0 && active.every((m) => h.answeredBy.includes(m.key)) && h.answeredBy.length >= groupSize(p);
 }
 
 export function startSearch(st: Step): void {
@@ -131,13 +134,20 @@ export function onPlaceMessage(st: Step, ev: MessageEvent, body: string, address
   if (availabilityOpen(p)) tryTextVote(st, ev, body, addressed);
 }
 
-/** Text votes replace; tapbacks add. Closes as soon as a majority of the answerers voted. */
+/**
+ * Text votes replace; tapbacks add. Closes as soon as a majority voted: of the people who answered the food
+ * question, or of the platform roster when there is one (a dedicated iMessage line), whichever is larger. So in a
+ * group of two the first "1" waits for the second person (or the vote deadline), as in the demo.
+ */
 export function placeVote(st: Step, key: MemberKey, id: number, mode: 'set' | 'add'): void {
-  const h = P(st).hungry as EngineHungry;
+  const p = P(st);
+  const h = p.hungry as EngineHungry;
   if (h.phase !== 'voting' || !h.options.some((o) => o.id === id)) return;
   const cur = h.votes[key] ?? [];
   h.votes[key] = mode === 'set' ? [id] : cur.includes(id) ? cur : [...cur, id];
-  const n = Math.max(h.answeredBy.length, 1);
+  const roster = p.rosterSize ? Math.min(p.rosterSize, activeMembers(p).length) : 0;
+  const counted = p.expectedHeadcount ? groupSize(p) : 0;
+  const n = Math.max(h.answeredBy.length, roster, counted, 1);
   if (Object.keys(h.votes).length >= Math.floor(n / 2) + 1) closePlaces(st, 'prompted');
 }
 

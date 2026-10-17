@@ -127,6 +127,57 @@ function availabilityDeadline(st: Step, payload?: Record<string, unknown>): void
   lockOption(st, ch.optionId, 'deadline', 'unprompted');
 }
 
+/**
+ * Demo quorum, step 1 (QUORUM_DM_AFTER_MS after the options): everyone still silent is asked privately where Homi
+ * has their handle, and named in the group either way; the close is scheduled QUORUM_REPLY_MS later.
+ */
+function quorumDm(st: Step): void {
+  const p = P(st);
+  const q = st.ctx.quorum;
+  if (!q) return;
+  const now = st.ctx.now;
+  if (p.state === 'collecting_place' && p.stack.includes('collecting_availability')) return defer(st, 'quorum_dm', now + 15 * MIN);
+  if (p.state !== 'collecting_availability') return;
+  const pend = Object.values(p.members).filter((m) => m.status === 'pending');
+  const unknown = Math.max(0, groupSize(p) - activeMembers(p).length);
+  if (!pend.length && !unknown) return;
+  const dmOptions = listJoin(activeOptions(p).map((o) => `${o.id} · ${o.label}`), 'or');
+  let dmd = 0;
+  for (const m of pend) {
+    if (!st.ctx.caps.dm || !m.hasDelivery) continue;
+    st.acts.push({ type: 'dm', member: m.key, text: T.dmQuorum({ activity: p.activity, options: dmOptions }), planId: p.id });
+    p.nudges.push({ at: now, kind: 'dm', target: m.key });
+    m.nudgeCount++;
+    dmd++;
+  }
+  const closeAt = now + q.replyMs;
+  p.quorumAskedAt = now;
+  say(st, T.quorumPing({ who: whoLabel(pend, unknown), dmd: dmd > 0, by: relLabel(closeAt, now, tzOf(st)) }), 'prompted');
+  schedule(st, 'quorum_close', closeAt);
+}
+
+/** Demo quorum, step 2: the silent count as not coming; then lock with >= minYes yes votes, or cancel the plan. */
+function quorumClose(st: Step): void {
+  const p = P(st);
+  const q = st.ctx.quorum;
+  if (!q) return;
+  const now = st.ctx.now;
+  if (p.state === 'collecting_place' && p.stack.includes('collecting_availability')) return defer(st, 'quorum_close', now + 15 * MIN);
+  if (p.state !== 'collecting_availability') return;
+  const pend = Object.values(p.members).filter((m) => m.status === 'pending');
+  const unknown = Math.max(0, groupSize(p) - activeMembers(p).length);
+  for (const m of pend) m.status = 'out';
+  if (unknown > 0) p.expectedHeadcount = undefined; // whoever never spoke is not coming either
+  if (pend.length || unknown) say(st, T.quorumOut({ who: whoLabel(pend, unknown) }), 'prompted');
+  const ch = chooseOption(p);
+  const yes = ch ? counts(p, activeOptions(p).find((o) => o.id === ch.optionId)!).yes : 0;
+  if (!ch || yes < q.minYes) {
+    say(st, T.noQuorum({ yes, activity: p.activity }), 'prompted');
+    return purgePlan(st);
+  }
+  lockOption(st, ch.optionId, 'everyone', 'prompted');
+}
+
 function whatOf(st: Step): string {
   const p = P(st);
   if (p.place) return p.place.address ? `${p.place.name}, ${p.place.address}` : p.place.name;
@@ -174,6 +225,8 @@ export function onTimer(st: Step, ev: Timer): void {
   }
   const now = st.ctx.now;
   switch (ev.job) {
+    case 'quorum_dm': return quorumDm(st);
+    case 'quorum_close': return quorumClose(st);
     case 'availability_nudge': return availabilityNudge(st);
     case 'availability_escalate': return; // folded into the 50% nudge (coordinator rule); kept for old jobs
     case 'availability_deadline': return availabilityDeadline(st, ev.payload);

@@ -49,6 +49,13 @@ export interface Config {
   };
   disableHostedLlm: boolean;
   anthropicApiKey?: string;
+  /** HOMI_LLM_FIRST=on: Claude reads every addressed message first (docs/PRIVACY.md §3). Needs the LLM switch on. */
+  llmFirst: boolean;
+  /**
+   * Demo quorum: QUORUM_DM_AFTER_MS (0 = off) after the options go out, the silent are asked privately; QUORUM_REPLY_MS
+   * later they count as not coming; the plan locks with MIN_ATTENDEES yes votes or is cancelled.
+   */
+  quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
   retentionHours: number;
   /** [startHour, endHour] in group-local time, e.g. [23, 9]. */
   quietHours: [number, number];
@@ -271,6 +278,8 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
     demoMode: bool(env, 'DEMO_MODE', false),
     disableHostedLlm: bool(env, 'DISABLE_HOSTED_LLM', true),
     anthropicApiKey: str(env, 'ANTHROPIC_API_KEY'),
+    llmFirst: bool(env, 'HOMI_LLM_FIRST', false),
+    quorum: parseQuorum(env),
     retentionHours,
     quietHours: parseQuietHours(str(env, 'QUIET_HOURS')),
     defaultTz: str(env, 'DEFAULT_TZ') ?? 'America/New_York',
@@ -285,6 +294,15 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
     port: int(env, 'PORT', 8787),
     logLevel: logLevel as LogLevel,
   };
+}
+
+/** QUORUM_DM_AFTER_MS > 0 switches the demo quorum on; QUORUM_REPLY_MS defaults to 15 s, MIN_ATTENDEES to 2. */
+export function parseQuorum(env: NodeJS.ProcessEnv): Config['quorum'] {
+  const dmAfterMs = int(env, 'QUORUM_DM_AFTER_MS', 0);
+  if (dmAfterMs <= 0) return undefined;
+  const replyMs = Math.max(1000, int(env, 'QUORUM_REPLY_MS', 15_000));
+  const minYes = Math.max(1, int(env, 'MIN_ATTENDEES', 2));
+  return { dmAfterMs: Math.max(1000, dmAfterMs), replyMs, minYes };
 }
 
 /** True when a hosted LLM call is allowed at all (PRIVACY.md §3): explicitly enabled AND a key is set. */

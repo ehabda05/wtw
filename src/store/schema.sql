@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   kind       TEXT    NOT NULL
              CHECK (kind IN ('availability_nudge', 'availability_escalate', 'availability_deadline', 'bridge_timeout',
                              'dates_nudge', 'dates_abandon', 'details_nudge', 'hungry_deadline', 'remind_day',
-                             'remind_hour', 'remind_30', 'complete', 'purge', 'ext')),
+                             'remind_hour', 'remind_30', 'complete', 'purge', 'ext', 'quorum_dm', 'quorum_close')),
   due_at     INTEGER NOT NULL,
   status     TEXT    NOT NULL DEFAULT 'pending'
              CHECK (status IN ('pending', 'firing', 'done', 'failed')),

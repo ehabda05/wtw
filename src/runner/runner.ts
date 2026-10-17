@@ -17,6 +17,7 @@ import { Executor, type SentInfo } from './executor.js';
 import type { CallResult, EngineApi, PlacesService, VoiceService } from './services.js';
 import type { ActionHandler, PhotoStore } from './handlers/types.js';
 import { restorePlaceholders, type RepairFn } from '../llm/router.js';
+import { TEMPLATES } from '../engine/templates.js';
 import { NameMemory, REPAIR_TIMEOUT_MS, RepairTimeout, knownNamesFor, onlyGenericFallback, repairContext, skipRepair, withTimeout } from './repair.js';
 
 export { type EngineApi } from './services.js';
@@ -87,6 +88,8 @@ export interface RunnerConfig {
   retentionHours: number;
   quietHours: [number, number];
   defaultTz: string;
+  /** Demo quorum timers (Ctx.quorum; config.ts parseQuorum). */
+  quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
 }
 
 export interface RunnerDeps {
@@ -116,6 +119,12 @@ export interface RunnerDeps {
    * ADDRESSED message whose engine result is only a generic fallback; the engine then re-runs on the rewrite.
    */
   repairWithLlm?: RepairFn;
+  /**
+   * HOMI_LLM_FIRST=on: Claude reads every ADDRESSED message first (same router, same redaction), except exact
+   * commands and availability replies the local parser already understands. Its rewrite wins whenever the engine
+   * gives it a real answer; otherwise the local result stands. Needs repairWithLlm.
+   */
+  llmFirst?: boolean;
   /** Budget for one repair call (default 4000 ms); on timeout the original reply stands. */
   repairTimeoutMs?: number;
   /** Names always redacted before a repair call (e.g. the demo personas), besides the ones Homi has seen. */
@@ -128,6 +137,13 @@ export interface RunnerDeps {
 }
 
 const DEMO_FF = /^\s*@?homi[,:]?\s+demo\s+ff\s+((?:\d+[smhd])+)\s*$/i;
+
+/** Plan talk worth a redacted look when Claude-first listens to unaddressed messages (see #worthListening). */
+const LISTEN =
+  /\b(?:mon|tue|tues|wed|weds|thu|thur|thurs|fri|sat|sun)[a-z]*\b|\btonight\b|\btomorrow\b|\btmrw?\b|\btoday\b|\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b|\bworks?\b|\bcan'?t\b|\bcant\b|\binstead\b|\bthinking\b|\bhow about\b|\bwhat about\b|\bmaybe\b|\bi'?m (?:in|out|down)\b|\bcount me\b/i;
+/** Rewrites the listener never acts on: money, pledges, trips, albums, and anything that deletes or leaves. */
+const NOT_FOR_LISTENING =
+  /^homi (?:stop|forget|clear|undo|cancel|remove|delete|dispute|settle|split|itemize|tab|pledges?|i'?m (?:in|here)|let'?s (?:do|plan)|start an album|album|trip|comfortable|budget|privacy|help|what do you know|tone|notice|you can|remind|add to calendar|note|lock)\b/i;
 
 interface Origin {
   spaceKey: SpaceKey;
@@ -156,6 +172,7 @@ export class Runner {
   readonly #photoStore?: PhotoStore;
   readonly #publicBaseUrl?: string;
   readonly #repair?: RepairFn;
+  readonly #llmFirst: boolean;
   readonly #repairTimeoutMs: number;
   readonly #extraNames: string[];
   readonly #names = new NameMemory();
@@ -176,6 +193,7 @@ export class Runner {
     this.#photoStore = deps.photoStore;
     this.#publicBaseUrl = deps.publicBaseUrl;
     this.#repair = deps.repairWithLlm;
+    this.#llmFirst = !!deps.llmFirst && !!deps.repairWithLlm;
     this.#repairTimeoutMs = deps.repairTimeoutMs ?? REPAIR_TIMEOUT_MS;
     this.#extraNames = deps.extraNames ?? [];
     for (const a of deps.adapters ?? []) this.addAdapter(a);
@@ -282,6 +300,8 @@ export class Runner {
       }
       case 'added_to_group':
         return [{ kind: 'added_to_group' }];
+      case 'headcount':
+        return m.headcount && m.headcount > 0 ? [{ kind: 'headcount', n: Math.floor(m.headcount) }] : [];
       case 'other': {
         if (!m.from) return [];
         return [{ kind: 'member_seen', from: this.#memberRef(m.surface, m.spaceId, m.from), msgRef: m.msgId }];
@@ -297,6 +317,7 @@ export class Runner {
       caps: adapter.caps,
       retentionHours: this.#config.retentionHours,
       quietHours: this.#config.quietHours,
+      ...(this.#config.quorum ? { quorum: this.#config.quorum } : {}),
       newId: this.#newId,
       publicBaseUrl: this.#publicBaseUrl,
     };
@@ -314,7 +335,10 @@ export class Runner {
       const ev = queue.shift()!;
       const ctx = this.#ctx(origin.adapter);
       let res = this.#engine.applyEvent(state, ev, ctx);
-      if (passes === 1 && this.#repair && ev.kind === 'message' && ev.addressed) res = await this.#repaired(state, ev, ctx, res, origin);
+      if (passes === 1 && this.#repair && ev.kind === 'message') {
+        if (ev.addressed) res = await this.#repaired(state, ev, ctx, res, origin);
+        else if (this.#llmFirst && this.#worthListening(ev, state, res)) res = await this.#listened(state, ev, ctx, res, origin);
+      }
       state = res.state;
       this.#repo.saveGroup(state, { surface: origin.surface, spaceId: origin.spaceId });
       this.#log.debug('runner: applied', {
@@ -348,7 +372,13 @@ export class Runner {
    * The repaired result is used only if it says something better; otherwise the first result stands.
    */
   async #repaired(pre: GroupState, ev: MessageEvent, ctx: Ctx, first: ApplyResult, origin: Origin): Promise<ApplyResult> {
-    if (!this.#repair || !onlyGenericFallback(first.actions, pre) || skipRepair(ev.text)) return first;
+    if (!this.#repair || skipRepair(ev.text)) return first;
+    // Claude-first: ask for every addressed message the local parser did not read as an exact command or vote.
+    // Otherwise (the default): ask only when the local answer is a generic fallback.
+    const generic = onlyGenericFallback(first.actions, pre);
+    const ask = this.#llmFirst ? generic || !this.#locallyUnderstood(ev, pre) : generic;
+    if (!ask) return first;
+    const mode = this.#llmFirst ? 'first' : 'repair';
     const space = shortKey(origin.spaceKey);
     const seen = this.#names.get(origin.spaceKey);
     const names = knownNamesFor(pre, ev, [...this.#extraNames, ...seen]);
@@ -360,7 +390,7 @@ export class Runner {
       if (rewrite && rewrite.trim().toLowerCase() !== ev.text.trim().toLowerCase()) {
         const second = this.#engine.applyEvent(pre, { ...ev, text: rewrite, llmVote: undefined }, ctx);
         if (!onlyGenericFallback(second.actions, pre)) {
-          this.#log.info('runner: llm repair used: yes', { space });
+          this.#log.info('runner: llm repair used: yes', { space, mode });
           return second;
         }
         reason = 'still_generic';
@@ -370,8 +400,63 @@ export class Runner {
     } catch (err) {
       reason = err instanceof RepairTimeout ? 'timeout' : 'error';
     }
-    this.#log.info('runner: llm repair used: no', { space, reason });
+    this.#log.info('runner: llm repair used: no', { space, mode, reason });
     return first;
+  }
+
+  /**
+   * Claude-first only: an UNADDRESSED message is worth a (redacted) look when a plan is open, the engine ignored it,
+   * and it talks like plan talk (a day, a time, "works", "can't", "instead", "how about", "I'm in/out").
+   */
+  #worthListening(ev: MessageEvent, pre: GroupState, first: ApplyResult): boolean {
+    if (!pre.plan || pre.plan.state === 'purged' || pre.plan.state === 'completed') return false;
+    if (first.actions.some((a) => a.type === 'send' || a.type === 'reply' || a.type === 'react' || a.type === 'edit')) return false;
+    return LISTEN.test(ev.text);
+  }
+
+  /**
+   * Listening: ask the router for a command, but accept only plan talk (votes, days, times, places, food answers,
+   * "I'm out"), never bills, pledges, trips, albums or anything that deletes. The engine then runs on the rewrite as
+   * if the member had addressed Homi; a generic answer means it was chatter after all, and nothing is sent.
+   */
+  async #listened(pre: GroupState, ev: MessageEvent, ctx: Ctx, first: ApplyResult, origin: Origin): Promise<ApplyResult> {
+    if (!this.#repair) return first;
+    const space = shortKey(origin.spaceKey);
+    const seen = this.#names.get(origin.spaceKey);
+    const names = knownNamesFor(pre, ev, [...this.#extraNames, ...seen]);
+    const repair = this.#repair;
+    let reason = 'no_rewrite';
+    try {
+      const r = await withTimeout((signal) => repair({ text: ev.text, knownNames: names, context: repairContext(pre, seen.length) }, signal), this.#repairTimeoutMs);
+      const rewrite = r ? restorePlaceholders(r.rewrite, ev.text, names) : null;
+      if (rewrite && !NOT_FOR_LISTENING.test(rewrite)) {
+        const second = this.#engine.applyEvent(pre, { ...ev, text: rewrite, addressed: true, llmVote: undefined }, ctx);
+        if (!onlyGenericFallback(second.actions, pre)) {
+          this.#log.info('runner: llm listen used: yes', { space });
+          return second;
+        }
+        reason = 'still_generic';
+      } else if (r) {
+        reason = 'not_plan_talk';
+      }
+    } catch (err) {
+      reason = err instanceof RepairTimeout ? 'timeout' : 'error';
+    }
+    this.#log.info('runner: llm listen used: no', { space, reason });
+    return first;
+  }
+
+  /** Exact local reads that never need the model: catalog / slash commands, and availability replies while a poll is open. */
+  #locallyUnderstood(ev: MessageEvent, pre: GroupState): boolean {
+    const body = this.#engine.stripAddress?.(ev.text) ?? ev.text;
+    if (this.#engine.parseCommand?.(body)) return true;
+    const p = pre.plan;
+    const datesOpen = !!p && (p.state === 'collecting_availability' || (p.state === 'collecting_place' && p.stack.includes('collecting_availability')));
+    if (datesOpen && this.#engine.parseAvailability) {
+      const open = p.options.filter((o) => !o.removed);
+      if (open.length && this.#engine.parseAvailability(ev.text, open, pre.space.tz).matched) return true;
+    }
+    return false;
   }
 
   async handleInbound(m: ChannelInbound): Promise<void> {
@@ -382,6 +467,8 @@ export class Runner {
         this.#log.debug('runner: duplicate inbound dropped', { surface: m.surface });
         return;
       }
+      // A private reply from someone Homi asked privately (demo quorum / opt-in DM) belongs to their group's plan.
+      if (!m.isGroup && m.kind === 'text' && m.from && m.text && (await this.#routeDmReply(m))) return;
       const spaceKey = this.#ids.space(m.surface, m.spaceId);
       const ff = this.#demo && m.kind === 'text' && m.text ? DEMO_FF.exec(m.text) : null;
       if (ff && this.#demo) {
@@ -457,6 +544,31 @@ export class Runner {
     } finally {
       done();
     }
+  }
+
+  /**
+   * A DM from a handle Homi asked privately (delivery table) while that plan is still collecting answers is fed to
+   * the plan as that member's addressed message (ref "dm:<id>", so no group reaction targets it); the sender gets a
+   * one-line thanks in the DM. Returns false when the DM is not such a reply.
+   */
+  async #routeDmReply(m: ChannelInbound): Promise<boolean> {
+    if (!m.from || !m.text) return false;
+    for (const { memberKey, planId } of this.#repo.delivery.findByHandle(m.from.handle)) {
+      const spaceKey = this.#repo.spaceForPlan(planId);
+      if (!spaceKey) continue;
+      const plan = this.#repo.loadGroup(spaceKey)?.plan;
+      if (!plan || plan.id !== planId || plan.state !== 'collecting_availability') continue;
+      const member = plan.members[memberKey];
+      if (!member || member.status !== 'pending') continue;
+      const from: MemberRef = { key: memberKey, ...(m.from.platformName ? { platformName: m.from.platformName } : {}) };
+      const ev: EngineEvent = { kind: 'message', from, text: m.text, msgRef: `dm:${m.msgId}`, addressed: true };
+      this.#log.info('runner: dm reply routed to its plan', { surface: m.surface, space: shortKey(spaceKey) });
+      if (!(await this.dispatch(spaceKey, ev))) continue;
+      const adapter = this.#adapters.get(m.surface);
+      if (adapter?.caps.dm && adapter.dm) await adapter.dm(m.from.handle, TEMPLATES.dmThanks()).catch(() => undefined);
+      return true;
+    }
+    return false;
   }
 
   /** Photos: bytes go straight to the album store (never the engine, never logs); the engine gets an opaque id. */

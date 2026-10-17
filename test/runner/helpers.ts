@@ -162,6 +162,8 @@ export interface EnvOptions {
   placesTimeoutMs?: number;
   /** Extra Runner deps (e.g. repairWithLlm, repairTimeoutMs, extraNames). */
   runnerDeps?: Partial<RunnerDeps>;
+  /** Demo quorum timers (Ctx.quorum). */
+  quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
 }
 
 export const SALT = 'test-salt-0123456789abcdef';
@@ -185,7 +187,7 @@ export function makeEnv(opts: EnvOptions = {}): Env {
     ids,
     clock,
     logger,
-    config: { retentionHours: 24, quietHours: [23, 9], defaultTz: 'America/New_York' },
+    config: { retentionHours: 24, quietHours: [23, 9], defaultTz: 'America/New_York', ...(opts.quorum ? { quorum: opts.quorum } : {}) },
     adapters: [adapter],
     places: opts.places,
     voice: opts.voice,

@@ -52,7 +52,9 @@ Input: the trigger message ("dinner next week?") and the current time in the gro
    - **Take the top 3 by score.** Ties go to the earlier day. Show them in chronological order. Friend plans cluster at the end of the week, so "next week" gives Thu, Fri and Sat.
    - **Remove these days:**
      - any day the requester ruled out ("not monday");
-     - any slot less than 3h from now.
+     - any slot less than 3h from now, **unless the trigger named the time** ("dinner tonight at 8pm" said at 5:45 gives exactly one option, Sat 8pm, with 30 minutes' notice as the floor; the decide-by deadline then falls halfway, never at or after the start).
+   - A named time on a one-day window is the only option ("dinner friday 7pm" → Fri 7pm). A trailing "at <place>" in the trigger is kept as the place ("… at halal guys").
+   - While options are open, "homi make it 8pm" / "homi I said 8pm" re-proposes the same days at that time (old options are retired); a day nobody proposed ("homi wednesday works", or an unaddressed "I was thinking Wednesday") is added as a new option with the proposer's yes.
    - **Single-day windows** ("tomorrow") get 3 *times* on that day instead (e.g., 12:30, 6:30, 8pm).
 4. **Decide-by deadline.** `min(now + 24h, first option − 6h)`, but at least `now + 2h`. If it lands in quiet hours, move it to 9:30am, or to 10:30pm if 9:30am would be too late.
 
@@ -173,3 +175,7 @@ This is the demo moment Photon's examples page describes: two people give confli
 | Chat noise | Separate app screen | Living tally edits, merged messages, quiet hours, one-message `where are we at` card |
 | Plans fall apart after "yes" | Live Activities, location ETAs | Reminder ladder, `.ics` handoff, veto-and-swap that reopens one decision only |
 | Trust | Privacy policy | Ask it what it knows; tell it to forget; it deletes itself 24h after |
+
+## Demo quorum (`QUORUM_DM_AFTER_MS`, off by default)
+
+For a live demo the real nudge ladder (hours) is too slow, so three settings compress it. `QUORUM_DM_AFTER_MS` after the options go out, everyone who has not answered is asked privately where Homi has their handle (everyone who spoke in the group since the plan started; on Telegram only people who have started the bot can be DMed) and named in the group either way. `QUORUM_REPLY_MS` later the silent count as not coming, people the platform only counted (Telegram's member count) included. Then: at least `MIN_ATTENDEES` yes votes locks the date as usual; fewer cancels the plan ("Only 1 can make it, so no dinner this time"). The same rule applies to an early lock: once everyone is accounted for, one yes is not a plan. A private reply ("yes", "no", "2") is fed back to the plan as that person's vote; a bare "yes" / "no" / "1" in the group from someone who was just asked counts even without "homi". Demo values: `30000` / `15000` / `2`. Code: `src/engine/plan/timers.ts` (`quorumDm`, `quorumClose`), `src/engine/plan/lock.ts`, `src/runner/runner.ts` (`#routeDmReply`). Tests: `test/engine/quorum.test.ts`, `test/runner/dm-reply.test.ts`.

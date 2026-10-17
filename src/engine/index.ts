@@ -2,7 +2,7 @@
 
 export { applyEvent } from './plan/apply.js';
 export { newGroupState } from './plan/core.js';
-export { detectAddressed, stripAddress, parseAvailability, parseCommand, parseWindow, emojiVote, cityZone } from './parse.js';
+export { detectAddressed, stripAddress, parseAvailability, parseCommand, parseWindow, emojiVote, cityZone, placeIn, preferredTime } from './parse.js';
 export { classify, type Classification, type ClassifyOpts, type Intent } from './classify.js';
 export { generateOptions, chooseOption, computeDeadline, effectiveVote, tallyLine } from './schedule.js';
 export { rankPlaces, foodScore, parseTaste, placesQuery, nearOf } from './hungry.js';

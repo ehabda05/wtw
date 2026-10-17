@@ -3,7 +3,7 @@
 
 import { foodScore } from './hungry.js';
 import { FOOD_THRESHOLD, pFood } from './classifier.js';
-import { detectActivity, hasPlanWords, parseWindow } from './parse.js';
+import { detectActivity, hasPlanWords, parseWindow, preferredTime } from './parse.js';
 import { isoDay } from './util.js';
 
 /**
@@ -21,6 +21,8 @@ export function planOrFood(body: string, now: number, tz: string): 'plan' | 'foo
   if (fs.money && !win) return null;
   const todayOnly = !!win && win.single && !win.explicit && win.days[0] === isoDay(now, tz);
   if (win && !(todayOnly && fs.strong)) return 'plan';
+  // "plan something for 8 pm to eat out": a clock time with no day is still a plan (for today), not an instant search.
+  if (!win && preferredTime(body)) return 'plan';
   if (fs.score >= 1 && !planWords) return 'food';
   if (detectActivity(body).named || planWords) return 'plan';
   return null;
