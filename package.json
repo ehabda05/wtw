@@ -1,8 +1,8 @@
 {
-  "name": "otto",
+  "name": "whats-the-word",
   "version": "0.1.0",
   "private": true,
-  "description": "Otto: the friend who makes the plan happen, then forgets. A privacy-first group-chat planning agent on Photon.",
+  "description": "Whats the Word: Homi, the privacy-first group-chat agent that makes plans happen, splits the bill, keeps the photos and plans the trip. Built on Photon.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -12,12 +12,19 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "sim": "tsx src/cli/sim.ts",
+    "demo": "tsx src/cli/sim.ts --script demo/demo.sim.txt --start 2026-10-17T10:00:00-04:00",
+    "web": "tsx src/web/server.ts",
     "keys": "tsx src/cli/keys.ts",
+    "photon2:check": "tsx src/cli/photon2-check.ts",
+    "photon2:telegram": "tsx src/cli/photon2-telegram.ts",
+    "telegram:check": "tsx src/cli/telegram-check.ts",
+    "llm:check": "tsx src/cli/llm-check.ts",
     "test": "node --import tsx --test \"test/**/*.test.ts\"",
     "eval": "node --import tsx eval/run.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@photon-ai/api": "0.5.0",
     "chrono-node": "2.10.3",
     "luxon": "3.7.2",
     "opening_hours": "3.15.0",

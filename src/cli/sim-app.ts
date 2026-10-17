@@ -1,20 +1,23 @@
 // Interactive offline demo (npm run sim). Same engine, same runner, same store as production; an in-process group
 // chat with personas, a fast-forwardable clock, offline places, and a clearly-labeled simulated phone call.
 //
-//   ana: dinner next week otto?          speak as a persona (ana, ben, sam, jo, maya, you); plain text = you
-//   /react ben ❤️ 2                      react to Otto's option bubble #2 (place bubble #2 while a place vote is open)
-//   /react ben ❤️ last                   react to Otto's latest message (or a ref like sim-12)
+//   ana: dinner next week homi?          speak as a persona (ana, ben, sam, jo, maya, you); plain text = you
+//   /react ben ❤️ 2                      react to Homi's option bubble #2 (place bubble #2 while a place vote is open)
+//   /react ben ❤️ last                   react to Homi's latest message (or a ref like sim-12)
 //   /reply ben 2 works for me            inline reply to option bubble 2
 //   /ff 12h                              fast-forward; due jobs (nudges, reminders, purge) fire in order
 //   /answer sam friday works             what the simulated call will "hear" from sam
+//   /photo jo homi add                   jo shares a (generated) photo with that caption; no caption = not shared
 //   /new  /members  /added  /db  /time  /help  /quit
 //
 // Flags: --script <file>  --out <file.json>  --start <ISO>  --tz <IANA>  --fancy  --db <path>  --verbose
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { createInterface } from 'node:readline';
 import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
+import { createExtHandlers, type ExtHandlerDeps } from '../runner/handlers/index.js';
 import { DateTime } from 'luxon';
 import { DEFAULT_PERSONAS, SimHub, personaFromHandle, personaHandle, personaName, type TranscriptEntry } from '../channels/sim.js';
 import { loadConfig } from '../config.js';
@@ -30,6 +33,7 @@ import { Runner } from '../runner/runner.js';
 import { Scheduler } from '../runner/scheduler.js';
 import { loadEngine, type CallRequest, type EngineApi, type VoiceService } from '../runner/services.js';
 import { describeSchema, openDatabase, proveNoTextColumns } from '../store/db.js';
+import { routerFromEnv } from '../llm/router.js';
 import { Repo } from '../store/repo.js';
 
 // ───────────── args ─────────────
@@ -76,7 +80,7 @@ const esc = (code: string) => (s: string) => (useColor ? `\x1b[${code}m${s}\x1b[
 const c = {
   dim: esc('2'),
   bold: esc('1'),
-  otto: esc('1;36'),
+  homi: esc('1;36'),
   system: esc('33'),
   dm: esc('35'),
   ok: esc('32'),
@@ -93,14 +97,15 @@ const PERSONA_COLORS: Record<string, (s: string) => string> = {
 const pc = (p: string) => PERSONA_COLORS[p] ?? esc('37');
 
 const HELP = `
-${c.bold('Otto sim')}: an offline group chat. Personas: ${DEFAULT_PERSONAS.join(', ')}.
+${c.bold('Homi sim')}: an offline group chat. Personas: ${DEFAULT_PERSONAS.join(', ')}.
   ${c.bold('ana: text')}                speak as a persona (plain text speaks as "you")
-  ${c.bold('/react ben ❤️ 2')}          react to Otto's option bubble #2 (place bubble while a place vote is open)
-  ${c.bold('/react ben 👍 last')}       react to Otto's latest message (or a ref like sim-12)
+  ${c.bold('/react ben ❤️ 2')}          react to Homi's option bubble #2 (place bubble while a place vote is open)
+  ${c.bold('/react ben 👍 last')}       react to Homi's latest message (or a ref like sim-12)
   ${c.bold('/reply ben 2 works for me')} inline reply to option bubble 2 (or last / sim-12)
   ${c.bold('/ff 12h')}                  fast-forward the clock (30m, 2d, 1h30m); due nudges / reminders / purges fire
   ${c.bold('/answer sam friday works')} what the ${c.system('(simulated)')} phone call hears from sam
-  ${c.bold('/members')}                 send a roster snapshot   ${c.bold('/added')}  "Otto was added" event
+  ${c.bold('/photo jo homi add')}       jo shares a generated sample photo with that caption (no caption = not shared)
+  ${c.bold('/members')}                 send a roster snapshot   ${c.bold('/added')}  "Homi was added" event
   ${c.bold('/new')}                     start a fresh group chat ${c.bold('/time')}   show the fake clock
   ${c.bold('/db')}                      row counts + proof that no column can hold message text
   ${c.bold('/help')}  ${c.bold('/quit')}
@@ -172,11 +177,11 @@ async function main(): Promise<void> {
   };
   const hub = new SimHub({
     now: () => clock.now(),
-    beforeOttoMessage: args.fancy
+    beforeHomiMessage: args.fancy
       ? async () => {
           if (!process.stdout.isTTY) return;
           for (let i = 0; i < 3; i++) {
-            process.stdout.write(`\r\x1b[2K${c.dim('  Otto is typing' + '.'.repeat(i + 1))}`);
+            process.stdout.write(`\r\x1b[2K${c.dim('  Homi is typing' + '.'.repeat(i + 1))}`);
             await new Promise((r) => setTimeout(r, 220));
           }
           process.stdout.write('\r\x1b[2K');
@@ -186,27 +191,27 @@ async function main(): Promise<void> {
 
   const render = (e: TranscriptEntry): string | null => {
     const time = c.dim(`[${fmtTime(e.at)}]`);
-    const ref = e.ref && e.from === 'otto' ? c.dim(` #${e.ref}`) : '';
+    const ref = e.ref && e.from === 'homi' ? c.dim(` #${e.ref}`) : '';
     const target = e.target ? hub.entry(e.target) : undefined;
-    const targetLabel = target ? `${target.from === 'otto' ? 'Otto' : personaName(target.from)} "${trunc(target.text, 28)}"` : e.target;
-    if (e.from === 'otto') {
+    const targetLabel = target ? `${target.from === 'homi' ? 'Homi' : personaName(target.from)} "${trunc(target.text, 28)}"` : e.target;
+    if (e.from === 'homi') {
       switch (e.kind) {
         case 'send':
-          return `${time} ${c.otto('Otto')}  ${e.text}${ref}`;
+          return `${time} ${c.homi('Homi')}  ${e.text}${ref}`;
         case 'reply':
-          return `${time} ${c.otto('Otto')} ${c.dim(`↪ ${targetLabel}`)}\n         ${e.text}${ref}`;
+          return `${time} ${c.homi('Homi')} ${c.dim(`↪ ${targetLabel}`)}\n         ${e.text}${ref}`;
         case 'dm':
-          return `${time} ${c.dm(`Otto → ${personaName(e.to ?? '?')} (private DM)`)}  ${e.text}${ref}`;
+          return `${time} ${c.dm(`Homi → ${personaName(e.to ?? '?')} (private DM)`)}  ${e.text}${ref}`;
         case 'file':
-          return `${time} ${c.otto('Otto')}  📎 ${e.text}${ref}`;
+          return `${time} ${c.homi('Homi')}  📎 ${e.text}${ref}`;
         case 'edit':
-          return `${time} ${c.otto('Otto')} ${c.dim(`✎ edited #${e.target}`)}  ${e.text}`;
+          return `${time} ${c.homi('Homi')} ${c.dim(`✎ edited #${e.target}`)}  ${e.text}`;
         case 'react':
-          return `${time} ${c.otto('Otto')} reacted ${e.text} to ${targetLabel}`;
+          return `${time} ${c.homi('Homi')} reacted ${e.text} to ${targetLabel}`;
         case 'leave':
-          return `${time} ${c.system('Otto left the group')}`;
+          return `${time} ${c.system('Homi left the group')}`;
         default:
-          return `${time} ${c.otto('Otto')}  ${e.text}`;
+          return `${time} ${c.homi('Homi')}  ${e.text}`;
       }
     }
     if (e.from === 'system') return `${time} ${c.system(e.text)}`;
@@ -231,7 +236,7 @@ async function main(): Promise<void> {
     async placeCall(req: CallRequest) {
       pendingCalls++;
       const who = personaName(personaFromHandle(req.to) ?? 'member');
-      hub.system(spaceOfPlan(req.planId), `📞 (simulated call) Otto is calling ${who}: "${req.question}"`, 'call', { to: personaFromHandle(req.to) });
+      hub.system(spaceOfPlan(req.planId), `📞 (simulated call) Homi is calling ${who}: "${req.question}"`, 'call', { to: personaFromHandle(req.to) });
       try {
         await voice.placeCall(req);
       } catch (err) {
@@ -241,6 +246,22 @@ async function main(): Promise<void> {
     },
     onResult: (cb) => voice.onResult(cb),
   };
+
+  // Extension handlers (travel, pledges, album). Album photos are sealed with the sim's key into a temp folder
+  // that is deleted on exit; no PUBLIC_BASE_URL, so album links are labeled demo links.
+  const albumDir = mkdtempSync(join(tmpdir(), 'homi-sim-'));
+  const extDeps: ExtHandlerDeps & { dataKey: Buffer } = {
+    dataDir: albumDir,
+    dataKey: config.dataKey,
+    paymentsProvider: config.paymentsProvider,
+    travelProvider: config.travelProvider,
+    now: () => clock.now(),
+  };
+  const ext = createExtHandlers(extDeps);
+  const cleanupAlbums = () => rmSync(albumDir, { recursive: true, force: true });
+
+  // Optional LLM repair router: HOMI_LLM=on (or DISABLE_HOSTED_LLM=false) AND ANTHROPIC_API_KEY; off otherwise.
+  const llm = routerFromEnv();
 
   const runner = new Runner({
     engine,
@@ -252,6 +273,10 @@ async function main(): Promise<void> {
     places: places.service,
     voice: trackedVoice,
     onSent: (info) => hub.annotate(info.msgRef, info.tag),
+    handlers: ext.handlers,
+    photoStore: ext.photoStore,
+    repairWithLlm: llm.repair ?? undefined,
+    extraNames: DEFAULT_PERSONAS.map(personaName),
   });
   voice.onResult((r) => {
     void (async () => {
@@ -287,7 +312,7 @@ async function main(): Promise<void> {
 
   // ── target resolution for /react and /reply ──
   const resolveTarget = (spec: string): string | undefined => {
-    if (spec === 'last') return hub.lastOttoMessage(current)?.ref;
+    if (spec === 'last') return hub.lastHomiMessage(current)?.ref;
     if (/^(sim|u)-\d+$/.test(spec)) return spec;
     const n = Number(spec.replace(/^#/, ''));
     if (!Number.isInteger(n) || n < 1) return undefined;
@@ -301,9 +326,9 @@ async function main(): Promise<void> {
       if (option) return option;
       if (place) return place;
     }
-    // Fallback: an Otto message whose engine tag ends with the number (e.g. "option:2").
+    // Fallback: a Homi message whose engine tag ends with the number (e.g. "option:2").
     const tagged = hub
-      .ottoMessages(current)
+      .homiMessages(current)
       .reverse()
       .find((e) => e.tag && new RegExp(`(^|\\D)${n}$`).test(e.tag));
     return tagged?.ref;
@@ -345,7 +370,7 @@ async function main(): Promise<void> {
           const memberKey = ids.member('sim', current, personaHandle(p.toLowerCase()));
           voice.setScriptedAnswer?.(memberKey, answer);
           mockFallback.setAnswer(personaHandle(p.toLowerCase()), answer);
-          print(c.dim(`📞 if Otto calls ${personaName(p.toLowerCase())}, they will say: "${answer}"`));
+          print(c.dim(`📞 if Homi calls ${personaName(p.toLowerCase())}, they will say: "${answer}"`));
           return true;
         }
         case '/react': {
@@ -353,7 +378,7 @@ async function main(): Promise<void> {
           if (!p || !emoji) throw new Error('usage: /react ben ❤️ 2');
           if (!personaOk(p.toLowerCase())) throw new Error(`unknown persona ${p}`);
           const target = resolveTarget(spec);
-          if (!target) throw new Error(`no Otto message "${spec}" to react to`);
+          if (!target) throw new Error(`no Homi message "${spec}" to react to`);
           await hub.reactAs(current, p.toLowerCase(), emoji, target);
           await settle(!interactive);
           return true;
@@ -363,8 +388,16 @@ async function main(): Promise<void> {
           if (!p || !spec || words.length === 0) throw new Error('usage: /reply ben 2 works for me');
           if (!personaOk(p.toLowerCase())) throw new Error(`unknown persona ${p}`);
           const target = resolveTarget(spec);
-          if (!target) throw new Error(`no Otto message "${spec}" to reply to`);
+          if (!target) throw new Error(`no Homi message "${spec}" to reply to`);
           await hub.say(current, p.toLowerCase(), words.join(' '), { replyTo: target });
+          await settle(!interactive);
+          return true;
+        }
+        case '/photo': {
+          const [p, ...words] = rest;
+          if (!p) throw new Error('usage: /photo jo homi add');
+          if (!personaOk(p.toLowerCase())) throw new Error(`unknown persona ${p}`);
+          await hub.photoAs(current, p.toLowerCase(), words.join(' ') || undefined);
           await settle(!interactive);
           return true;
         }
@@ -415,7 +448,7 @@ async function main(): Promise<void> {
     if (!args.out) return;
     const doc = {
       meta: {
-        product: 'Otto',
+        product: 'Homi',
         generatedBy: 'npm run sim',
         start: start.toISO(),
         tz,
@@ -434,8 +467,9 @@ async function main(): Promise<void> {
 
   const banner = () => {
     process.stdout.write(
-      `${c.otto('Otto sim')} ${c.dim(`· group ${current} · ${DEFAULT_PERSONAS.join(', ')} · ${DateTime.fromMillis(clock.now(), { zone: tz }).toFormat('ccc d LLL HH:mm')} ${tz}`)}\n` +
-        c.dim(`places: ${places.real ? 'offline OSM snapshot' : 'canned stub'} · voice: simulated · data: in memory${config.ephemeralKeys ? ', ephemeral keys' : ''} · /help\n`),
+      `${c.homi('Homi sim')} ${c.dim(`· group ${current} · ${DEFAULT_PERSONAS.join(', ')} · ${DateTime.fromMillis(clock.now(), { zone: tz }).toFormat('ccc d LLL HH:mm')} ${tz}`)}\n` +
+        c.dim(`places: ${places.real ? 'offline OSM snapshot' : 'canned stub'} · voice: simulated · data: in memory${config.ephemeralKeys ? ', ephemeral keys' : ''} · /help\n`) +
+        c.dim(`${llm.note}\n`),
     );
   };
 
@@ -455,6 +489,7 @@ async function main(): Promise<void> {
     writeOut();
     scheduler.stop();
     db.close();
+    cleanupAlbums();
     return;
   }
 
@@ -470,6 +505,7 @@ async function main(): Promise<void> {
     scheduler.stop();
     try {
       db.close();
+      cleanupAlbums();
     } catch {
       /* ignore */
     }

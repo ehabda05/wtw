@@ -1,4 +1,4 @@
-// Every user-facing string Otto sends. Hard rule 1: no message has more than two sentences, and option /
+// Every user-facing string Homi sends. Hard rule 1: no message has more than two sentences, and option /
 // place bubbles are fragments. test/engine/templates.test.ts renders every template below with every sample
 // in TEMPLATE_SAMPLES and lints it with countSentences(). Tone variants apply to nudges and the deadline lock
 // only (STATE_MACHINE.md "Tone dial"); privacy, stop and error copy is always plain.
@@ -14,7 +14,7 @@ import { capitalize } from './util.js';
  */
 export function countSentences(text: string): number {
   const t = text
-    .replace(/"[^"\n]*"/g, 'Q') // a quoted example command ("otto dinner next week?") is not a sentence end
+    .replace(/"[^"\n]*"/g, 'Q') // a quoted example command ("homi dinner next week?") is not a sentence end
     .replace(/https?:\/\/\S+/g, 'URL')
     .replace(/(\d)\.(\d)/g, '$1$2')
     .replace(/\b(e\.g|i\.e|etc|vs|approx|est|min|st|ave|rd|blvd|dr|mt|ft|jr|sr|mr|mrs|ms)\./gi, '$1')
@@ -28,18 +28,19 @@ const maybeTail = (maybe: number) => (maybe > 0 ? `, ${maybe} maybe` : '');
 export const TEMPLATES = {
   // ── consent & privacy (always plain) ──
   intro: (p: { hours: number }) =>
-    `Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it ${p.hours}h after the event, and "otto stop" makes me delete everything and leave.`,
-  help: () => `Hi! Say "otto dinner next week?" to plan something, or "otto where should we eat" for food now.`,
+    `Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it ${p.hours}h after the event, and "homi stop" makes me delete everything and leave.`,
+  help: () =>
+    `I can find a date ("homi dinner next week?"), pick food, split bills ("homi split 84 3 ways"), run a $10 show-up pledge (simulated money), keep a shared album and plan trips. Ask "homi what do you know" anytime to see everything I store.`,
   privacy: (p: { hours: number }) =>
-    `I keep only the plan (dates, votes, place, and names you give me), never your messages, and I delete it ${p.hours}h after the event. Say "otto what do you know" to see all of it or "otto forget" to delete it now (full policy: docs/PRIVACY.md).`,
+    `I keep only the plan (dates, votes, place, and names you give me), never your messages, and I delete it ${p.hours}h after the event. Say "homi what do you know" to see all of it or "homi forget" to delete it now (full policy: docs/PRIVACY.md).`,
   stopLeave: () => `Deleted everything for this chat. Bye 👋`,
   stopTombstone: () =>
     `Deleted everything for this chat, and I'll ignore it from now on 👋 This app won't let me leave on my own, so please remove me from the group.`,
   forgetDone: () => `Done: I've deleted this plan.`,
   forgetNothing: () => `There's no plan to forget right now.`,
-  unknown: () => `Not sure what you mean; try "otto where are we at" or "otto help".`,
-  needPlan: () => `There's no plan yet; say "otto dinner next week?" to start one.`,
-  alreadyPlan: () => `We already have a plan going; say "otto where are we at" to see it, or "otto forget" to start over.`,
+  unknown: () => `Not sure what you mean; try "homi where are we at" or "homi help".`,
+  needPlan: () => `There's no plan yet; say "homi dinner next week?" to start one.`,
+  alreadyPlan: () => `We already have a plan going; say "homi where are we at" to see it, or "homi forget" to start over.`,
 
   // ── dates ──
   askWhen: () => `I'm in. Roughly when: this week, this weekend, or next week?`,
@@ -54,7 +55,7 @@ export const TEMPLATES = {
     `${capitalize(p.activity)}, ${p.window}: pick every time that works, and I'll lock it in ${p.deadline}.`,
   optionBubble: (p: { id: number; label: string }) => `${p.id} · ${p.label}`,
   whichOnes: (p: { ids: string }) => `Got it, which ones could work: ${p.ids}?`,
-  noneWork: () => `None of these work for anyone yet. Reply with a day that does, or "otto forget" to drop it.`,
+  noneWork: () => `None of these work for anyone yet. Reply with a day that does, or "homi forget" to drop it.`,
 
   // ── locking ──
   lockEarly: (p: { label: string; yes: number; maybe: number }) => `${p.label} it is: ${p.yes} in${maybeTail(p.maybe)}.`,
@@ -64,7 +65,7 @@ export const TEMPLATES = {
       return p.absent ? `Time's up: ${p.label} it is, and ${p.absent} will hear about this.` : `Time's up: ${p.label} it is.`;
     return `${p.label} it is: ${p.yes} in${maybeTail(p.maybe)}.`;
   },
-  whereTo: () => `Where to: say "otto find food" for 3 options, or tell me the spot ("otto we're going to …").`,
+  whereTo: () => `Where to: say "homi find food" for 3 options, or tell me the spot ("homi we're going to …").`,
   maybePing: (p: { names?: string }) => (p.names ? `${p.names}, you said maybe; still good?` : `If you said maybe, still good?`),
   missYou: (p: { names?: string }) => (p.names ? `${p.names}, we'll miss you this time.` : `We'll miss whoever can't make it this time.`),
   stranded: (p: { win: string; winYes: number; notNames: string; alt: string; altYes: number; inclNames: string; altWord: string }) =>
@@ -72,7 +73,7 @@ export const TEMPLATES = {
   switched: (p: { label: string; yes: number }) => `Switched: ${p.label} it is, ${p.yes} in.`,
   card: (p: { when: string; place?: string; yes: number; maybe: number; remind: 'the day before' | 'an hour before' | 'none' }) =>
     `Locked: ${p.when}${p.place ? ` · ${p.place}` : ''} · ${p.yes} in${maybeTail(p.maybe)}. ${
-      p.remind === 'none' ? `Say "otto add to calendar" for an invite.` : `I'll remind you ${p.remind}; say "otto add to calendar" for an invite.`
+      p.remind === 'none' ? `Say "homi add to calendar" for an invite.` : `I'll remind you ${p.remind}; say "homi add to calendar" for an invite.`
     }`,
 
   // ── nudges (tone dial) ──
@@ -87,7 +88,7 @@ export const TEMPLATES = {
     if (tone === 'ruthless') return `Still waiting on you. ${p.days}; choose wisely.`;
     return p.how === 'tap' ? `${p.days}? Tap a time above.` : `${p.days}? Reply with the numbers that work.`;
   },
-  detailsNudge: (p: { day: string }) => `Still need a spot for ${p.day}; want 3 options? Say "otto find food".`,
+  detailsNudge: (p: { day: string }) => `Still need a spot for ${p.day}; want 3 options? Say "homi find food".`,
   escalate: (p: { who: string; mode: 'call' | 'dm' | 'mixed' }) =>
     p.mode === 'call'
       ? `Still need ${p.who}, so I'm giving them a quick call (they said that's ok).`
@@ -102,9 +103,9 @@ export const TEMPLATES = {
   },
   escalateTimeout: (p: { name: string; day: string }) => `Couldn't reach ${p.name}; going with ${p.day}.`,
   dmCheckIn: (p: { options: string }) =>
-    `Quick check from Otto for your group plan: which of ${p.options} work for you? Reply in the group with the numbers (like "1 3").`,
+    `Quick check from Homi for your group plan: which of ${p.options} work for you? Reply in the group with the numbers (like "1 3").`,
   /** PRIVACY §10: only the open question and the times. Never names, the place, or the group. */
-  callQuestion: (p: { options: string }) => `Hi, this is Otto calling about your group's plan. Does ${p.options} work for you?`,
+  callQuestion: (p: { options: string }) => `Hi, this is Homi calling about your group's plan. Does ${p.options} work for you?`,
   callYes: (p: { name: string; days: string; k: number; n: number; simulated: boolean }) =>
     `${p.name}'s in for ${p.days} (by phone). ${p.k} for ${p.n} 🎉${p.simulated ? ' (simulated call)' : ''}`,
   callNone: (p: { name: string; simulated: boolean }) =>
@@ -133,14 +134,14 @@ export const TEMPLATES = {
   timeShiftKeep: (p: { time: string }) => `Okay, keeping ${p.time}.`,
 
   // ── commands ──
-  statusNone: () => `No plan yet. Say "otto dinner next week?" to start one.`,
+  statusNone: () => `No plan yet. Say "homi dinner next week?" to start one.`,
   statusDates: (p: { activity: string }) => `Planning ${p.activity}, but I still need a rough time. This week, this weekend, or next week?`,
   statusAvail: (p: { activity: string; window: string; lead: string; tally: string; who?: string; deadline: string }) =>
     `${capitalize(p.activity)}, ${p.window}: ${p.lead} (✓ ${p.tally}). ${
       p.who ? `Still need ${p.who}; I lock it in ${p.deadline}.` : `Everyone has picked, so I'll lock it in ${p.deadline} at the latest.`
     }`,
   statusDetails: (p: { activity: string; when: string; yes: number; maybe: number }) =>
-    `${capitalize(p.activity)}, ${p.when}: ${p.yes} in${maybeTail(p.maybe)}. Still need a place: "otto find food" or "otto we're going to …".`,
+    `${capitalize(p.activity)}, ${p.when}: ${p.yes} in${maybeTail(p.maybe)}. Still need a place: "homi find food" or "homi we're going to …".`,
   statusPlace: (p: { activity: string; when?: string; voting: boolean }) =>
     `${capitalize(p.activity)}${p.when ? `, ${p.when}` : ''}: picking a place right now. ${
       p.voting ? 'Vote on the options above.' : 'Tell me cuisine, budget, and roughly where.'
@@ -148,7 +149,7 @@ export const TEMPLATES = {
   statusConfirmed: (p: { activity: string; when: string; place?: string; yes: number; maybe: number; pending: number }) =>
     `${capitalize(p.activity)} · ${p.when}${p.place ? ` · ${p.place}` : ''} · ${p.yes} in${maybeTail(p.maybe)}${
       p.pending ? `, ${p.pending} pending` : ''
-    }. Say "otto add to calendar" for an invite.`,
+    }. Say "homi add to calendar" for an invite.`,
   statusCompleted: (p: { activity: string; when: string; deletes: string }) =>
     `${capitalize(p.activity)} was ${p.when}; I'll delete everything ${p.deletes}.`,
   why: (p: { tally: string; notes?: string }) => `${p.tally}.${p.notes ? ` ${capitalize(p.notes)}.` : ''}`,
@@ -165,18 +166,18 @@ export const TEMPLATES = {
   headcountSet: (p: { n: number }) => `Got it, ${p.n} of you.`,
   noteSaved: (p: { key: string }) => `Noted: ${p.key}.`,
   noteFound: (p: { key: string; value: string }) => `${capitalize(p.key)}: ${p.value}.`,
-  noteMissing: (p: { key: string }) => `I don't have a note about ${p.key}; add one with "otto note ${p.key}: …".`,
-  notesList: (p: { list?: string }) => (p.list ? `Notes: ${p.list}.` : `No notes yet; add one with "otto note parking: …".`),
+  noteMissing: (p: { key: string }) => `I don't have a note about ${p.key}; add one with "homi note ${p.key}: …".`,
+  notesList: (p: { list?: string }) => (p.list ? `Notes: ${p.list}.` : `No notes yet; add one with "homi note parking: …".`),
   split: (p: { each: string; n: number }) => `${p.each} each for ${p.n} people (tip not included).`,
-  splitAsk: () => `How many ways? Try "otto split 142.50 5 ways".`,
+  splitAsk: () => `How many ways? Try "homi split 142.50 5 ways".`,
   icsCaption: (p: { activity: string }) => `${capitalize(p.activity)} invite: tap to add it to your calendar (no attendee info inside).`,
   icsNoDate: () => `No date yet, so there's nothing to add; I'll have one after the vote.`,
   icsText: (p: { block: string }) => `Copy this into your calendar:\n${p.block}`,
   noticeOn: () => `Notice is on: if a plan starts forming, I'll offer to help at most once a day.`,
   noticeOff: () => `Notice is off.`,
-  noticeOffer: () => `Want me to make that happen? Reply "otto yes" and I'll find a date.`,
+  noticeOffer: () => `Want me to make that happen? Reply "homi yes" and I'll find a date.`,
   tzSet: (p: { city: string }) => `Got it: quiet hours (11pm–9am) now follow ${p.city} time.`,
-  tzUnknown: () => `I don't know that city yet; try a big city nearby, like "otto we're in Chicago".`,
+  tzUnknown: () => `I don't know that city yet; try a big city nearby, like "homi we're in Chicago".`,
   placeSet: (p: { place: string }) => `Got it: ${p.place}.`,
   placeSetOpen: (p: { place: string }) => `Noted: ${p.place}. I'll lock the date at the deadline.`,
   placeChanged: (p: { place: string }) => `Updated the place: ${p.place}.`,
@@ -201,7 +202,7 @@ export const TEMPLATES = {
   placeBubble: (p: { id: number; name: string; cuisine?: string; price?: string; walk?: string; open: string; check?: string }) =>
     [`${p.id}`, p.name, p.cuisine, p.price, p.walk, p.open, p.check ? `check: ${p.check}` : undefined].filter(Boolean).join(' · '),
   foodNoResults: () => `I couldn't find a match for that nearby. Try another cuisine or neighborhood?`,
-  foodGiveUp: () => `I couldn't find a good match, so tell me the spot with "otto we're going to …".`,
+  foodGiveUp: () => `I couldn't find a good match, so tell me the spot with "homi we're going to …".`,
   foodHeaderNoMatch: (p: { cuisine: string; where?: string; n: number; price?: string; how: 'tap' | 'reply' }) => {
     const nums = p.n === 1 ? '1' : p.n === 2 ? '1 or 2' : '1, 2 or 3';
     return `No ${p.cuisine}${p.where ? ` near ${p.where}` : ''} in my map; ${p.n} close ${p.n === 1 ? 'pick' : 'picks'} instead${p.price ? `, ${p.price}` : ''}. ${
@@ -214,19 +215,19 @@ export const TEMPLATES = {
     const s1 = p.noVotes
       ? `Going with #1 since nobody objected: ${p.name}${where ? `, ${where}` : ''} ${e}`
       : `${p.name} it is${where ? `: ${where}` : ''} ${e}`;
-    return p.remindOffer ? `${s1} Want a reminder 30 min before (say "otto remind me")?` : s1;
+    return p.remindOffer ? `${s1} Want a reminder 30 min before (say "homi remind me")?` : s1;
   },
 
   // ── reminders ──
   remindDay: (p: { day: string; time: string; what: string; url?: string; rain: boolean }) =>
     `${p.day} ${p.time}: ${p.what}${p.url ? ` · ${p.url}` : ''}${p.rain ? ' ☔ Rain looks likely, so bring an umbrella.' : ''}`,
-  remindHour: (p: { what: string }) => `1 hour to go: ${p.what} 🍜 After, "otto split 120" splits the bill.`,
+  remindHour: (p: { what: string }) => `1 hour to go: ${p.what} 🍜 After, "homi split 120" splits the bill.`,
   remind30: (p: { what: string }) => `30 minutes to go: ${p.what}.`,
 
   // ── dump frame (content built in dump.ts) ──
-  dumpPlan: (p: { parts: string }) => `Here's everything I have for this chat: ${p.parts}. Say "otto forget" to delete it now.`,
+  dumpPlan: (p: { parts: string }) => `Here's everything I have for this chat: ${p.parts}. Say "homi forget" to delete it now.`,
   dumpNoPlan: (p: { settings: string }) =>
-    `Here's everything I have for this chat: ${p.settings}, and no plan. Say "otto stop" to delete those too.`,
+    `Here's everything I have for this chat: ${p.settings}, and no plan. Say "homi stop" to delete those too.`,
 };
 
 type Tpl = typeof TEMPLATES;

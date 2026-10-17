@@ -27,8 +27,8 @@ test('plans are isolated per group through the runner', async () => {
     }
   });
   const env = makeEnv({ engine });
-  await env.runner.handleInbound(textIn('group-A', 'persona:ana', 'otto plan dinner'));
-  await env.runner.handleInbound(textIn('group-B', 'persona:ana', 'otto plan drinks'));
+  await env.runner.handleInbound(textIn('group-A', 'persona:ana', 'homi plan dinner'));
+  await env.runner.handleInbound(textIn('group-B', 'persona:ana', 'homi plan drinks'));
   const a = env.repo.loadGroup(env.ids.space('sim', 'group-A'));
   const b = env.repo.loadGroup(env.ids.space('sim', 'group-B'));
   assert.ok(a?.plan && b?.plan);

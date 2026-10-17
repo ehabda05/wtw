@@ -1,4 +1,4 @@
-// One-time Retell setup for Otto's voice agent. A teammate runs it with their own key in .env:
+// One-time Retell setup for Homi's voice agent. A teammate runs it with their own key in .env:
 //
 //   node --import tsx src/voice/setup.ts [--dry-run] [--mode poll|webhook] [--webhook-url https://…/voice/retell]
 //        [--bind-number] [--inbound-webhook-url https://…/voice/inbound] [--voice-id retell-Cimo] [--model …] [--create]
@@ -38,7 +38,7 @@ export interface SetupOptions {
   dryRun: boolean;
   /** Agent-level webhook for call_analyzed (webhook mode). */
   webhookUrl?: string;
-  /** Per-number inbound webhook ("call Otto to RSVP"). Applied only with bindNumber. */
+  /** Per-number inbound webhook ("call Homi to RSVP"). Applied only with bindNumber. */
   inboundWebhookUrl?: string;
   bindNumber: boolean;
   phoneNumber?: string;
@@ -116,7 +116,7 @@ export function parseSetupArgs(argv: string[], env: Record<string, string | unde
     phoneNumber,
     voiceId: str('voice-id') ?? (env['RETELL_VOICE_ID'] || DEFAULT_VOICE_ID),
     model: str('model'),
-    agentName: 'Otto',
+    agentName: 'Homi',
     agentId: flags.get('create') === true ? undefined : env['RETELL_AGENT_ID'] || undefined,
   };
 }

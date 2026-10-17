@@ -64,7 +64,7 @@ const googlePlaces = {
 const SENSITIVE = [/harvard/i, /square/i, /\bsq\b/i, /hsq/i, /cambridge/i, /allston/i, /vegetarian/i, /nut/i, /\bben\b/i, /\+1\d{10}/, /maya/i];
 
 function assertNoSensitive(rec: Recorded) {
-  // The NWS User-Agent is a fixed app identifier ("otto-hackharvard/...", required by NWS);
+  // The NWS User-Agent is a fixed app identifier ("homi-hackharvard/...", required by NWS);
   // it is asserted to equal the constant separately, so it is left out of this scan.
   const { 'user-agent': _ua, ...headers } = rec.headers;
   const blob = [rec.url, JSON.stringify(headers), rec.body ?? ''].join('\n');

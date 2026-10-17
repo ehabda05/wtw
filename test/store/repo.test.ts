@@ -75,8 +75,8 @@ test('deleteSpace removes everything for that space', () => {
 });
 
 test('delivery handles are sealed: the raw phone never appears in the database file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'otto-repo-'));
-  const path = join(dir, 'otto.db');
+  const dir = mkdtempSync(join(tmpdir(), 'homi-repo-'));
+  const path = join(dir, 'homi.db');
   const repo = mk(path);
   const sk = ids.space('sim', 'chat-9');
   const phone = '+16175550134';

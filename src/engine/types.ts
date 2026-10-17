@@ -73,7 +73,7 @@ export type MemberStatus = 'pending' | 'answered' | 'out';
 
 export interface Member {
   key: MemberKey;
-  name?: string;                          // only if the member said "otto I'm Sam" or platform gave one
+  name?: string;                          // only if the member said "homi I'm Sam" or platform gave one
   status: MemberStatus;
   dayPrefs: Record<string, DayPref>;      // by ISO date
   optionVotes: Record<number, Vote>;      // explicit per-option answers (numbers, tapbacks, polls) override dayPrefs
@@ -108,7 +108,7 @@ export interface PlaceOption extends Place {
   id: number;              // 1..3
   walkMinutes?: number;
   openAtPlanTime?: boolean | null; // null = unknown hours
-  why?: string;            // short reason for "otto why"
+  why?: string;            // short reason for "homi why"
 }
 
 export type PriceBand = 1 | 2 | 3 | 4;
@@ -143,7 +143,7 @@ export interface NudgeLog {
   target?: MemberKey;
 }
 
-export interface OttoRefs {
+export interface HomiRefs {
   header?: MsgRef;                        // availability header / living tally
   headerSentAt?: number;
   options: Record<number, MsgRef>;        // date option bubbles
@@ -169,16 +169,18 @@ export interface Plan {
   eventAt?: number;
   place?: Place;
   neighborhood?: string;                  // one string per plan, never per person
-  notes: Record<string, string>;          // "parking" -> "behind the building" (explicitly given to Otto)
+  notes: Record<string, string>;          // "parking" -> "behind the building" (explicitly given to Homi)
   hungry?: HungryState;
   bridge?: BridgeState;
   nudges: NudgeLog[];
-  refs: OttoRefs;
+  refs: HomiRefs;
   remindReq30?: boolean;                  // someone asked for a 30-min reminder
-  forcedBy?: MemberKey;                   // "otto lock fri"
+  forcedBy?: MemberKey;                   // "homi lock fri"
   createdAt: number;
   updatedAt: number;
   purgeAt?: number;
+  /** Plan-level extension data (commitment pledges), deleted with the plan. */
+  ext?: Partial<Record<ExtName, unknown>>;
 }
 
 export interface SpaceSettings {
@@ -189,6 +191,8 @@ export interface SpaceSettings {
   notice: boolean;                        // opt-in "offer when a plan is forming"
   lastNoticeOfferAt?: number;
   muted: boolean;                         // tombstone after stop on platforms that can't leave
+  /** Group-level extension data (bill tab, trip, album), sealed with the settings. Each extension types its slot. */
+  ext?: Partial<Record<ExtName, unknown>>;
 }
 
 export interface GroupState {
@@ -206,6 +210,8 @@ export interface Ctx {
   retentionHours: number;     // default 24
   quietHours: [number, number]; // [23, 9]
   newId: () => string;        // injected so the engine stays deterministic in tests
+  /** Public base URL for member-only links (shared album). Unset in tests; the sim uses a labeled demo URL. */
+  publicBaseUrl?: string;
   hostedLlm?: false;          // the pure engine never calls an LLM; runner may pre-annotate events
 }
 
@@ -224,7 +230,9 @@ export type JobKind =
   | 'remind_hour'
   | 'remind_30'
   | 'complete'
-  | 'purge';
+  | 'purge'
+  /** Extension-owned jobs (bills, travel, commitments, album): payload { ext: ExtName, name: string, ... }. */
+  | 'ext';
 
 export interface MessageEvent {
   kind: 'message';
@@ -232,7 +240,7 @@ export interface MessageEvent {
   /** Raw text. Transient: never copy into state. */
   text: string;
   msgRef: MsgRef;
-  /** Mentions Otto, uses the "otto" prefix, a /command, or replies to an Otto message. */
+  /** Mentions Homi, uses the "homi" prefix, a /command, or replies to a Homi message. */
   addressed: boolean;
   replyTo?: MsgRef;
   /** Optional pre-annotation from the runner's gated hosted-LLM fallback (redacted input only). */
@@ -250,7 +258,11 @@ export type EngineEvent =
   | { kind: 'timer'; job: JobKind; planId: string; payload?: Record<string, unknown> }
   | { kind: 'places_result'; requestId: string; options: PlaceOption[]; source: string }
   | { kind: 'weather_result'; requestId: string; rainLikely: boolean; summary?: string }
-  | { kind: 'call_result'; planId: string; member: MemberKey; answerText?: string; optionIds?: number[]; ok: boolean; simulated?: boolean };
+  | { kind: 'call_result'; planId: string; member: MemberKey; answerText?: string; optionIds?: number[]; ok: boolean; simulated?: boolean }
+  /** A member shared a photo. The runner already stored the bytes (opaque photoId); the engine keeps or deletes it. */
+  | { kind: 'photo'; from: MemberRef; msgRef: MsgRef; photoId: string; mime: string; caption?: string; addressed: boolean; replyTo?: MsgRef }
+  | { kind: 'travel_result'; requestId: string; result: TravelResult }
+  | { kind: 'payment_result'; ref: string; planId: string; member: MemberKey; op: PaymentOp; amountCents: number; ok: boolean; simulated: boolean; error?: string };
 
 // ───────────────────────── actions ─────────────────────────
 
@@ -278,6 +290,12 @@ export type Action =
   | { type: 'cancel'; keyPrefix: string }
   | { type: 'lookup_places'; requestId: string; query: PlacesQuery }
   | { type: 'lookup_weather'; requestId: string; near: string; at: number }
+  | { type: 'lookup_travel'; requestId: string; query: TravelQuery }
+  /** Commitment deposits. SIMULATED unless a real payment provider is configured (docs/COMMITMENTS.md). */
+  | { type: 'payment'; op: PaymentOp; ref: string; planId: string; member: MemberKey; amountCents: number; currency: 'USD'; memo: string }
+  /** Shared album: keep a stored photo (member + album known) or delete stored photos (removed, rejected, album deleted). */
+  | { type: 'album_keep'; albumId: string; photoId: string }
+  | { type: 'album_delete'; photoIds: string[] }
   /** A member just opted in to DMs/calls: the runner seals the CURRENT event sender's raw handle into `delivery`. */
   | { type: 'remember_handle'; member: MemberKey; planId: string }
   | { type: 'purge'; planId: string }
@@ -290,3 +308,46 @@ export interface ApplyResult {
 }
 
 export type ApplyEvent = (state: GroupState, event: EngineEvent, ctx: Ctx) => ApplyResult;
+
+// ───────────────────────── extensions (bills, travel, commitments, album) ─────────────────────────
+
+export type ExtName = 'bills' | 'travel' | 'commit' | 'album';
+export type PaymentOp = 'hold' | 'refund' | 'forfeit';
+
+export interface TravelQuery {
+  destination: string;          // "Japan"
+  origin: string;               // "Boston"
+  year: number;                 // 2030
+  month?: number;               // 1-12 when known
+  nights: number;
+  travelers: number;
+  budgetPerPersonUsd?: number;
+  tier: 'budget' | 'comfort';
+  interests: string[];          // "food", "temples", "onsen", ...
+}
+
+export interface TravelListing {
+  kind: 'flight' | 'stay' | 'transport' | 'activity' | 'food';
+  title: string;                // "Example: 3-bedroom apartment near Asakusa (Airbnb-style)"
+  pricePerPersonUsd: number;    // whole-trip cost per person for this line, rounded to dollars
+  detail?: string;
+  /** Representative example, NOT a real bookable listing (always true for estimates). */
+  example: boolean;
+  /** Price is an estimate (dates too far ahead to book, or no live search). */
+  estimate: boolean;
+  /** Verifiable source / listing URL when this came from a real search. */
+  url?: string;
+}
+
+export interface TravelResult {
+  query: TravelQuery;
+  /** True when dates are too far ahead to book or no live provider is configured: everything is an estimate. */
+  estimates: boolean;
+  basis: string;                // e.g. "rough estimates in today's prices"
+  itinerary: string[];          // "Days 1-4 · Tokyo", ...
+  listings: TravelListing[];
+  savings: string[];            // less obvious savings
+  lastMinute: string[];         // last-minute offers (empty when none are available or relevant)
+  totalPerPersonUsd: number;
+  source: string;               // provider id: "estimates" | "duffel" | ...
+}

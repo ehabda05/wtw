@@ -24,8 +24,8 @@
         "color": "#8B6CF0"
       },
       {
-        "id": "jay",
-        "name": "Jay",
+        "id": "jo",
+        "name": "Jo",
         "color": "#3D8FE0"
       },
       {
@@ -34,8 +34,8 @@
         "color": "#6DB35C"
       },
       {
-        "id": "otto",
-        "name": "Otto",
+        "id": "homi",
+        "name": "Homi",
         "bot": true
       }
     ],
@@ -43,68 +43,75 @@
       "ana",
       "ben",
       "maya",
-      "jay",
+      "jo",
       "sam"
     ],
-    "duration": 59200
+    "duration": 149611
   },
   "events": [
     {
       "t": 0,
+      "type": "title",
+      "duration": 2000,
+      "title": "Whats the Word",
+      "line": "Meet Homi, the friend who makes plans happen."
+    },
+    {
+      "t": 1800,
       "type": "chapter",
       "text": "Plans die here"
     },
     {
-      "t": 200,
+      "t": 1800,
       "type": "divider",
       "text": "*Sun, Oct 11* · 8:14 PM",
       "clock": "8:14"
     },
     {
-      "t": 900,
+      "t": 2350,
       "type": "caption",
       "text": "Everyone loves the idea.",
-      "until": 5250
+      "until": 6460
     },
     {
-      "t": 1880,
+      "t": 3330,
       "type": "message",
-      "id": "m1",
+      "id": "m0",
       "from": "you",
       "text": "we should hang out!!",
       "typing": 980
     },
     {
-      "t": 2680,
+      "t": 4090,
       "type": "reaction",
-      "target": "m1",
+      "target": "m0",
       "emoji": "❤️",
       "from": "ana"
     },
     {
-      "t": 2940,
+      "t": 4350,
       "type": "reaction",
-      "target": "m1",
+      "target": "m0",
       "emoji": "❤️",
       "from": "ben"
     },
     {
-      "t": 3200,
+      "t": 4610,
       "type": "reaction",
-      "target": "m1",
+      "target": "m0",
       "emoji": "❤️",
-      "from": "maya"
+      "from": "jo"
     },
     {
-      "t": 3400,
+      "t": 4810,
       "type": "receipt",
-      "target": "m1",
+      "target": "m0",
       "text": "Read by 5"
     },
     {
-      "t": 3750,
+      "t": 5060,
       "type": "jump",
-      "duration": 1500,
+      "duration": 1400,
       "text": "6 days later",
       "ticker": [
         "Sun",
@@ -117,432 +124,1261 @@
       ]
     },
     {
-      "t": 5250,
+      "t": 6460,
       "type": "caption",
       "text": "*Plans die here.*",
-      "until": 7100
+      "until": 8550
     },
     {
-      "t": 5250,
+      "t": 6460,
       "type": "divider",
-      "text": "6 days later · *Sat* 6:58 PM",
-      "clock": "6:58",
+      "text": "6 days later · *Sat, Oct 17* 10:00 AM",
+      "clock": "10:00",
       "style": "jump"
     },
     {
-      "t": 5950,
-      "type": "typing",
-      "from": "jay",
-      "duration": 1100
-    },
-    {
-      "t": 7100,
-      "type": "chapter",
-      "text": "Otto joins the chat"
-    },
-    {
-      "t": 7100,
-      "type": "caption",
-      "text": "Add Otto to the chat you *already have*.",
-      "until": 11600
-    },
-    {
-      "t": 7100,
-      "type": "system",
-      "text": "Maya added Otto to the conversation",
-      "addMember": "otto"
-    },
-    {
-      "t": 8700,
+      "t": 7730,
       "type": "message",
       "id": "m1",
-      "from": "otto",
-      "text": "Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and \"otto stop\" makes me delete everything and leave.",
-      "typing": 1000
+      "from": "maya",
+      "text": "guys we never hang out anymore",
+      "typing": 720
     },
     {
-      "t": 11600,
+      "t": 8550,
+      "type": "chapter",
+      "text": "Homi joins"
+    },
+    {
+      "t": 8550,
+      "type": "caption",
+      "text": "Add Homi to the chat you *already have*.",
+      "until": 12200
+    },
+    {
+      "t": 8550,
+      "type": "system",
+      "text": "Maya added Homi to the conversation",
+      "addMember": "homi"
+    },
+    {
+      "t": 10000,
+      "type": "message",
+      "id": "m2",
+      "from": "homi",
+      "text": "Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and \"homi stop\" makes me delete everything and leave.",
+      "typing": 850
+    },
+    {
+      "t": 12200,
       "type": "chapter",
       "text": "Find a date"
     },
     {
-      "t": 11600,
+      "t": 12200,
       "type": "caption",
-      "text": "No calendars. Otto *proposes*, friends just *react*.",
-      "until": 15588
+      "text": "No calendars. Homi *proposes*, friends just *react*.",
+      "until": 18996
     },
     {
-      "t": 12688,
+      "t": 13288,
       "type": "message",
-      "id": "m2",
+      "id": "m3",
       "from": "you",
-      "text": "@otto dinner next week?",
+      "text": "@homi dinner next week?",
       "typing": 1088
     },
     {
-      "t": 14202,
+      "t": 14577,
       "type": "message",
-      "id": "m3",
-      "from": "otto",
-      "text": "Dinner, next week. Tap ❤️ on every time that works (or reply like \"fri or sat\"); I'll lock it in tomorrow 9:30pm.",
-      "typing": 932
+      "id": "m4",
+      "from": "homi",
+      "text": "Dinner, next week. Tap ❤️ on every time that works (or reply like \"fri or sat\"); I'll lock it in tomorrow 10am.",
+      "typing": 753
     },
     {
-      "t": 14622,
+      "t": 14997,
       "type": "message",
       "id": "d1",
-      "from": "otto",
+      "from": "homi",
       "text": "1 · Thu Oct 22 · 7pm"
     },
     {
-      "t": 15042,
+      "t": 15417,
       "type": "message",
       "id": "d2",
-      "from": "otto",
+      "from": "homi",
       "text": "2 · Fri Oct 23 · 7pm"
     },
     {
-      "t": 15462,
+      "t": 15837,
       "type": "message",
       "id": "d3",
-      "from": "otto",
+      "from": "homi",
       "text": "3 · Sat Oct 24 · 7pm"
     },
     {
-      "t": 15588,
-      "type": "chapter",
-      "text": "Votes, any way"
-    },
-    {
-      "t": 15588,
-      "type": "caption",
-      "text": "Plain replies and hearts *both count*.",
-      "until": 21344
-    },
-    {
-      "t": 16284,
-      "type": "message",
-      "id": "m4",
-      "from": "ben",
-      "text": "fri or sat works",
-      "typing": 696
-    },
-    {
-      "t": 17516,
-      "type": "message",
-      "id": "m5",
-      "from": "jay",
-      "text": "not thu, fri works",
-      "typing": 748
-    },
-    {
-      "t": 18288,
+      "t": 15524,
       "type": "reaction",
       "target": "d2",
       "emoji": "❤️",
-      "from": "maya"
+      "from": "jo"
     },
     {
-      "t": 18548,
+      "t": 15784,
       "type": "reaction",
       "target": "d2",
+      "emoji": "❤️",
+      "from": "you"
+    },
+    {
+      "t": 16504,
+      "type": "message",
+      "id": "m5",
+      "from": "ana",
+      "text": "fri works, i'm busy thu and sat",
+      "typing": 720
+    },
+    {
+      "t": 17396,
+      "type": "reaction",
+      "target": "m5",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 18116,
+      "type": "message",
+      "id": "m6",
+      "from": "ben",
+      "text": "sat works. thu and fri i can't",
+      "typing": 720
+    },
+    {
+      "t": 18996,
+      "type": "reaction",
+      "target": "m6",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 18996,
+      "type": "caption",
+      "text": "Conflict? Homi offers a *bridge*.",
+      "until": 25017
+    },
+    {
+      "t": 19710,
+      "type": "message",
+      "id": "m7",
+      "from": "homi",
+      "text": "Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch (I'll add it)?",
+      "typing": 714
+    },
+    {
+      "t": 21996,
+      "type": "message",
+      "id": "m8",
+      "from": "ana",
+      "text": "sat brunch works actually!",
+      "typing": 720
+    },
+    {
+      "t": 23168,
+      "type": "message",
+      "id": "m9",
+      "from": "homi",
+      "text": "Added it as a new option; tap ❤️ if it works.",
+      "typing": 600
+    },
+    {
+      "t": 23588,
+      "type": "message",
+      "id": "d4",
+      "from": "homi",
+      "text": "4 · Sat Oct 24 · 11am"
+    },
+    {
+      "t": 23805,
+      "type": "reaction",
+      "target": "d4",
       "emoji": "❤️",
       "from": "ana"
     },
     {
-      "t": 18808,
+      "t": 24065,
       "type": "reaction",
-      "target": "d3",
+      "target": "d4",
       "emoji": "❤️",
       "from": "ben"
     },
     {
-      "t": 19068,
-      "type": "reaction",
-      "target": "d2",
-      "emoji": "❤️",
-      "from": "you"
-    },
-    {
-      "t": 19932,
-      "type": "message",
-      "id": "m6",
-      "from": "otto",
-      "text": "Fri Oct 23 · 7pm it is: 5 in. Where to? Say \"otto find food\" for 3 options, or tell me the spot.",
-      "typing": 864
-    },
-    {
-      "t": 21344,
-      "type": "chapter",
-      "text": "Where to eat"
-    },
-    {
-      "t": 21344,
-      "type": "caption",
-      "text": "Hungry? Otto asks *one question*.",
-      "until": 27520
-    },
-    {
-      "t": 22244,
-      "type": "message",
-      "id": "m7",
-      "from": "maya",
-      "text": "ok I'm starving where are we eating",
-      "typing": 900
-    },
-    {
-      "t": 23698,
-      "type": "message",
-      "id": "m8",
-      "from": "otto",
-      "text": "What are we feeling? Cuisine, budget, and roughly where?",
-      "typing": 704
-    },
-    {
-      "t": 25140,
-      "type": "message",
-      "id": "m9",
-      "from": "ben",
-      "text": "tacos",
-      "typing": 410
-    },
-    {
-      "t": 26034,
+      "t": 24665,
       "type": "message",
       "id": "m10",
-      "from": "jay",
-      "text": "under $30",
-      "typing": 514
+      "from": "maya",
+      "text": "anything but thu",
+      "typing": 600
     },
     {
-      "t": 27064,
-      "type": "message",
-      "id": "m11",
-      "from": "ana",
-      "text": "harvard square",
-      "typing": 644
-    },
-    {
-      "t": 27520,
-      "type": "caption",
-      "text": "Real places nearby, open *Friday at 7*.",
-      "until": 32080
-    },
-    {
-      "t": 28332,
-      "type": "message",
-      "id": "m12",
-      "from": "otto",
-      "text": "Tacos, under $30, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).",
-      "typing": 812
-    },
-    {
-      "t": 28752,
-      "type": "message",
-      "id": "p1",
-      "from": "otto",
-      "text": "1 · El Jefe's Taqueria · ~$$ (est.) · 2 min walk · open Fri 7pm"
-    },
-    {
-      "t": 29172,
-      "type": "message",
-      "id": "p2",
-      "from": "otto",
-      "text": "2 · Felipe's Taqueria · ~$$ (est.) · 3 min walk · open Fri 7pm"
-    },
-    {
-      "t": 29592,
-      "type": "message",
-      "id": "p3",
-      "from": "otto",
-      "text": "3 · The Painted Burro · ~$$ (est.) · 3 min walk · open Fri 7pm"
-    },
-    {
-      "t": 29516,
-      "type": "reaction",
-      "target": "p2",
-      "emoji": "❤️",
-      "from": "ben"
-    },
-    {
-      "t": 29776,
-      "type": "reaction",
-      "target": "p2",
-      "emoji": "❤️",
-      "from": "maya"
-    },
-    {
-      "t": 30036,
-      "type": "reaction",
-      "target": "p1",
-      "emoji": "❤️",
-      "from": "jay"
-    },
-    {
-      "t": 30296,
-      "type": "reaction",
-      "target": "p2",
-      "emoji": "❤️",
-      "from": "you"
-    },
-    {
-      "t": 30992,
-      "type": "message",
-      "id": "m13",
-      "from": "otto",
-      "text": "Felipe's Taqueria it is: 21 Brattle Street, Cambridge.",
-      "typing": 696
-    },
-    {
-      "t": 32080,
+      "t": 25017,
       "type": "chapter",
       "text": "The quiet friend"
     },
     {
-      "t": 32080,
+      "t": 25017,
       "type": "caption",
-      "text": "Quiet friend? Otto *calls*, only if they opted in.",
-      "until": 42420
+      "text": "Quiet friend? Homi *calls*, only if they opted in.",
+      "until": 37137
     },
     {
-      "t": 32080,
+      "t": 25017,
+      "type": "jump",
+      "duration": 1200,
+      "text": "12 hours later",
+      "ticker": []
+    },
+    {
+      "t": 26217,
       "type": "divider",
-      "text": "*Sun* 7:28 PM",
-      "clock": "7:28"
+      "text": "12 hours later · *Sat* 10:00 PM",
+      "clock": "10:00",
+      "style": "jump"
     },
     {
-      "t": 33540,
+      "t": 27568,
       "type": "message",
-      "id": "m14",
-      "from": "otto",
-      "text": "Still need Sam, so I'm giving them a quick call (they said that's ok).",
-      "typing": 760
+      "id": "m11",
+      "from": "homi",
+      "text": "5 of 6 have picked, and I'm locking it in tomorrow 10am. Still need Sam, so I'm giving them a quick call (they said that's ok).",
+      "typing": 801
     },
     {
       "type": "call",
       "lines": [
         {
-          "from": "Otto",
-          "text": "Hi, this is Otto calling about your group's plan. Does Friday at 7 work for you?",
-          "t": 1480,
-          "duration": 2880
+          "from": "Homi",
+          "text": "Hi, this is Homi calling about your group's plan. Does Friday at 7, Saturday at 11, or Saturday at 7 work for you?",
+          "t": 1280,
+          "duration": 3450
         },
         {
           "from": "Sam",
-          "text": "Friday works.",
-          "t": 4740,
+          "text": "friday works",
+          "t": 5110,
           "duration": 700
         }
       ],
-      "caller": "otto",
+      "caller": "homi",
       "number": "(617) 555-01xx",
-      "label": "Sam's phone",
+      "label": "Sam's phone · (simulated call)",
       "note": "Simulated call audio",
-      "accept": 1100,
-      "endAt": 5990,
-      "duration": 6940,
-      "t": 35480
+      "accept": 900,
+      "endAt": 6360,
+      "duration": 7310,
+      "t": 29827
     },
     {
-      "t": 42420,
+      "t": 37137,
       "type": "caption",
       "text": "The answer lands back *in the chat*.",
-      "until": 44826
+      "until": 39197
     },
     {
-      "t": 43070,
+      "t": 37923,
+      "type": "message",
+      "id": "m12",
+      "from": "homi",
+      "text": "Fri Oct 23 · 7pm it is: 5 in. Where to: say \"homi find food\" for 3 options, or tell me the spot (\"homi we're going to …\").",
+      "typing": 786
+    },
+    {
+      "t": 39197,
+      "type": "caption",
+      "text": "Hungry? *One question*, three real places.",
+      "until": 47875
+    },
+    {
+      "t": 39917,
+      "type": "message",
+      "id": "m13",
+      "from": "maya",
+      "text": "ok I'm starving where are we eating",
+      "typing": 720
+    },
+    {
+      "t": 41197,
+      "type": "message",
+      "id": "m14",
+      "from": "homi",
+      "text": "What are we feeling? Cuisine, budget, and roughly where?",
+      "typing": 600
+    },
+    {
+      "t": 42069,
       "type": "message",
       "id": "m15",
-      "from": "otto",
-      "text": "Sam's in for Fri (by phone). 6 for 6 🎉",
-      "typing": 650
+      "from": "ana",
+      "text": "ramen sounds amazing"
     },
     {
-      "t": 44466,
+      "t": 42609,
+      "type": "message",
+      "id": "m16",
+      "from": "ben",
+      "text": "something cheap pls"
+    },
+    {
+      "t": 43149,
+      "type": "message",
+      "id": "m17",
+      "from": "jo",
+      "text": "harvard square"
+    },
+    {
+      "t": 44159,
+      "type": "message",
+      "id": "m18",
+      "from": "homi",
+      "text": "Ramen, keeping it cheap, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).",
+      "typing": 690
+    },
+    {
+      "t": 44579,
+      "type": "message",
+      "id": "p1",
+      "from": "homi",
+      "text": "1 · Hokkaido Ramen Santouka · ~$$ (est.) · 5 min walk · open at 7pm"
+    },
+    {
+      "t": 44999,
+      "type": "message",
+      "id": "p2",
+      "from": "homi",
+      "text": "2 · Waku Waku Ramen · ~$$ (est.) · 3 min walk · open at 7pm"
+    },
+    {
+      "t": 45419,
+      "type": "message",
+      "id": "p3",
+      "from": "homi",
+      "text": "3 · Gyu-Kaku · ~$$ (est.) · 5 min walk · open at 7pm"
+    },
+    {
+      "t": 45163,
       "type": "reaction",
-      "target": "m15",
-      "emoji": "🎉",
+      "target": "p1",
+      "emoji": "❤️",
       "from": "ana"
     },
     {
-      "t": 44726,
+      "t": 45423,
       "type": "reaction",
-      "target": "m15",
+      "target": "p1",
       "emoji": "❤️",
-      "from": "sam"
+      "from": "maya"
     },
     {
-      "t": 44826,
+      "t": 45683,
+      "type": "reaction",
+      "target": "p1",
+      "emoji": "❤️",
+      "from": "you"
+    },
+    {
+      "t": 45903,
+      "type": "message",
+      "id": "m19",
+      "from": "jo",
+      "text": "1"
+    },
+    {
+      "t": 46823,
+      "type": "message",
+      "id": "m20",
+      "from": "homi",
+      "text": "Hokkaido Ramen Santouka it is: 1 Bow Street, Cambridge 🍜",
+      "typing": 600
+    },
+    {
+      "t": 47875,
       "type": "chapter",
-      "text": "Then it forgets"
+      "text": "Show-up pledge"
     },
     {
-      "t": 44826,
+      "t": 47875,
       "type": "caption",
-      "text": "Ask it *what it knows*.",
-      "until": 51492
+      "text": "An optional *$10 show-up pledge*.",
+      "until": 57111
     },
     {
-      "t": 44826,
+      "t": 48595,
+      "type": "message",
+      "id": "m21",
+      "from": "maya",
+      "text": "homi let's do a $10 show-up pledge",
+      "typing": 720
+    },
+    {
+      "t": 50113,
+      "type": "message",
+      "id": "m22",
+      "from": "homi",
+      "text": "Show-up pledge for Fri Oct 23 · 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?",
+      "typing": 850
+    },
+    {
+      "t": 50533,
+      "type": "message",
+      "id": "o1",
+      "from": "homi",
+      "text": "1 · Group fund for the next outing"
+    },
+    {
+      "t": 50953,
+      "type": "message",
+      "id": "o2",
+      "from": "homi",
+      "text": "2 · Split among the people who showed up"
+    },
+    {
+      "t": 51373,
+      "type": "message",
+      "id": "o3",
+      "from": "homi",
+      "text": "3 · Donate to a charity we pick"
+    },
+    {
+      "t": 52811,
+      "type": "message",
+      "id": "rules",
+      "card": {
+        "head": "How the pledge works (payments are SIMULATED in this demo):",
+        "rows": [
+          "· Check in: \"homi I'm here\" at Hokkaido Ramen Santouka, 6:45–7:30pm; it counts once a second person is there (or someone 👍s it)",
+          "· Refund: automatic, by 8:30pm",
+          "· No-show: your $10 goes where we agree",
+          "· Cancel by Thu Oct 22, 7pm for a full refund (\"homi cancel my pledge\")",
+          "· Disputes: \"homi dispute\" within 24h; the others vote, a tie means a refund"
+        ]
+      },
+      "from": "homi",
+      "typing": 850
+    },
+    {
+      "t": 57111,
+      "type": "caption",
+      "text": "Nothing is held until *everyone agrees*.",
+      "until": 61571
+    },
+    {
+      "t": 57371,
+      "type": "reaction",
+      "target": "o1",
+      "emoji": "❤️",
+      "from": "ana"
+    },
+    {
+      "t": 57631,
+      "type": "reaction",
+      "target": "o1",
+      "emoji": "❤️",
+      "from": "ben"
+    },
+    {
+      "t": 57891,
+      "type": "reaction",
+      "target": "o1",
+      "emoji": "❤️",
+      "from": "jo"
+    },
+    {
+      "t": 58151,
+      "type": "reaction",
+      "target": "o1",
+      "emoji": "❤️",
+      "from": "maya"
+    },
+    {
+      "t": 58411,
+      "type": "reaction",
+      "target": "o1",
+      "emoji": "❤️",
+      "from": "you"
+    },
+    {
+      "t": 58631,
+      "type": "message",
+      "id": "m23",
+      "from": "sam",
+      "text": "1"
+    },
+    {
+      "t": 59791,
+      "type": "message",
+      "id": "m24",
+      "from": "homi",
+      "text": "Everyone agreed: no-show money goes to the group fund. Pledges are open: say \"homi I'm in\" to put down $10 (SIMULATED, no real money moves).",
+      "typing": 840
+    },
+    {
+      "t": 61571,
+      "type": "caption",
+      "text": "Six say I'm in. Every payment is *SIMULATED*.",
+      "until": 67857
+    },
+    {
+      "t": 61791,
+      "type": "message",
+      "id": "m25",
+      "from": "ana",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 62371,
+      "type": "reaction",
+      "target": "m25",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 62591,
+      "type": "message",
+      "id": "m26",
+      "from": "ben",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 63171,
+      "type": "reaction",
+      "target": "m26",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 63391,
+      "type": "message",
+      "id": "m27",
+      "from": "jo",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 63971,
+      "type": "reaction",
+      "target": "m27",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 64191,
+      "type": "message",
+      "id": "m28",
+      "from": "maya",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 64771,
+      "type": "reaction",
+      "target": "m28",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 64991,
+      "type": "message",
+      "id": "m29",
+      "from": "sam",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 65571,
+      "type": "reaction",
+      "target": "m29",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 65791,
+      "type": "message",
+      "id": "m30",
+      "from": "you",
+      "text": "homi I'm in"
+    },
+    {
+      "t": 66371,
+      "type": "reaction",
+      "target": "m30",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 66971,
+      "type": "message",
+      "id": "m31",
+      "from": "homi",
+      "text": "6 of 6 pledged: $60 held (SIMULATED). See you Friday at 7.",
+      "typing": 600
+    },
+    {
+      "t": 67857,
+      "type": "chapter",
+      "text": "Split the bill"
+    },
+    {
+      "t": 67857,
+      "type": "caption",
+      "text": "Friday: check in with *one line*.",
+      "until": 76037
+    },
+    {
+      "t": 67857,
+      "type": "jump",
+      "duration": 1300,
+      "text": "6 days later",
+      "ticker": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri"
+      ]
+    },
+    {
+      "t": 69157,
+      "type": "divider",
+      "text": "6 days later · *Fri, Oct 23* 6:50 PM",
+      "clock": "6:50",
+      "style": "jump"
+    },
+    {
+      "t": 69927,
+      "type": "message",
+      "id": "m32",
+      "from": "ana",
+      "text": "homi I'm here"
+    },
+    {
+      "t": 70507,
+      "type": "reaction",
+      "target": "m32",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 70727,
+      "type": "message",
+      "id": "m33",
+      "from": "ben",
+      "text": "homi I'm here"
+    },
+    {
+      "t": 71307,
+      "type": "reaction",
+      "target": "m33",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 71527,
+      "type": "message",
+      "id": "m34",
+      "from": "jo",
+      "text": "homi I'm here"
+    },
+    {
+      "t": 72107,
+      "type": "reaction",
+      "target": "m34",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 72327,
+      "type": "message",
+      "id": "m35",
+      "from": "maya",
+      "text": "homi I'm here"
+    },
+    {
+      "t": 72907,
+      "type": "reaction",
+      "target": "m35",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 73127,
+      "type": "message",
+      "id": "m36",
+      "from": "you",
+      "text": "homi I'm here"
+    },
+    {
+      "t": 73707,
+      "type": "reaction",
+      "target": "m36",
+      "emoji": "👍",
+      "from": "homi"
+    },
+    {
+      "t": 74331,
+      "type": "message",
+      "id": "m37",
+      "from": "homi",
+      "text": "5 of 6 checked in ✓ Still waiting on Sam; check-in closes at 7:30pm.",
+      "quote": "You: homi I'm here",
+      "typing": 624
+    },
+    {
+      "t": 75487,
+      "type": "divider",
+      "text": "*Fri* 8:05 PM",
+      "clock": "8:05"
+    },
+    {
+      "t": 76037,
+      "type": "caption",
+      "text": "Ben paid. Homi does *the math*.",
+      "until": 84852
+    },
+    {
+      "t": 76757,
+      "type": "message",
+      "id": "m38",
+      "from": "ben",
+      "text": "homi itemize dinner, paid by ben: ana shio ramen 16.50; ben spicy miso ramen 17.50 + gyoza 8; jo toroniku ramen 21; maya veggie ramen 16; you shoyu ramen 16.50; shared edamame 6 + karaage 10; tax 7%; tip 20%",
+      "typing": 720
+    },
+    {
+      "t": 78697,
+      "type": "message",
+      "id": "bill",
+      "card": {
+        "head": "Dinner $141.61 (tax $7.81 + 20% tip $22.30), paid by Ben:",
+        "rows": [
+          {
+            "l": "Ana",
+            "r": "$25.02"
+          },
+          {
+            "l": "Ben",
+            "r": "$36.45"
+          },
+          {
+            "l": "Jo",
+            "r": "$30.74"
+          },
+          {
+            "l": "Maya",
+            "r": "$24.38"
+          },
+          {
+            "l": "You",
+            "r": "$25.02"
+          }
+        ],
+        "foot": "Adds up to $141.61 exactly."
+      },
+      "from": "homi",
+      "typing": 840
+    },
+    {
+      "t": 82217,
+      "type": "message",
+      "id": "m39",
+      "from": "jo",
+      "text": "homi jo paid 23.40 for the uber, split ana jo you",
+      "typing": 720
+    },
+    {
+      "t": 83617,
+      "type": "message",
+      "id": "m40",
+      "from": "homi",
+      "text": "Uber $23.40 paid by Jo: $7.80 each for Ana, Jo and You.",
+      "typing": 600
+    },
+    {
+      "t": 84852,
+      "type": "caption",
+      "text": "Who pays whom, *to the cent*.",
+      "until": 89609
+    },
+    {
+      "t": 85412,
+      "type": "message",
+      "id": "m41",
+      "from": "ana",
+      "text": "homi settle up",
+      "typing": 560
+    },
+    {
+      "t": 86659,
+      "type": "message",
+      "id": "settle",
+      "card": {
+        "head": "Here's who pays whom (2 expenses, $165.01):",
+        "rows": [
+          {
+            "l": "Ana → Ben",
+            "r": "$32.82"
+          },
+          {
+            "l": "You → Ben",
+            "r": "$32.82"
+          },
+          {
+            "l": "Maya → Ben",
+            "r": "$24.38"
+          },
+          {
+            "l": "Jo → Ben",
+            "r": "$15.14"
+          }
+        ],
+        "foot": "Then everyone's even."
+      },
+      "from": "homi",
+      "typing": 819
+    },
+    {
+      "t": 89059,
+      "type": "divider",
+      "text": "*Fri* 8:30 PM",
+      "clock": "8:30"
+    },
+    {
+      "t": 89609,
+      "type": "caption",
+      "text": "No-show money goes where *the group agreed*.",
+      "until": 92959
+    },
+    {
+      "t": 90459,
+      "type": "message",
+      "id": "m42",
+      "from": "homi",
+      "text": "Pledge settled (SIMULATED): $10 back to Ana, Ben, Jo, Maya and You. Sam didn't check in, so Sam's $10 went to the group fund (now $10); Sam can dispute until Sat 8:30pm.",
+      "typing": 850
+    },
+    {
+      "t": 92959,
+      "type": "chapter",
+      "text": "Shared album"
+    },
+    {
+      "t": 92959,
+      "type": "caption",
+      "text": "Photos go to an album *only the group* can open.",
+      "until": 105959
+    },
+    {
+      "t": 94109,
+      "type": "message",
+      "id": "m43",
+      "from": "you",
+      "text": "homi start an album for tonight",
+      "typing": 1150
+    },
+    {
+      "t": 95591,
+      "type": "message",
+      "id": "m44",
+      "from": "homi",
+      "text": "Album \"Ramen night · Fri Oct 23\" is open to this group only: https://homi.example/a/… (demo link). Send photos with \"homi add\" or reply to this message; you can remove your own anytime with \"homi remove my photos\".",
+      "typing": 850
+    },
+    {
+      "t": 98031,
+      "type": "message",
+      "id": "m45",
+      "photos": [
+        "ramen"
+      ],
+      "from": "ana",
+      "text": "homi add",
+      "typing": 440
+    },
+    {
+      "t": 99371,
+      "type": "message",
+      "id": "m46",
+      "photos": [
+        "friends",
+        "city"
+      ],
+      "from": "jo",
+      "text": "homi add",
+      "typing": 440
+    },
+    {
+      "t": 100711,
+      "type": "message",
+      "id": "m47",
+      "photos": [
+        "neon"
+      ],
+      "from": "maya",
+      "text": "homi add",
+      "typing": 440
+    },
+    {
+      "t": 102211,
+      "type": "message",
+      "id": "m48",
+      "from": "homi",
+      "text": "4 photos in the album from Ana, Jo and Maya.",
+      "typing": 600
+    },
+    {
+      "t": 103259,
+      "type": "album",
+      "duration": 2700,
+      "title": "Ramen night · Fri Oct 23",
+      "header": "Members only",
+      "sub": "the crew · 4 photos from Ana, Jo and Maya",
+      "foot": "Only people in this chat can open it · demo link\nAdd: \"homi add\" · Remove yours: \"homi remove my photos\"",
+      "photos": [
+        {
+          "art": "ramen",
+          "by": "ana"
+        },
+        {
+          "art": "friends",
+          "by": "jo"
+        },
+        {
+          "art": "city",
+          "by": "jo"
+        },
+        {
+          "art": "neon",
+          "by": "maya"
+        }
+      ]
+    },
+    {
+      "t": 105959,
+      "type": "caption",
+      "text": "Remove your own photos, *anytime*.",
+      "until": 111802
+    },
+    {
+      "t": 106659,
+      "type": "message",
+      "id": "m49",
+      "from": "jo",
+      "text": "homi remove my photos",
+      "typing": 700
+    },
+    {
+      "t": 107771,
+      "type": "message",
+      "id": "m50",
+      "from": "homi",
+      "text": "Removed Jo's 2 photos; 2 left in the album.",
+      "typing": 600
+    },
+    {
+      "t": 108652,
+      "type": "album",
+      "duration": 2600,
+      "title": "Ramen night · Fri Oct 23",
+      "header": "Members only",
+      "sub": "the crew · 4 photos from Ana, Jo and Maya",
+      "subAfter": "the crew · 2 photos from Ana and Maya",
+      "foot": "Only people in this chat can open it · demo link\nAdd: \"homi add\" · Remove yours: \"homi remove my photos\"",
+      "photos": [
+        {
+          "art": "ramen",
+          "by": "ana"
+        },
+        {
+          "art": "friends",
+          "by": "jo"
+        },
+        {
+          "art": "city",
+          "by": "jo"
+        },
+        {
+          "art": "neon",
+          "by": "maya"
+        }
+      ],
+      "remove": {
+        "by": "jo",
+        "at": 650,
+        "toast": "Jo removed 2 photos · 2 left"
+      }
+    },
+    {
+      "t": 111252,
+      "type": "chapter",
+      "text": "Plan the trip"
+    },
+    {
+      "t": 111252,
       "type": "divider",
       "text": "*Sat, Oct 24* · 11:40 AM",
       "clock": "11:40"
     },
     {
-      "t": 46426,
+      "t": 111802,
+      "type": "caption",
+      "text": "Next trip? Homi asks *what matters*.",
+      "until": 119778
+    },
+    {
+      "t": 112522,
       "type": "message",
-      "id": "m16",
+      "id": "m51",
       "from": "ana",
-      "text": "last night was perfect 🥹",
-      "typing": 900
+      "text": "homi let's plan Japan for 2030",
+      "typing": 720
     },
     {
-      "t": 47838,
+      "t": 113928,
       "type": "message",
-      "id": "m17",
-      "from": "you",
-      "text": "otto what do you know",
-      "typing": 1016
+      "id": "m52",
+      "from": "homi",
+      "text": "Japan 2030, love it ✈️ Where are you flying from, roughly when and for how long, how many of you, and a budget per person?",
+      "typing": 786
     },
     {
-      "t": 49392,
+      "t": 116322,
       "type": "message",
-      "id": "m18",
-      "from": "otto",
-      "text": "Here's everything I have for this chat: plan \"dinner\" · options Thu, Fri, Sat 7pm · chosen Fri 7pm · place Felipe's Taqueria (Harvard Sq) · 6 people: 6 yes · names you gave me: Ana, Ben, Sam · 1 call · deletes Sat 7pm. Say \"otto forget\" to delete it now.",
-      "typing": 1000
+      "id": "m53",
+      "from": "ana",
+      "text": "boston, late march for cherry blossoms, 10 nights",
+      "typing": 720
     },
     {
-      "t": 51492,
+      "t": 117842,
+      "type": "message",
+      "id": "m54",
+      "from": "ben",
+      "text": "5 of us, ~$3,000 each all in",
+      "typing": 720
+    },
+    {
+      "t": 119158,
+      "type": "message",
+      "id": "m55",
+      "from": "maya",
+      "text": "food, temples, one onsen night",
+      "typing": 720
+    },
+    {
+      "t": 119778,
+      "type": "caption",
+      "text": "Every price is a *labeled estimate*.",
+      "until": 125828
+    },
+    {
+      "t": 120628,
+      "type": "message",
+      "id": "trip",
+      "card": {
+        "head": "Japan · late Mar 2030 · 10 nights · 5 from Boston. Too far ahead to book, so these are estimates in today's prices:",
+        "sections": [
+          {
+            "title": "Itinerary",
+            "rows": [
+              {
+                "k": "Days 1–4",
+                "l": "Tokyo (Asakusa base)"
+              },
+              {
+                "k": "Day 5",
+                "l": "Hakone onsen night"
+              },
+              {
+                "k": "Days 6–8",
+                "l": "Kyoto (+ Nara day trip)"
+              },
+              {
+                "k": "Days 9–10",
+                "l": "Osaka, fly home from Kansai"
+              }
+            ]
+          },
+          {
+            "title": "Budget per person",
+            "rows": [
+              {
+                "icon": "✈️",
+                "l": "Flights BOS→Tokyo, Osaka→BOS (open-jaw, 1 stop)",
+                "r": "~$1,300"
+              },
+              {
+                "icon": "🏠",
+                "l": "Stays, budget tier",
+                "r": "~$450",
+                "note": "Example listing · estimated price: 3-bedroom Airbnb-style apartment in Asakusa, ~$230/night for 5"
+              },
+              {
+                "icon": "🚄",
+                "l": "Trains + transit",
+                "r": "~$220",
+                "note": "(individual Shinkansen tickets beat a nationwide JR Pass on this route)"
+              },
+              {
+                "icon": "🍜",
+                "l": "Food + activities",
+                "r": "~$700"
+              }
+            ]
+          }
+        ],
+        "foot": "Total ≈ $2,670 per person ($13,350 for 5), under your $3,000."
+      },
+      "from": "homi",
+      "typing": 850
+    },
+    {
+      "t": 125828,
+      "type": "caption",
+      "text": "Want comfort? Homi explains *the difference*.",
+      "until": 129478
+    },
+    {
+      "t": 126678,
+      "type": "message",
+      "id": "m56",
+      "from": "homi",
+      "text": "Want it more comfortable? 4★ hotels plus one ryokan night with dinner runs ≈ $3,620 per person (**+$950**: stays ~$1,300 instead of ~$450, food ~$800 instead of ~$700).",
+      "typing": 850
+    },
+    {
+      "t": 129478,
+      "type": "caption",
+      "text": "Plus the savings people *miss*.",
+      "until": 136564
+    },
+    {
+      "t": 130328,
+      "type": "message",
+      "id": "save",
+      "card": {
+        "head": "Less obvious savings:",
+        "rows": [
+          "· Fly into Tokyo and home from Osaka: no backtracking",
+          "· Book the ryokan on a weeknight",
+          "· Late March is peak bloom; early April or mid-May is usually cheaper",
+          "· Convenience-store breakfasts"
+        ],
+        "foot": "Last-minute deals: none yet; I'll watch fares once 2030 schedules open (about 11 months out)."
+      },
+      "from": "homi",
+      "typing": 850
+    },
+    {
+      "t": 133968,
+      "type": "message",
+      "id": "m57",
+      "from": "ben",
+      "text": "comfortable please",
+      "typing": 640
+    },
+    {
+      "t": 135134,
+      "type": "message",
+      "id": "m58",
+      "from": "homi",
+      "text": "Comfort plan saved: ≈ $3,620 per person, all estimates. Say \"homi trip\" anytime to see it.",
+      "typing": 690
+    },
+    {
+      "t": 136564,
+      "type": "chapter",
+      "text": "Then it forgets"
+    },
+    {
+      "t": 136564,
+      "type": "caption",
+      "text": "Ask it *what it knows*.",
+      "until": 141626
+    },
+    {
+      "t": 137264,
+      "type": "message",
+      "id": "m59",
+      "from": "jo",
+      "text": "homi what do you know",
+      "typing": 700
+    },
+    {
+      "t": 138626,
+      "type": "message",
+      "id": "know",
+      "card": {
+        "head": "Here's everything I have for this chat:",
+        "rows": [
+          {
+            "k": "Plan",
+            "l": "dinner · Fri Oct 23, 7pm · Hokkaido Ramen Santouka · 5 in"
+          },
+          {
+            "k": "Pledge",
+            "l": "settled (SIMULATED): $10 back to 5 · Sam's $10 to the group fund"
+          },
+          {
+            "k": "Tab",
+            "l": "2 expenses, $165.01 · 4 payments to Ben"
+          },
+          {
+            "k": "Trip",
+            "l": "Japan 2030 · comfort plan ≈ $3,620 per person (estimates)"
+          },
+          {
+            "k": "Album",
+            "l": "Ramen night · 2 photos from Ana and Maya"
+          }
+        ],
+        "foot": "The plan deletes Sat 7pm. Say \"homi forget\" to delete it now."
+      },
+      "from": "homi",
+      "typing": 850
+    },
+    {
+      "t": 141626,
       "type": "caption",
       "text": "*Then it forgets.*",
-      "until": 54600
+      "until": 143911
     },
     {
-      "t": 52148,
+      "t": 142126,
       "type": "message",
-      "id": "m19",
-      "from": "you",
-      "text": "otto forget",
-      "typing": 656
+      "id": "m60",
+      "from": "ana",
+      "text": "homi forget",
+      "typing": 500
     },
     {
-      "t": 53212,
+      "t": 143118,
       "type": "message",
-      "id": "m20",
-      "from": "otto",
+      "id": "m61",
+      "from": "homi",
       "text": "Done: I've deleted this plan.",
-      "typing": 650
+      "typing": 600
     },
     {
-      "t": 54600,
+      "t": 143911,
+      "type": "caption",
+      "text": "Album, tab and trip stay until *the group* deletes them.",
+      "until": 145011
+    },
+    {
+      "t": 145011,
       "type": "end",
       "duration": 4600,
-      "title": "Otto",
-      "line": "The friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards.",
-      "tagline": "No app to install. Just add it to the group chat.",
+      "title": "Whats the Word",
+      "line": "Homi, the friend who makes plans happen.",
+      "tagline": "No app to install. Just add Homi to the group chat.",
       "badge": "Built on Photon",
-      "qr": "Text Otto: (number TBA)"
+      "qr": "Text Homi: (number TBA)"
     }
   ]
 }

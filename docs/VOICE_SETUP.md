@@ -5,7 +5,7 @@ This is the step-by-step for teammates. The design lives in `docs/CHANNELS.md` (
 `[HUMAN]` marks a step that needs a person logged into a dashboard. Everything else runs from a terminal.
 
 ```
-Otto worker ──HTTPS──► Retell API (create-phone-call / get-call)
+Homi worker ──HTTPS──► Retell API (create-phone-call / get-call)
                          │  hosted STT + LLM + TTS
                          ▼
                 Retell SIP ──TLS 5061──► sip.photon.codes ──► phone network ──► member's phone
@@ -25,7 +25,7 @@ The call carries only the open question, e.g. "Does Friday at 7 or Saturday at 7
    - Choose digest algorithm **SHA-256**, then click **Enable outbound**.
    - Copy the **username** and the **password**. The password is shown once, so store it in your password manager, never in chat.
    - Note the SIP host `sip.photon.codes` and TLS port `5061`. Ignore "Authentication realm".
-5. **[HUMAN]** Set up **inbound calls** (needed for "call Otto to RSVP"):
+5. **[HUMAN]** Set up **inbound calls** (needed for "call Homi to RSVP"):
    - SIP address `sip:sip.retellai.com;transport=tls`. Photon shows it as `sips:sip.retellai.com`.
    - Transport **TLS**. Leave username and password empty.
 
@@ -94,7 +94,7 @@ What the script creates:
     - **poll:** `data_storage_setting: "everything_except_pii"` and `pii_config: {mode:"post_call", categories:["person_name","phone_number","address","email"]}`. Storage stays on so that `get-call` can still return the analysis.
     - **webhook:** `data_storage_setting: "basic_attributes_only"`, plus `webhook_url` and `webhook_events: ["call_analyzed"]`. Only the one event we need is sent.
 - **`--bind-number`** (`PATCH /update-phone-number/{number}`): binds the agent as both the inbound and the outbound agent (`agent_version: "latest"`), and sets `inbound_webhook_url` if one is given.
-  - **[HUMAN] alternative:** in Retell Phone Numbers, set the **Inbound Call Agent** and **Outbound Call Agent** to "Otto" and paste the inbound webhook URL.
+  - **[HUMAN] alternative:** in Retell Phone Numbers, set the **Inbound Call Agent** and **Outbound Call Agent** to "Homi" and paste the inbound webhook URL.
 
 How to describe the privacy setup honestly: "Retell is configured to keep only basic call attributes, for 1 day." Do not say "nothing is stored" (research §E7).
 
@@ -127,7 +127,7 @@ voice.onResult((r) => /* feed { kind: 'call_result', ...r } to the engine */);
 - Photon Voice → Recent calls lists the call.
 
 **Test B (by Sat 12:00):** run it on the worker in the mode we will demo.
-- Run with `VOICE_MODE=poll` (laptop) or `webhook` (deployed). The opted-in teammate stays quiet until Otto calls.
+- Run with `VOICE_MODE=poll` (laptop) or `webhook` (deployed). The opted-in teammate stays quiet until Homi calls.
 - The answer must be posted into the group, e.g. "Sam's in for Fri (by phone)".
 - Do this **twice**. Both runs must pass.
 - For inbound: the teammate calls the Photon number and hears the open question. A number that is not opted in is rejected.

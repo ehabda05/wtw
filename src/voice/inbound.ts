@@ -1,4 +1,4 @@
-// "Call Otto to RSVP": Retell's inbound call webhook.
+// "Call Homi to RSVP": Retell's inbound call webhook.
 //
 // Verified 2026-10-16 against https://docs.retellai.com/features/inbound-call-webhook and
 // https://docs.retellai.com/api-references/update-phone-number (inbound_webhook_url is set per number):

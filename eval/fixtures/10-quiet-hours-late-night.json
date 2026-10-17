@@ -1,7 +1,7 @@
 {
   "id": "10-quiet-hours-late-night",
   "title": "Late-night library planning across quiet hours",
-  "notes": "Quiet hours (STATE_MACHINE hard rule 3). The chat is first seen at Mon 20:30 (intro). The plan is started at Mon 22:33 with 'dinner tomorrow, wed or thu?', which gives options 1 Tue Oct 20 7pm, 2 Wed Oct 21 7pm, 3 Thu Oct 22 7pm and a deadline of Tue 13:00 (first option - 6h). Nudge A at 50% of the window is due at ~05:46 Tue, inside quiet hours, so it must move to 09:00 (or be merged/dropped under the noise budget); it must never go out at 05:46. Votes keep arriving until 23:52. Tariq's 'otto where are we at' at 23:05 is prompted, so Otto must answer it even in quiet hours. Vik, the only silent member, answers at 09:55, so the plan locks early on Wed (everyone answered) and the 13:00 deadline job is cancelled. 'tonight' in Vik's 09:55 message refers to Tue (the day it is sent). 'tomorrow' in Uma's 22:40 message also refers to Tue. Ren mixes a text vote with a 👎 tapback on option 1. Also covers 'no place needed', calendar, and a plan note. Food-word negative: 'the wifi is eating my soul'.",
+  "notes": "Quiet hours (STATE_MACHINE hard rule 3). The chat is first seen at Mon 20:30 (intro). The plan is started at Mon 22:33 with 'dinner tomorrow, wed or thu?', which gives options 1 Tue Oct 20 7pm, 2 Wed Oct 21 7pm, 3 Thu Oct 22 7pm and a deadline of Tue 13:00 (first option - 6h). Nudge A at 50% of the window is due at ~05:46 Tue, inside quiet hours, so it must move to 09:00 (or be merged/dropped under the noise budget); it must never go out at 05:46. Votes keep arriving until 23:52. Tariq's 'homi where are we at' at 23:05 is prompted, so Homi must answer it even in quiet hours. Vik, the only silent member, answers at 09:55, so the plan locks early on Wed (everyone answered) and the 13:00 deadline job is cancelled. 'tonight' in Vik's 09:55 message refers to Tue (the day it is sent). 'tomorrow' in Uma's 22:40 message also refers to Tue. Ren mixes a text vote with a 👎 tapback on option 1. Also covers 'no place needed', calendar, and a plan note. Food-word negative: 'the wifi is eating my soul'.",
   "tz": "America/New_York",
   "start": "2026-10-19T20:30:00-04:00",
   "surface": "sim",
@@ -15,21 +15,21 @@
   "steps": [
     {"t": "+0m", "from": "ren", "text": "library gang where u at", "label": {"intent": "chatter", "food": false}},
     {"t": "+3m", "from": "tariq", "text": "4th floor, the wifi is eating my soul", "label": {"intent": "chatter", "food": false}},
-    {"t": "+120m", "from": "sasha", "text": "ok i need to escape this library. @otto dinner tomorrow, wed or thu?", "label": {"intent": "plan", "food": false}},
+    {"t": "+120m", "from": "sasha", "text": "ok i need to escape this library. @homi dinner tomorrow, wed or thu?", "label": {"intent": "plan", "food": false}},
     {"t": "+4m", "from": "ren", "text": "wed works, thu maybe", "label": {"intent": "vote", "food": false, "votes": {"tue": "unknown", "wed": "yes", "thu": "maybe"}}},
     {"t": "+1m", "from": "ren", "react": {"emoji": "👎", "option": 1}},
     {"t": "+2m", "from": "uma", "text": "tomorrow's bad, wed or thu", "label": {"intent": "vote", "food": false, "votes": {"tue": "no", "wed": "yes", "thu": "yes"}}},
-    {"t": "+25m", "from": "tariq", "text": "otto where are we at", "label": {"intent": "command", "food": false}},
+    {"t": "+25m", "from": "tariq", "text": "homi where are we at", "label": {"intent": "command", "food": false}},
     {"t": "+40m", "from": "tariq", "text": "1 or 2 works for me", "label": {"intent": "vote", "food": false, "votes": {"tue": "yes", "wed": "yes", "thu": "unknown"}}},
     {"t": "+5m", "from": "sasha", "text": "wed or thu works", "label": {"intent": "vote", "food": false, "votes": {"tue": "unknown", "wed": "yes", "thu": "yes"}}},
     {"t": "+2m", "from": "uma", "text": "ok goodnight losers 😴 if anyone has the 61a notes text me +16175550150", "label": {"intent": "chatter", "food": false}},
     {"ff": "10h"},
     {"t": "+3m", "from": "vik", "text": "sorry was asleep lol. wed works, tonight i can't (section)", "label": {"intent": "vote", "food": false, "votes": {"tue": "no", "wed": "yes", "thu": "unknown"}}},
-    {"t": "+5m", "from": "uma", "text": "otto no place needed, we'll figure it out lol", "label": {"intent": "command", "food": false}},
-    {"t": "+2m", "from": "sasha", "text": "otto add to calendar", "label": {"intent": "command", "food": false}},
-    {"t": "+3m", "from": "tariq", "text": "otto note meetup: lamont steps 6:45", "label": {"intent": "command", "food": false}},
+    {"t": "+5m", "from": "uma", "text": "homi no place needed, we'll figure it out lol", "label": {"intent": "command", "food": false}},
+    {"t": "+2m", "from": "sasha", "text": "homi add to calendar", "label": {"intent": "command", "food": false}},
+    {"t": "+3m", "from": "tariq", "text": "homi note meetup: lamont steps 6:45", "label": {"intent": "command", "food": false}},
     {"ff": "4h"},
-    {"t": "+5m", "from": "ren", "text": "otto what did we decide about meetup", "label": {"intent": "command", "food": false}}
+    {"t": "+5m", "from": "ren", "text": "homi what did we decide about meetup", "label": {"intent": "command", "food": false}}
   ],
   "expect": {
     "finalDay": "wed",
@@ -40,13 +40,13 @@
     "otherChecks": [
       "Options: Tue Oct 20 7pm ('tomorrow' relative to Mon 22:33), Wed Oct 21 7pm, Thu Oct 22 7pm; the header announces the lock as tomorrow 1pm.",
       "Ren's 👎 on option 1 records Tue = no.",
-      "The 23:05 'otto where are we at' gets a one-message plan card reply immediately (prompted replies are allowed in quiet hours).",
+      "The 23:05 'homi where are we at' gets a one-message plan card reply immediately (prompted replies are allowed in quiet hours).",
       "No unprompted message is sent between 23:00 and 09:00 America/New_York. Nudge A, due ~05:46, is sent at 09:00 at the earliest (collective '4 of 5 have picked. Still need ...; I'm locking it in 1pm' or equivalent), or merged/dropped per the noise budget.",
       "Vik's 'tonight i can't' at 09:55 Tue is read as Tue = no.",
       "The plan locks right after Vik's message (all 5 answered): Wed Oct 21 7pm, 5 in (Thu had 2 yes + 1 maybe; Tue had 1 yes).",
-      "'otto no place needed' moves the plan to confirmed with no place.",
+      "'homi no place needed' moves the plan to confirmed with no place.",
       "Nothing fires at the Tue 13:00 deadline (the job was cancelled by the early lock).",
-      "'otto what did we decide about meetup' answers 'lamont steps 6:45' from the note.",
+      "'homi what did we decide about meetup' answers 'lamont steps 6:45' from the note.",
       "+16175550150 never appears in any log line."
     ]
   }

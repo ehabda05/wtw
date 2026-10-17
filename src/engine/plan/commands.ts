@@ -1,5 +1,5 @@
 // Commands (STATE_MACHINE.md table). Any state, case-insensitive. Returns false when the message should fall
-// through to the state handler (e.g. "otto find food" while the food flow is already running).
+// through to the state handler (e.g. "homi find food" while the food flow is already running).
 
 import type { Member, MessageEvent } from '../types.js';
 import type { Command } from '../model.js';
@@ -14,10 +14,12 @@ import { confirmPlan, lockOption, maybeEarlyLock } from './lock.js';
 import { openAvailability, startPlan } from './availability.js';
 import { closePlaces, pushHungry, setPlaceText, startInstant, startSearch } from './place.js';
 import { calendar, noteGet, notesList, splitText, statusText, whyText } from './status.js';
+import { EXTENSIONS } from '../ext/index.js';
 
-/** `otto stop`: delete everything for this chat, then leave (or tombstone where leaving is impossible). */
+/** `homi stop`: delete everything for this chat, then leave (or tombstone where leaving is impossible). */
 export function stop(st: Step): void {
   const canLeave = st.ctx.caps.leave;
+  for (const x of EXTENSIONS) x.onStop?.(st);
   purgePlan(st);
   say(st, canLeave ? T.stopLeave() : T.stopTombstone());
   st.acts.push(canLeave ? { type: 'leave' } : { type: 'tombstone' });
@@ -94,6 +96,7 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
     case 'stop': stop(st); return true;
     case 'forget':
       if (p) {
+        for (const x of EXTENSIONS) x.onForget?.(st);
         purgePlan(st);
         say(st, T.forgetDone());
       } else say(st, T.forgetNothing());
@@ -141,7 +144,7 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
     case 'go':
       if (p?.state === 'collecting_place' && p.hungry) {
         if (p.hungry.phase === 'asking') {
-          // "otto go, harvard square": take the answer in the same message before searching.
+          // "homi go, harvard square": take the answer in the same message before searching.
           const t = parseTaste(body);
           if (hasTaste(t)) mergeTaste(p.hungry, ev.from.key, t);
           startSearch(st);
@@ -157,6 +160,7 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
   }
   if (!p) {
     if (cmd.kind === 'out' && !addressed) return true;
+    if (cmd.kind === 'change_place') return false; // "homi sushi instead" with no plan: the idle handler decides
     say(st, cmd.kind === 'name' ? T.nameNoPlan({ name: cmd.name }) : cmd.kind === 'optin' ? T.optInNoPlan() : T.needPlan());
     return true;
   }
@@ -182,7 +186,9 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
       return true;
     case 'change_place':
       if (!['confirmed', 'reminded', 'collecting_details'].includes(p.state)) return false;
-      pushHungry(st, ev.from, '', 'prompted');
+      // "homi lets do sushi instead": the new cuisine replaces the trigger's hint; search right away when the area is known.
+      if (cmd.cuisines) p.cuisineHint = undefined;
+      pushHungry(st, ev.from, cmd.cuisines ? body : '', 'prompted', false, Boolean(cmd.cuisines));
       return true;
     case 'remind': remind(st); return true;
     default:

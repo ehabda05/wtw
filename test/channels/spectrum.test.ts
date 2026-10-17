@@ -32,7 +32,7 @@ const creds = { imessageLine: 'shared' as const, projectId: 'proj', projectSecre
 test('no providers (telegram without credentials) -> Photon stream not started', async () => {
   const { sdk, captured } = fakeSdk([]);
   const hub = new SpectrumHub({ config: { spectrum: { imessageLine: 'shared', telegramBotToken: TOKEN }, logLevel: 'warn' }, loadSdk: async () => sdk });
-  hub.register(new TelegramAdapter({ config: { spectrum: { imessageLine: 'shared', telegramBotToken: TOKEN }, telegramBotUsername: 'otto_bot' } }));
+  hub.register(new TelegramAdapter({ config: { spectrum: { imessageLine: 'shared', telegramBotToken: TOKEN }, telegramBotUsername: 'homi_bot' } }));
   assert.equal(await hub.start(), false);
   assert.equal(captured.opts, undefined);
 });
@@ -40,12 +40,12 @@ test('no providers (telegram without credentials) -> Photon stream not started',
 test('one Spectrum with telemetry off; inbound routed by platform; outbound via cached space', async () => {
   const sent: unknown[] = [];
   const space = { id: '-1001', send: async (c: unknown) => (sent.push(c), { id: String(100 + sent.length), content: { type: 'text' } }) };
-  const msg = { id: '55', platform: 'telegram', direction: 'inbound', content: { type: 'text', text: '@otto_bot dinner?' }, sender: { id: '42', handle: 'ana' }, space, timestamp: new Date(5) };
+  const msg = { id: '55', platform: 'telegram', direction: 'inbound', content: { type: 'text', text: '@homi_bot dinner?' }, sender: { id: '42', handle: 'ana' }, space, timestamp: new Date(5) };
   const own = { ...msg, id: '56', direction: 'outbound' };
   const other = { ...msg, id: '57', platform: 'slack' };
   const { sdk, captured } = fakeSdk([[space, msg], [space, own], [space, other]]);
   const hub = new SpectrumHub({ config: { spectrum: creds, logLevel: 'warn' }, loadSdk: async () => sdk });
-  const tg = new TelegramAdapter({ config: { spectrum: creds, telegramBotUsername: 'otto_bot' }, pacer: new Pacer({ intervalMs: 0 }) });
+  const tg = new TelegramAdapter({ config: { spectrum: creds, telegramBotUsername: 'homi_bot' }, pacer: new Pacer({ intervalMs: 0 }) });
   hub.register(tg);
   const got: ChannelInbound[] = [];
   let resolveFirst!: () => void;
@@ -63,7 +63,7 @@ test('one Spectrum with telemetry off; inbound routed by platform; outbound via 
   assert.equal((captured.opts?.providers as unknown[]).length, 1);
   assert.equal(got.length, 1, 'outbound echoes and unknown platforms are dropped');
   assert.equal(got[0].mentionsAgent, true);
-  assert.equal(got[0].text, '@otto_bot dinner?');
+  assert.equal(got[0].text, '@homi_bot dinner?');
 
   const ref = await tg.send('-1001', 'Thu 7pm');
   assert.equal(ref, '101');

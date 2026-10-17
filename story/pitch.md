@@ -1,4 +1,4 @@
-# Otto: pitch, demo runbook, and judge prep
+# Whats the Word: pitch, demo runbook, and judge prep
 
 `{{…}}` placeholders are filled from `eval/results.json` and the team list before Sunday 7 AM.
 
@@ -19,10 +19,10 @@
 "So the fix has to live in the chat you already have, and it has to carry the social cost so no human has to. And it can't ask for anyone's calendar, because nobody keeps their social life in one."
 
 **[Slide 5 · Demo]**
-"This is Otto. You add a number to your group, and that's the whole setup. Let me show you." → *live demo, see the runbook*
+"This is Homi. You add a number to your group, and that's the whole setup. Let me show you." → *live demo, see the runbook*
 
 **[Slide 6 · Privacy]**
-"Otto is a guest in your chat, so it behaves like one:
+"Homi is a guest in your chat, so it behaves like one:
 - It skips every message not addressed to it.
 - It stores the plan, never the conversation.
 - It never asks where you are.
@@ -40,7 +40,7 @@ You can ask it what it knows, and tell it to forget."
 - food-intent precision: 100%;
 - messages leaked to logs: zero.
 
-Otto is the friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards."
+That's Whats the Word. Homi is the friend who always makes the plan happen, splits the bill, keeps the photos and plans the next trip, and it never gets tired."
 
 > Delivery notes:
 > - Say "friendship" in the first two sentences. ✔︎
@@ -49,42 +49,43 @@ Otto is the friend who always makes the plan happen. It never gets tired, and it
 
 ---
 
-## Live demo runbook (2 minutes)
+## Live demo runbook (about 3 minutes)
+
+**Why it's set up this way:**
+- Free Photon iMessage lines can't join **group** chats, so the group experience runs in our **iMessage look-alike web demo**. It's labeled "Simulated iMessage · real Homi engine": a real engine behind a simulated iMessage screen.
+- Judges play it on an **iPhone**.
+- The **real iMessage** moment is a 1:1 text to Homi's number over Photon.
 
 **Setup (8:30 AM rehearsal, twice):**
-- Two phones charged.
-- The laptop runs `npm start` (live surfaces) and has `npm run sim` ready in a second terminal.
-- The phone loop video plays on the second laptop.
-- Hotspot on.
-- Sam's phone is on the table with its ringer **on**.
-
-**Surface for the group (decided by Photon's answer; see docs/CHANNELS.md):**
-- **A:** a dedicated iMessage line, with a fresh group.
-- **B:** a Telegram group, with the bot added via `t.me/<bot>?startgroup=otto`.
-- **C:** offline sim on the projector.
+- **Web demo.** The laptop is on the phone hotspot and runs `npm.cmd run web` with `HOST=0.0.0.0` (docs/WEB_DEMO.md). It prints a URL with an access key; open it in Safari on two iPhones and choose Ana on one and Ben on the other.
+- **Live Homi.** A second terminal runs `npm.cmd start` with `SURFACES=imessage` and your Photon project keys in `.env`. The teammates' numbers are registered as users in the Photon dashboard (the free plan allows up to 10), and each has texted Homi once.
+- **Video.** The phone video `story/out/homi-phone-1080x1920.mp4` loops on the second laptop.
+- **Sam's iPhone** is on the table with the ringer on, if voice is set up; otherwise the web demo shows the simulated call.
 
 | # | Who | Action | What the judge sees |
 |---|---|---|---|
-| 1 | Judge (or teammate) | Creates a fresh group with two teammates and adds Otto | One intro message with the privacy promise. Nothing else. |
-| 2 | Teammate Ana | "@otto dinner next week?" | Header + 3 option bubbles (Thu / Fri / Sat 7pm) with a lock-in time |
-| 3 | Ana and Ben | Ana: "fri or sat works". Ben: "only sat". Ana: "fri only actually" | **Conflict bridge:** "Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch?" Ben: "fri late works" → Otto adds Fri 8:30pm and both count |
-| 4 | Ana | ❤️ on the new option; "otto lock it" | "Fri Oct 23 · 8:30pm it is: 3 in. Where to?" |
-| 5 | Ben | "ok I'm starving, where are we eating?" | "What are we feeling? Cuisine, budget, and roughly where?" → "tacos" / "cheap" / "harvard square" → 3 one-line options with walk minutes and "~$ (est.)" |
-| 6 | Both | ❤️ on option 2 | "{place} it is: {address}" + maps link |
-| 7 | Narrator | "Sam has been quiet. Sam said Otto may call. I'll fast-forward the clock, and I'm telling you I'm doing it." Type `otto demo ff 22h` in the group (live, needs `DEMO_MODE=true`; Otto posts a visible "fast-forwarding" notice) or `/ff 22h` (sim) | Group: "Still need Sam, so I'm giving them a quick call (they said that's ok)." **Sam's phone rings.** Otto asks only the open question. Sam: "Friday works." Group: "Sam's in for Fri (by phone). 4 for 4 🎉" |
-| 8 | Judge | "otto what do you know" | A one-message dump: options, chosen date, place, counts, names given, deletion time. No locations, no messages. |
-| 9 | Judge | "otto forget" | "Done: I've deleted this plan." Then "otto stop" → Otto leaves (Telegram/dedicated) or tombstones (local) |
-| 10 | Narrator | 15 seconds on the second channel (Telegram, or the sim if Telegram is the main channel) | The same flow and engine, on a different chat app |
+| 1 | Judge (iPhone, as You) | "@homi dinner next week?" | Homi's intro, then a header and 3 option bubbles (Thu / Fri / Sat 7pm) with a lock-in time |
+| 2 | Teammates as Ana and Ben | Ana: "fri works, i'm busy thu and sat". Ben: "sat works. thu and fri i can't" | **Conflict bridge:** "Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch (I'll add it)?" |
+| 3 | Judge | Taps ❤️ on Fri; then ⏩ +12h | One capped nudge, then "giving Sam a quick call" with a call screen (simulated, or Sam's real iPhone rings). Then "Fri Oct 23 · 7pm it is" |
+| 4 | Judge | "ok I'm starving where are we eating" → "ramen", "cheap", "harvard square" | 3 real nearby places with walk time and opening hours → Hokkaido Ramen Santouka locked |
+| 5 | Judge | "homi let's do a $10 show-up pledge", taps option 1, "homi I'm in" | The group agrees on where no-show money goes before anyone pledges; deposits are labeled **SIMULATED** |
+| 6 | Narrator | ▶ "Play the rest" (or ⏩ to Friday) | Check-ins, then Ben's itemized bill → **"Dinner $141.61 … Adds up to $141.61 exactly."**, then settle-up, then "Pledge settled (SIMULATED) … Sam's $10 went to the group fund" |
+| 7 | Judge | 📷 "homi add", then "homi remove my photos" | The album fills, then their own photo disappears; the album link opens the members-only gallery |
+| 8 | Judge | "homi let's plan Japan for 2030" + the three answers | Itinerary and costs, all **labeled estimates** (≈ $2,670 pp), the comfort upgrade (+$950) and savings tips |
+| 9 | Judge | "homi what do you know" → "homi forget" | The full dump (plan, pledge, tab, album, trip), then "Done: I've deleted this plan." |
+| 10 | Judge, on a teammate's iPhone in **real iMessage** | Texts Homi: "homi split 86.40 + 18% tip 4 ways" | A real reply over Photon's iMessage line: "$101.95 split 4 ways ($86.40 + 18% tip $15.55): 3 pay $25.49, 1 pays $25.48." |
 
 **Lines to say out loud:**
-- At step 3: "This is the moment Photon's own examples page describes: two people with conflicting availability, and the agent proposes a workable next step."
-- At step 7: "The call carries only the question. No names, no place."
-- At step 9: "That's the whole product promise: it remembers everything about the plan and nothing about you."
+- **At step 1:** "The group chat here is simulated iMessage, because Photon's free lines can't join groups yet. The engine behind it is the real Homi."
+- **At step 2:** "This is the moment Photon's own examples page describes: conflicting availability, and the agent proposes a workable next step."
+- **At step 5:** "No money moves in this build; everything that touches money says SIMULATED."
+- **At step 8:** "2030 can't be booked yet, so every price is a labeled estimate and every listing is an example."
+- **At step 10:** "And this is real iMessage, through Photon, right now."
 
 ### Fallback ladder
 1. **Venue Wi-Fi fails:** switch to the phone hotspot (already paired).
-2. **Photon is down or the line is flaky:** `npm run sim -- --fancy` on the projector, with the phone loop video beside it. Say: "Same engine, offline simulator."
-3. **Voice fails:** play the call segment from `story/demo.mp4` and say it was recorded earlier. In the sim the call is labeled "(simulated call)".
+2. **Photon is down or the line is flaky:** the web demo runs entirely on the laptop, so keep going and skip step 10. Last resort: `npm.cmd run demo` on the projector plus the phone loop video. Say: "Same engine, offline."
+3. **Voice fails:** the web demo's call screen is labeled "(simulated call)"; say so. Or play the call segment from the video.
 4. **The places lookup fails:** nothing to do. The default is already the offline OpenStreetMap file.
 5. **Everything fails:** walk through the deck and the phone loop. The judging criteria still map one to one.
 
@@ -94,18 +95,18 @@ Otto is the friend who always makes the plan happen. It never gets tired, and it
 
 **Why not just a poll?**
 - A poll answers one question.
-- Otto reads "either works but not before 8", decides on a published rule (quorum, not unanimity, with an announced lock time), bridges conflicts, finds the place, chases the quiet ones as itself, reminds everyone, and then forgets.
+- Homi reads "either works but not before 8", decides on a published rule (quorum, not unanimity, with an announced lock time), bridges conflicts, finds the place, chases the quiet ones as itself, reminds everyone, and then forgets.
 - Native polls (iOS 26 Messages, WhatsApp) are great for the single-question case, and we say so. They don't close the loop, and they don't work across platforms.
 
 **What does Photon store?**
 - Photon relays the messages, and its terms and privacy policy cover data in transit and in its logs. We cite that in docs/PRIVACY.md.
-- We only make claims about what **Otto** stores: plan state in one encrypted blob, deleted 24h after the event or on `otto forget`, with no column anywhere that can hold message text.
+- We only make claims about what **Homi** stores: plan state in one encrypted blob, deleted 24h after the event or on `homi forget`, with no column anywhere that can hold message text.
 - The voice provider (Retell) is configured to keep basic attributes only, for 1 day.
 
 **How is this different from Fenn?**
 - Fenn was a separate iOS app that read calendars and tracked location. It has since pivoted to a paid couples app.
 - Our inference (they haven't said why): getting eight friends to install an iOS-only app is a wall. A couple needs one install.
-- Otto has no app, no calendar access, no location, and it forgets.
+- Homi has no app, no calendar access, no location, and it forgets.
 
 **Isn't Continua already doing this?**
 - Continua (GV-backed) also lives in SMS, iMessage and Discord groups, with polls and reminders. The form factor is validated.
@@ -128,26 +129,26 @@ Otto is the friend who always makes the plan happen. It never gets tired, and it
   - quiet hours from 11 PM to 9 AM;
   - at most 2 nudges per person per plan;
   - every private DM or call announced in the group;
-  - `otto stop` from anyone.
+  - `homi stop` from anyone.
 
 **How do you make money without data?**
 - Not from data, ever. Fenn's pivot suggests friend groups don't pay, so we don't plan to charge them.
 - Two paths:
   1. Organizations with recurring plans (clubs, teams, offsites), which need dedicated lines and multiple groups.
-  2. A per-booking fee from venues when Otto books a table. The venue gets party size and time only.
+  2. A per-booking fee from venues when Homi books a table. The venue gets party size and time only.
 
 **What breaks on SMS?**
-- No reactions, so people reply with numbers. No threads, so Otto uses names or counts.
+- No reactions, so people reply with numbers. No threads, so Homi uses names or counts.
 - Group texting on SMS needs carrier (10DLC) registration, so we use the SMS number for voice and keep groups on iMessage or Telegram.
 - The same engine degrades by declared capabilities.
 
 **Why would a friend text this again tomorrow?**
-- Every group has a next plan, and Otto needs zero setup. Re-adding it costs one tap.
+- Every group has a next plan, and Homi needs zero setup. Re-adding it costs one tap.
 - Forgetting is the loop, not churn.
 
 **Doesn't WhatsApp ban AI bots?**
 - Its Business API terms bar general-purpose AI assistants from 2026-01-15.
-- Otto is a narrow planning tool, and we don't depend on WhatsApp. We use iMessage, Telegram and voice.
+- Homi is a narrow planning tool, and we don't depend on WhatsApp. We use iMessage, Telegram and voice.
 
 **Who wrote your eval set? Isn't it biased?**
 - A separate AI agent wrote the ten role-play chats and their labels. It could read only our spec (`docs/`), never the code, so the labels test the spec.
@@ -168,7 +169,7 @@ Otto is the friend who always makes the plan happen. It never gets tired, and it
   - inline replies to address quiet members without names;
   - typing indicators;
   - edits for a living tally;
-  - voice on a Photon 2.0 SMS number over SIP/TLS, out **and** in ("call Otto to RSVP");
+  - voice on a Photon 2.0 SMS number over SIP/TLS, out **and** in ("call Homi to RSVP");
   - the terminal provider for offline development.
 - **Privacy on purpose.** An agent that "lives with us" has to be trusted. Telemetry is off, logs are redacted, the hosted LLM is off by default, and everything is plan-scoped.
 - **Judging criteria:**

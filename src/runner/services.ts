@@ -45,6 +45,9 @@ export interface EngineApi {
   detectAddressed(text: string): boolean;
   /** Optional: lets the runner decide whether the gated hosted-LLM fallback is needed (docs/PRIVACY.md §3). */
   parseAvailability?(text: string, options: import('../engine/types.js').Option[], tz: string): { matched?: boolean };
+  /** Optional: "homi go", "homi status", ... are commands, never availability, so the LLM fallback skips them. */
+  parseCommand?(body: string): unknown;
+  stripAddress?(text: string): string;
 }
 
 // Variable specifier: the engine is written in parallel; this keeps the infrastructure typecheck independent of
@@ -59,5 +62,7 @@ export async function loadEngine(): Promise<EngineApi> {
   }
   const api: EngineApi = { applyEvent: mod.applyEvent, newGroupState: mod.newGroupState, detectAddressed: mod.detectAddressed };
   if (typeof mod.parseAvailability === 'function') api.parseAvailability = mod.parseAvailability;
+  if (typeof mod.parseCommand === 'function') api.parseCommand = mod.parseCommand;
+  if (typeof mod.stripAddress === 'function') api.stripAddress = mod.stripAddress;
   return api;
 }

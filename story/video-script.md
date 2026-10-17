@@ -1,26 +1,24 @@
-# Demo video: script and shot list (2:00)
+# Demo video: script and shot list
 
-**Output:** `story/demo.mp4`, 1920×1080, captions burned in, music quiet or none.
+**Rendered cut:** `story/out/homi-demo-1920x1080.mp4` (landscape) and `story/out/homi-phone-1080x1920.mp4` (vertical), both **2:30**. They're generated from `story/motion/script.json`, which follows [docs/DEMO.md](../docs/DEMO.md) beat for beat.
 
-**Draft cut:** `story/out/otto-demo-animatic.mp4` is built from the motion graphic and the simulator transcript. It is a **placeholder**, so swap in real phone footage Saturday evening.
+**Length check.** Check the Devpost video limit in `research/judging.md` §1b once a teammate pastes it. If the limit is under 2:30, trim Act 5 (savings card) and Act 6 first.
 
-**Voiceover:** a teammate reads the VO column. Record it on a phone in a quiet room, then lay it under the cut. Captions = the VO text.
+**Voiceover:** optional. A teammate can read the VO column over the landscape cut, and the captions stay as burned in.
 
-| Time | Picture | Voiceover | On-screen caption |
+| Time (approx.) | Chapter | Picture | Voiceover |
 |---|---|---|---|
-| 0:00–0:08 | Motion graphic, cold open: "the crew", "we should hang out!!" with three hearts | "Most friendships don't end in a fight. They end in a group chat." | Plans die here. |
-| 0:08–0:20 | Timestamp jump, "6 days later", silence. Then the stat card. | "Someone says 'we should hang out', everyone hearts it, and nobody wants to be the one who nags. In 2019, Americans aged fifteen to twenty-four spent sixty-seven minutes a day with friends in person. In 2003 it was a hundred and fifty-three." | 153 → 67 min/day with friends, ages 15–24 (Kannan & Veazie 2023, ATUS) |
-| 0:20–0:30 | **Real phone screen recording:** someone adds Otto to the group; the intro appears | "So we built Otto. You add one number to the chat you already have. No app, no sign-up, no calendar." | Otto joins the chat you already have |
-| 0:30–0:45 | Real recording: "@otto dinner next week?" → three option bubbles → tapbacks + "fri or sat" | "Otto never asks when you're free. It proposes three times, you tap what works, and it decides by a time it announces up front." | Recognition beats recall |
-| 0:45–0:58 | Real recording: Ana "fri only", Ben "only sat" → Otto's bridge question → "fri late works" → lock | "When two friends conflict, Otto finds the workable next step, right in the thread." | Conflict → bridge → locked |
-| 0:58–1:12 | Real recording: "ok I'm starving where are we eating" → one question → "tacos" "cheap" "harvard square" → three options → hearts → address | "Hungry? One question, everyone's taste merged fairly, the tightest budget wins quietly, and three real places near Harvard Square." | 3 options · walk time · open at 7pm |
-| 1:12–1:22 | Real recording of the **real call**: group "giving Sam a quick call" → Sam's phone rings → Sam says "Friday works" → group "Sam's in" | "Sam went quiet, and Sam said Otto could call. The call carries only the question. No names, no place." | Voice check-in (opt-in) · Photon SMS number |
-| 1:22–1:40 | Real recording: "otto what do you know" → dump → "otto forget" → "Done" | "Then the part we care about most. Ask Otto what it knows and it tells you everything. Tell it to forget, and it does. Otherwise it deletes itself a day after the plan." | It remembers the plan, not you. |
-| 1:40–1:52 | Deck slide 8 (eval table) | "We measured it on ten conversations written blind from our spec: 98.5 percent of date replies read correctly, and zero messages leaked to logs. The restaurant prices are our estimates, and we fast-forwarded the clock for the call. That's labeled." | What we measured · what's simulated |
-| 1:52–2:00 | End card with the QR code | "Otto. The friend who makes plans happen, then forgets. Built on Photon." | Text Otto: {{OTTO_NUMBER}} |
+| 0:00–0:10 | Plans die here | "we should hang out!!", three hearts, "6 days later", silence | "Most friendships don't end in a fight. They end in a group chat." |
+| 0:10–0:18 | Homi joins | Homi's one-message intro and privacy promise | "So we built Whats the Word. Add Homi to the chat you already have. No app, no calendar." |
+| 0:18–0:40 | Find a date | "@homi dinner next week?" → 3 options → replies and hearts → **conflict bridge** adds Sat 11am | "Homi never asks when you're free. It proposes times, you tap, and when friends conflict it finds a workable option." |
+| 0:40–0:55 | The quiet friend | Nudge → call screen "(simulated call audio)" → "Sam's in" → Fri locked → ramen pick | "Sam went quiet and said Homi could call. The call carries only the question." |
+| 0:55–1:15 | Show-up pledge | Where no-show money goes (3 options) → rules card → everyone agrees → 6 × "I'm in" → "$60 held (SIMULATED)" | "Optional pledges: $10 each, back when you show up. The group agrees first where no-show money goes, and every payment here is simulated." |
+| 1:15–1:35 | Split the bill | Check-ins → Ben's itemized bill → **receipt card: $141.61, adds up exactly** → Uber → **who pays whom** → "Pledge settled (SIMULATED) … Sam's $10 went to the group fund" | "Ben paid. Homi does the math: items, tax and tip, to the cent, and who pays whom." |
+| 1:35–1:55 | Shared album | Album link (demo link) → photos from Ana, Jo, Maya → **album screen** → Jo removes their photos → 2 left | "Photos go into a members-only album only when you share them, and you can always take yours back." |
+| 1:55–2:15 | Plan the trip | "let's plan Japan for 2030" → answers → **overview card** (labeled estimates, example listing) → comfort +$950 → savings | "Next trip: Homi turns 'let's do Japan' into a plan. It's too early to book, so every price is a labeled estimate." |
+| 2:15–2:25 | Then it forgets | "what do you know" (full dump) → "forget" | "Ask what it knows. Tell it to forget." |
+| 2:25–2:30 | End card | Whats the Word · Homi · Built on Photon · QR placeholder | "Whats the Word. Homi, the friend who makes plans happen." |
 
-**Recording tips:**
-- **Screen capture:** use QuickTime (USB to a Mac) or iOS screen recording, and turn on Do Not Disturb to hide other notifications.
-- **The call:** record Sam's ringing phone with a second phone.
-- **Real names only on your own phones:** use demo first names (Ana, Ben, Sam, Jo, Maya) in the group, not real contacts.
-- **Length:** keep the video under 2:00. Check the Devpost limit in `research/judging.md` §1b once a teammate pastes it.
+**Before submitting:**
+- Replace the end card's QR placeholder with Homi's number: run `node story/qr/make-qr.mjs --sms +1…`, then re-render (story/README.md).
+- Fill `{{TEAM}}` in the deck.

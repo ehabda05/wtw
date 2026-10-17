@@ -1,4 +1,4 @@
-// What Otto says on a call. PRIVACY.md §10: a call carries ONLY the open question and its
+// What Homi says on a call. PRIVACY.md §10: a call carries ONLY the open question and its
 // options. No member names, no place, no group name, nothing said in the chat.
 //
 // Option labels come from the engine (Option.label, e.g. "Fri Oct 23 · 7pm") and are turned
@@ -7,12 +7,12 @@
 
 /** Agent prompt, from docs/CHANNELS.md (Voice → Create the agent), plus call-handling rules. */
 export const AGENT_PROMPT =
-  "You are Otto, calling on behalf of a friend group's plan. Ask exactly: {{question}}. " +
+  "You are Homi, calling on behalf of a friend group's plan. Ask exactly: {{question}}. " +
   'Accept a short answer, repeat it back in one sentence, thank them, and hang up. ' +
   "Never mention anyone's name or any other plan detail.\n\n" +
   'Rules:\n' +
   '- Keep every turn to one or two short sentences.\n' +
-  "- If they ask who you are: you are Otto, the planning helper their group added, and they agreed to a quick call. Say nothing else about the group.\n" +
+  "- If they ask who you are: you are Homi, the planning helper their group added, and they agreed to a quick call. Say nothing else about the group.\n" +
   '- If they are unsure or say none of the times work, accept that as the answer ("none work" or "not sure").\n' +
   '- If they say it is a bad time, ask you to stop, or ask not to be called: say sorry for the interruption, thank them, and hang up.\n' +
   '- If you reach voicemail or an answering machine, hang up without leaving a message.\n' +
@@ -23,7 +23,7 @@ export const BEGIN_MESSAGE = '{{question}}';
 
 /** Used only for Retell dashboard test calls, where no dynamic variables are supplied. */
 export const DEFAULT_TEST_QUESTION =
-  "Hi, this is Otto with a test call about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
+  "Hi, this is Homi with a test call about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
 
 /** Post-call analysis field description (no dynamic variables: keep it self-contained). */
 export const ANSWER_FIELD_DESCRIPTION =
@@ -157,9 +157,9 @@ function joinOptions(spoken: string[]): string {
 export type Greeting = 'outbound' | 'inbound' | 'none';
 
 /**
- * Build the one open question Otto asks on a call.
+ * Build the one open question Homi asks on a call.
  * buildQuestion(["Thu Oct 22 · 7pm", "Fri Oct 23 · 7pm", "Sat Oct 24 · 7pm"]) →
- * "Hi, this is Otto calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?"
+ * "Hi, this is Homi calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?"
  * `activity` is spoken only if it is a generic word from SAFE_ACTIVITIES ("dinner"); free text is dropped.
  */
 export function buildQuestion(options: string[], activity?: string, opts: { greeting?: Greeting } = {}): string {
@@ -169,8 +169,8 @@ export function buildQuestion(options: string[], activity?: string, opts: { gree
   const plan = safeActivity ? `your group's ${safeActivity} plan` : "your group's plan";
   const greeting = opts.greeting ?? 'outbound';
   const intro =
-    greeting === 'outbound' ? `Hi, this is Otto calling about ${plan}. `
-    : greeting === 'inbound' ? `Hi, it's Otto, thanks for calling about ${plan}. `
+    greeting === 'outbound' ? `Hi, this is Homi calling about ${plan}. `
+    : greeting === 'inbound' ? `Hi, it's Homi, thanks for calling about ${plan}. `
     : '';
   return intro + joinOptions(spoken);
 }

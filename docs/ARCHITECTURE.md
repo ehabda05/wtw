@@ -1,4 +1,4 @@
-# Otto architecture
+# Homi architecture
 
 ```mermaid
 flowchart LR
@@ -14,7 +14,7 @@ flowchart LR
     SIP["SIP / TLS<br/>sip.photon.codes"]
   end
 
-  subgraph Otto["Otto process (Node 22, one worker)"]
+  subgraph Homi["Homi process (Node 22, one worker)"]
     AD["channels/<br/>adapters → typed events<br/>(raw text stays in memory)"]
     RN["runner/<br/>dedupe · load · apply · persist · execute"]
     EN["engine/ (pure)<br/>applyEvent(state, event, ctx)<br/>→ {state, actions}"]
@@ -107,6 +107,30 @@ eval/
 test/                 vitest unit tests per module
 ```
 
+## Extensions: bills, travel, pledges, album
+
+The core state machine stays untouched. Each feature plugs in through `src/engine/ext/types.ts`, and modules are registered in `src/engine/ext/index.ts`.
+
+| Hook | What it does |
+|---|---|
+| `onMessage` | Sees every message before the built-in commands |
+| `onEvent` | Handles `photo`, `travel_result`, `payment_result`, and reactions on the extension's own bubbles |
+| `onTimer` | Handles `ext` jobs |
+| `onSent` | Captures the IDs of tagged sends |
+| `onForget` / `onStop` | Cleans up, e.g. refunds open pledges and deletes photos |
+| `dump` | Adds lines to "what do you know" |
+
+Where the data lives:
+- **Group-level** data goes in `GroupState.space.ext`, sealed with the settings: the bill tab, trip and album index.
+- **Plan-level** data goes in `Plan.ext`: the pledge.
+
+**Runner side.** `src/runner/handlers/` executes the extension actions:
+- `lookup_travel` → travel provider
+- `payment` → payment provider (simulated by default)
+- `album_keep` / `album_delete` → encrypted photo store
+
+Incoming photos go straight to the photo store; the engine only ever sees an opaque photo ID.
+
 ## Storage
 
 Storage is SQLite through Node 22's built-in `node:sqlite`. It needs no native compile, which matters on Windows and Render.
@@ -146,7 +170,7 @@ There is **no column anywhere that can hold message text.** `test/store/schema.t
 3. **Result retrieval, two modes:**
    - **Poll mode (default, no public URL needed):** poll `get-call` until `call_analysis` is present.
    - **Webhook mode (deployed):** `/voice/retell` verifies the signature, then reads `call_analyzed`.
-4. The answer is mapped to option IDs by the same reply grammar used for text, then fed back as a `call_result` event. Otto then posts in the group: "Sam's in for Fri (by phone). 6 for 6 🎉"
+4. The answer is mapped to option IDs by the same reply grammar used for text, then fed back as a `call_result` event. Homi then posts in the group: "Sam's in for Fri (by phone). 6 for 6 🎉"
 5. **`VOICE_MODE=mock`** simulates the call for the offline demo and is labeled "(simulated call)" in the transcript.
 
 ## Configuration (`.env.example`)
@@ -168,5 +192,5 @@ There is **no column anywhere that can hold message text.** `test/store/schema.t
 | `QUIET_HOURS` | `23-9` | group-local |
 | `DEFAULT_TZ` | `America/New_York` | |
 | `DATA_KEY`, `ID_SALT` | none | `npm run keys` |
-| `DB_PATH` | `./data/otto.db` | |
+| `DB_PATH` | `./data/wtw.db` | |
 | `LOG_LEVEL` | `info` | |

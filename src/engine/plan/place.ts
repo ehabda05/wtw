@@ -23,8 +23,11 @@ function mealFor(body: string, now: number, tz: string): string {
   return h < 11 ? 'breakfast' : h < 16 ? 'lunch' : 'dinner';
 }
 
-/** Enters collecting_place on top of the current state (push). Never re-triggers while it is running. */
-export function pushHungry(st: Step, from: MemberRef, body: string, prompting: Prompting, instant = false): void {
+/**
+ * Enters collecting_place on top of the current state (push). Never re-triggers while it is running.
+ * `searchNow`: a new cuisine for a known area ("homi sushi instead") goes straight to the lookup.
+ */
+export function pushHungry(st: Step, from: MemberRef, body: string, prompting: Prompting, instant = false, searchNow = false): void {
   const p = P(st);
   if (p.state === 'collecting_place') return;
   p.stack.push(instant ? 'idle' : p.state);
@@ -35,13 +38,18 @@ export function pushHungry(st: Step, from: MemberRef, body: string, prompting: P
     (h.memberCuisines![p.initiator] ??= []).push(c);
   }
   p.hungry = h;
+  const taste = parseTaste(body);
+  if (searchNow && taste.cuisines.length && p.neighborhood) {
+    mergeTaste(h, from.key, taste);
+    schedule(st, 'hungry_deadline', h.deadlineAt as number);
+    return startSearch(st);
+  }
   say(st, T.foodAsk({ where: !p.neighborhood }), prompting);
   schedule(st, 'hungry_deadline', h.deadlineAt as number);
-  const taste = parseTaste(body);
   if (hasTaste(taste)) mergeTaste(h, from.key, taste);
 }
 
-/** "@otto where should we eat" with no plan: an instant plan for today, around now. */
+/** "@homi where should we eat" with no plan: an instant plan for today, around now. */
 export function startInstant(st: Step, from: MemberRef, msgRef: string | undefined, body: string, prompting: Prompting): void {
   const now = st.ctx.now;
   const p: EnginePlan = {
@@ -63,7 +71,7 @@ export function startSearch(st: Step): void {
   const h = p.hungry as EngineHungry;
   const near = nearOf(h, p.neighborhood);
   if (!near) {
-    // No neighborhood yet: ask once (Otto never uses device location), then give up quietly.
+    // No neighborhood yet: ask once (Homi never uses device location), then give up quietly.
     if (h.askedWhere) return giveUp(st);
     h.askedWhere = true;
     h.deadlineAt = st.ctx.now + WINDOW;
@@ -100,7 +108,11 @@ export function onPlaceMessage(st: Step, ev: MessageEvent, body: string, address
     const taste = parseTaste(body);
     if (hasTaste(taste) || taste.go) {
       mergeTaste(h, m.key, taste);
-      if (taste.go || (h.searches ?? 0) > 0) return startSearch(st);
+      // Acknowledge each answer so nobody wonders whether Homi heard it while the others reply.
+      if (!taste.go) react(st, ev.msgRef);
+      // One message with food, budget and area ("something spicy, not too pricey, near central square") is enough.
+      const complete = (taste.cuisines.length > 0 || taste.wildcard) && taste.price !== undefined && taste.neighborhoods.length > 0;
+      if (taste.go || complete || (h.searches ?? 0) > 0) return startSearch(st);
       if (taste.vague && !h.askedWhere && !Object.keys(h.neighborhoods).length && !p.neighborhood) {
         h.askedWhere = true;
         say(st, T.foodWhere());
@@ -209,7 +221,7 @@ export function popTo(st: Step, back: PlanState, prompting: Prompting): void {
   }
 }
 
-/** "otto we're going to X" / "otto place: X". */
+/** "homi we're going to X" / "homi place: X". */
 export function setPlaceText(st: Step, place: string): void {
   const p = P(st);
   p.place = { name: place, source: 'user' };

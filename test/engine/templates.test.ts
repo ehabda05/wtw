@@ -59,6 +59,6 @@ test('tone dial: nudges and deadline lock change with tone; privacy copy does no
 test('intro matches PRIVACY.md §1', () => {
   assert.equal(
     TEMPLATES.intro({ hours: 24 }),
-    `Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "otto stop" makes me delete everything and leave.`,
+    `Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "homi stop" makes me delete everything and leave.`,
   );
 });

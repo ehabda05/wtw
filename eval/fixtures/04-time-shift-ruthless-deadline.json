@@ -1,7 +1,7 @@
 {
   "id": "04-time-shift-ruthless-deadline",
   "title": "Fri only after 8:30, ruthless tone, deadline lock",
-  "notes": "Drinks, so the options default to 8pm: 1 Thu Oct 22 8pm, 2 Fri Oct 23 8pm, 3 Sat Oct 24 8pm. The trigger is at Mon 21:01, so the deadline is Tue Oct 20 21:01 (now+24h, before quiet hours) and Nudge A at 50% falls at Tue 09:01. The nudge is outside quiet hours and lands exactly 12h before the deadline lock, so both fit the 1-per-12h budget under a half-open [t, t+12h) window. The start time was chosen for that. 'otto tone ruthless' is set, so the nudge and the deadline lock use the ruthless templates. Sofia's 'fri but only after 8:30' is stored as a time constraint: Fri 8pm becomes maybe (time), Fri is the leader, so Otto asks the time-shift bridge right away ('Want Fri 8:30?'). Raf's 'yes fri 8:30 works' moves option 2 to 8:30pm. Yuki stays pending (only chatter until after the lock), so the plan locks at the deadline. Nora (organizer) says 'not thu', so Thu is also excluded by organizer veto. Food-word negatives: 'this pset is eating me alive fr' and 'food for thought: ... $3 shots on fridays' (idiom plus a day reference without a cue). 'ok see u all fri 🍻' contains references but no cue and must not count.",
+  "notes": "Drinks, so the options default to 8pm: 1 Thu Oct 22 8pm, 2 Fri Oct 23 8pm, 3 Sat Oct 24 8pm. The trigger is at Mon 21:01, so the deadline is Tue Oct 20 21:01 (now+24h, before quiet hours) and Nudge A at 50% falls at Tue 09:01. The nudge is outside quiet hours and lands exactly 12h before the deadline lock, so both fit the 1-per-12h budget under a half-open [t, t+12h) window. The start time was chosen for that. 'homi tone ruthless' is set, so the nudge and the deadline lock use the ruthless templates. Sofia's 'fri but only after 8:30' is stored as a time constraint: Fri 8pm becomes maybe (time), Fri is the leader, so Homi asks the time-shift bridge right away ('Want Fri 8:30?'). Raf's 'yes fri 8:30 works' moves option 2 to 8:30pm. Yuki stays pending (only chatter until after the lock), so the plan locks at the deadline. Nora (organizer) says 'not thu', so Thu is also excluded by organizer veto. Food-word negatives: 'this pset is eating me alive fr' and 'food for thought: ... $3 shots on fridays' (idiom plus a day reference without a cue). 'ok see u all fri 🍻' contains references but no cue and must not count.",
   "tz": "America/New_York",
   "start": "2026-10-19T21:00:00-04:00",
   "surface": "sim",
@@ -15,8 +15,8 @@
   ],
   "steps": [
     {"t": "+0m", "from": "raf", "text": "who's alive after that pset", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "nora", "text": "@otto drinks thu, fri or sat? we deserve it", "label": {"intent": "plan", "food": false}},
-    {"t": "+1m", "from": "raf", "text": "otto tone ruthless", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "nora", "text": "@homi drinks thu, fri or sat? we deserve it", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "raf", "text": "homi tone ruthless", "label": {"intent": "command", "food": false}},
     {"t": "+1m", "from": "kai", "text": "LMAO", "label": {"intent": "chatter", "food": false}},
     {"t": "+2m", "from": "kai", "text": "fri!!", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
     {"t": "+2m", "from": "wes", "text": "thu works, fri maybe", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "maybe", "sat": "unknown"}}},
@@ -33,10 +33,10 @@
     {"t": "+5m", "from": "sofia", "text": "ok see u all fri 🍻", "label": {"intent": "chatter", "food": false}},
     {"t": "+5m", "from": "yuki", "text": "i'm alive i promise, just drowning", "label": {"intent": "chatter", "food": false}},
     {"ff": "12h"},
-    {"t": "+5m", "from": "yuki", "text": "otto sorry!! fri works for me 🫡", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
-    {"t": "+2m", "from": "nora", "text": "otto place: the pub on mass ave", "label": {"intent": "command", "food": false}},
+    {"t": "+5m", "from": "yuki", "text": "homi sorry!! fri works for me 🫡", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
+    {"t": "+2m", "from": "nora", "text": "homi place: the pub on mass ave", "label": {"intent": "command", "food": false}},
     {"t": "+2m", "from": "sofia", "text": "someone send me the pics after, sofia+lab@example.com", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "kai", "text": "otto where are we at", "label": {"intent": "command", "food": false}}
+    {"t": "+1m", "from": "kai", "text": "homi where are we at", "label": {"intent": "command", "food": false}}
   ],
   "expect": {
     "finalDay": "fri",
@@ -46,7 +46,7 @@
     "maxUnpromptedPer12h": 1,
     "otherChecks": [
       "Exactly 3 options at 8pm (drinks): Thu Oct 22, Fri Oct 23, Sat Oct 24; the header says the lock is Tue Oct 20 around 9pm.",
-      "Right after Sofia's 'fri but only after 8:30', Otto posts one time-shift bridge ('Fri works for everyone if we push to 8:30. Want Fri 8:30?' or equivalent); it is prompted.",
+      "Right after Sofia's 'fri but only after 8:30', Homi posts one time-shift bridge ('Fri works for everyone if we push to 8:30. Want Fri 8:30?' or equivalent); it is prompted.",
       "After Raf's yes, option 2 becomes Fri Oct 23 8:30pm and Sofia's time constraint is satisfied (her Fri vote counts as yes).",
       "Wes's ❓ tapback on option 3 is recorded as maybe for Sat.",
       "Nudge A fires once, at Tue 09:01 (never inside 23:00-09:00), uses the ruthless collective template ('... said nothing. The group waits; I lock ... regardless.'), and is addressed to the only pending member, Yuki, as an inline reply to Yuki's last message or by name/count.",
@@ -54,7 +54,7 @@
       "The deadline lock fires at Tue 21:01 with the ruthless template ('Time's up. Fri it is; ... will hear about this.') naming the absent member, and picks Fri 8:30pm (Thu is skipped by Nora's organizer no and has 1 yes).",
       "The lock message folds in one confirm ping for Wes's Fri maybe.",
       "'the last fri at the pub was insane', the 'food for thought ... fridays' message and 'ok see u all fri 🍻' are not counted as votes; no food message starts the hungry flow.",
-      "The plan card from 'otto where are we at' shows Fri Oct 23 8:30pm, the pub on mass ave, and Yuki as in.",
+      "The plan card from 'homi where are we at' shows Fri Oct 23 8:30pm, the pub on mass ave, and Yuki as in.",
       "Privacy, stop and error copy stays plain even with the ruthless tone.",
       "Neither +1 617 555 0129 nor sofia+lab@example.com appears in any log line."
     ]

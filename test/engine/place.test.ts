@@ -5,7 +5,7 @@ import { HOUR, Harness, MIN, fakePlaces, joined, ofType } from './helpers.js';
 /** Plan locked on Fri Oct 23 7pm, in collecting_details. */
 function locked(): Harness {
   const h = new Harness({ start: '2026-10-17T10:00:00-04:00' });
-  h.say('ana', '@otto dinner next week?');
+  h.say('ana', '@homi dinner next week?');
   h.say('ben', 'fri works');
   h.say('ana', 'fri works');
   assert.equal(h.plan!.state, 'collecting_details');
@@ -24,10 +24,10 @@ test('unaddressed strong food talk in a plan pushes collecting_place and asks on
 
 test('lookup query, 3 bubbles with (est.) prices and "hours unknown", votes, address once, pop to confirmed', () => {
   const h = locked();
-  h.say('maya', 'otto find food');
+  h.say('maya', 'homi find food');
   h.say('ana', 'thai sounds amazing');
   h.say('ben', 'something cheap pls');
-  const look = ofType(h.say('jo', 'otto go, harvard square'), 'lookup_places')[0];
+  const look = ofType(h.say('jo', 'homi go, harvard square'), 'lookup_places')[0];
   assert.deepEqual(look.query, { cuisines: ['thai'], diet: [], near: 'Harvard Square', at: h.plan!.eventAt, priceMax: 1 });
   const res = h.places(fakePlaces());
   const sends = ofType(res, 'send');
@@ -38,16 +38,16 @@ test('lookup query, 3 bubbles with (est.) prices and "hours unknown", votes, add
   h.react('ana', '❤️', 'place:1');
   const close = h.say('ben', '1 looks good');
   const msgs = ofType(close, 'send').map((s) => s.text);
-  assert.equal(msgs[0], 'Tasty Thai it is: 1234 Mass Ave https://maps.example/tasty 🍜 Want a reminder 30 min before (say "otto remind me")?');
-  assert.equal(msgs[1], 'Locked: Fri Oct 23, 7pm · Tasty Thai · 2 in. I\'ll remind you the day before; say "otto add to calendar" for an invite.');
+  assert.equal(msgs[0], 'Tasty Thai it is: 1234 Mass Ave https://maps.example/tasty 🍜 Want a reminder 30 min before (say "homi remind me")?');
+  assert.equal(msgs[1], 'Locked: Fri Oct 23, 7pm · Tasty Thai · 2 in. I\'ll remind you the day before; say "homi add to calendar" for an invite.');
   assert.equal(msgs.filter((m) => m.includes('1234 Mass Ave')).length, 1, 'address posted once');
   assert.equal(h.plan!.state, 'confirmed');
   assert.equal(h.plan!.place?.name, 'Tasty Thai');
 });
 
-test('hungry_deadline: after 10 minutes Otto searches with what it has, then closes with "#1 since nobody objected"', () => {
+test('hungry_deadline: after 10 minutes Homi searches with what it has, then closes with "#1 since nobody objected"', () => {
   const h = locked();
-  h.say('maya', 'otto find food, thai near harvard sq');
+  h.say('maya', 'homi find food, thai near harvard sq');
   h.advance(10 * MIN);
   h.places(fakePlaces());
   const out = h.advance(10 * MIN);
@@ -58,13 +58,13 @@ test('hungry_deadline: after 10 minutes Otto searches with what it has, then clo
 test('instant plan from idle: today, no date options, no reminder offer, confirmed ~now', () => {
   const h = new Harness({ start: '2026-10-17T18:30:00-04:00' });
   assert.deepEqual(h.say('aiden', "ok i'm starving, where are we eating").filter((a) => a.type === 'send').length, 1, 'intro only');
-  const ask = h.say('bea', '@otto where should we eat');
+  const ask = h.say('bea', '@homi where should we eat');
   assert.equal(joined(ask), 'What are we feeling? Cuisine, budget, and roughly where?');
   assert.equal(h.plan!.options.length, 0);
   assert.match(joined(h.say('chidi', 'somewhere near here, $$ is fine')), /Which neighborhood\? I never use your location\./);
   h.say('devi', "we're in harvard sq rn");
   h.say('emre', 'fatima and i are in allston tho');
-  const look = ofType(h.say('bea', 'ok otto go'), 'lookup_places')[0];
+  const look = ofType(h.say('bea', 'ok homi go'), 'lookup_places')[0];
   assert.equal(look.query.near, 'Harvard Square + Allston');
   assert.match(joined(h.places(fakePlaces())), /halfway between Harvard Sq and Allston/);
   h.say('devi', '2');
@@ -80,8 +80,8 @@ test('instant plan from idle: today, no date options, no reminder offer, confirm
 
 test('food detour while the date is open pops back to collecting_availability; the lock then confirms', () => {
   const h = new Harness({ start: '2026-10-19T18:30:00-04:00' });
-  h.say('amara', '@otto dinner thu, fri or sat?');
-  h.say('amara', 'otto lock it when 2 say yes');
+  h.say('amara', '@homi dinner thu, fri or sat?');
+  h.say('amara', 'homi lock it when 2 say yes');
   h.say('theo', 'ok but where are we eating?? i refuse to do the dhall again');
   assert.equal(h.plan!.state, 'collecting_place');
   h.say('amara', 'indian, allston');

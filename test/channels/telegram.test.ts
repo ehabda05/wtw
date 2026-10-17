@@ -2,21 +2,21 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Pacer, TelegramAdapter, isStartGroup, isTelegramAddressed, normalizeTelegram, retryAfterSeconds } from '../../src/channels/telegram.js';
 
-const BOT = 'otto_plans_bot';
+const BOT = 'homi_plans_bot';
 
 test('mention regex: @bot and /cmd@bot, case-insensitive, not other bots or emails', () => {
-  assert.ok(isTelegramAddressed('hey @otto_plans_bot dinner?', BOT));
-  assert.ok(isTelegramAddressed('@Otto_Plans_Bot', BOT));
-  assert.ok(isTelegramAddressed('/plan@otto_plans_bot next week', BOT));
-  assert.ok(!isTelegramAddressed('@otto_plans_bot2 hi', BOT));
-  assert.ok(!isTelegramAddressed('mail me x@otto_plans_bot.com', BOT));
+  assert.ok(isTelegramAddressed('hey @homi_plans_bot dinner?', BOT));
+  assert.ok(isTelegramAddressed('@Homi_Plans_Bot', BOT));
+  assert.ok(isTelegramAddressed('/plan@homi_plans_bot next week', BOT));
+  assert.ok(!isTelegramAddressed('@homi_plans_bot2 hi', BOT));
+  assert.ok(!isTelegramAddressed('mail me x@homi_plans_bot.com', BOT));
   assert.ok(!isTelegramAddressed('/plan next week', BOT), 'bare /plan is left to detectAddressed');
   assert.ok(!isTelegramAddressed('anything', undefined));
 });
 
 test('"/start@bot <token>" from the ?startgroup= deep link counts as addressed', () => {
-  assert.ok(isStartGroup('/start@otto_plans_bot otto', BOT));
-  const n = normalizeTelegram({ id: '-1001' }, { id: '42', content: { type: 'text', text: '/start@otto_plans_bot hello' }, sender: { id: '7' } }, { botUsername: BOT });
+  assert.ok(isStartGroup('/start@homi_plans_bot homi', BOT));
+  const n = normalizeTelegram({ id: '-1001' }, { id: '42', content: { type: 'text', text: '/start@homi_plans_bot hello' }, sender: { id: '7' } }, { botUsername: BOT });
   assert.equal(n?.mentionsAgent, true);
   assert.equal(n?.isGroup, true);
 });
@@ -37,10 +37,10 @@ test('normalize text / reaction / private chat / group content', () => {
   assert.equal(dm?.mentionsAgent, true, 'private chat with the bot is always addressed');
   const grp = normalizeTelegram(
     { id: '-1' },
-    { id: '10', content: { type: 'group', items: [{ id: '10:0', content: { type: 'attachment' } }, { id: '10:1', content: { type: 'text', text: 'caption @otto_plans_bot' } }] }, sender: { id: '5' } },
+    { id: '10', content: { type: 'group', items: [{ id: '10:0', content: { type: 'attachment' } }, { id: '10:1', content: { type: 'text', text: 'caption @homi_plans_bot' } }] }, sender: { id: '5' } },
     { botUsername: BOT },
   );
-  assert.equal(grp?.text, 'caption @otto_plans_bot');
+  assert.equal(grp?.text, 'caption @homi_plans_bot');
   assert.equal(grp?.mentionsAgent, true);
   assert.equal(normalizeTelegram({ id: '-1' }, { id: '1', content: { type: 'text', text: 'x' } }, {}), null, 'no sender -> dropped');
 });

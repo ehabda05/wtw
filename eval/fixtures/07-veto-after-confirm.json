@@ -1,7 +1,7 @@
 {
   "id": "07-veto-after-confirm",
   "title": "Bday ramen locked for Fri, then 'can't do friday anymore'",
-  "notes": "Veto-and-swap (STATE_MACHINE confirmed -> collecting_availability, DATE_FINDING §7). The trigger 'dinner this week? thinking thu, fri or sat' names the days, so the first options are 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm (deadline Tue ~6:01pm). All 4 answer, so Fri locks (everyone). Then '/food' runs the hungry flow from collecting_details: ramen 3 vs dumplings 1 (no compromise), 'treat ourselves' -> $$$, vegetarian, Harvard Sq. The place is chosen and the plan is confirmed. A plan note is added. On Tue 12:25 Felix, a Fri yes-voter, says he can't do Friday anymore. Otto must reopen ONLY the date: 3 fresh options without Fri, keeping the ramen place and the note. This is the one place this fixture relies on default option generation. Expected fresh options, from the 'this week' window (Tue..Sun) minus Fri with the social scores Sat 3 > Thu 2 = Sun 2 > Wed 1 = Tue 1, are Thu Oct 22, Sat Oct 24 and Sun Oct 25 at 7pm (not three consecutive days). The new deadline would be Wed ~12:25. No tapbacks are used after the veto, so the result does not depend on the order of the new options. Everyone answers Sat (Dani via the group reference 'weekend' = Sat and Sun options), so the plan re-locks on Sat (everyone). Because the place is already set, it goes straight back to confirmed.",
+  "notes": "Veto-and-swap (STATE_MACHINE confirmed -> collecting_availability, DATE_FINDING §7). The trigger 'dinner this week? thinking thu, fri or sat' names the days, so the first options are 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm (deadline Tue ~6:01pm). All 4 answer, so Fri locks (everyone). Then '/food' runs the hungry flow from collecting_details: ramen 3 vs dumplings 1 (no compromise), 'treat ourselves' -> $$$, vegetarian, Harvard Sq. The place is chosen and the plan is confirmed. A plan note is added. On Tue 12:25 Felix, a Fri yes-voter, says he can't do Friday anymore. Homi must reopen ONLY the date: 3 fresh options without Fri, keeping the ramen place and the note. This is the one place this fixture relies on default option generation. Expected fresh options, from the 'this week' window (Tue..Sun) minus Fri with the social scores Sat 3 > Thu 2 = Sun 2 > Wed 1 = Tue 1, are Thu Oct 22, Sat Oct 24 and Sun Oct 25 at 7pm (not three consecutive days). The new deadline would be Wed ~12:25. No tapbacks are used after the veto, so the result does not depend on the order of the new options. Everyone answers Sat (Dani via the group reference 'weekend' = Sat and Sun options), so the plan re-locks on Sat (everyone). Because the place is already set, it goes straight back to confirmed.",
   "tz": "America/New_York",
   "start": "2026-10-19T18:00:00-04:00",
   "surface": "sim",
@@ -13,7 +13,7 @@
   ],
   "steps": [
     {"t": "+0m", "from": "gwen", "text": "it's literally my bday week and nobody has planned anything 🙄", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "dani", "text": "@otto dinner this week? thinking thu, fri or sat", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "dani", "text": "@homi dinner this week? thinking thu, fri or sat", "label": {"intent": "plan", "food": false}},
     {"t": "+3m", "from": "felix", "text": "fri works, sat should be ok too", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "maybe", "sun": "unknown"}}},
     {"t": "+1m", "from": "gwen", "text": "fri or sat 🥳", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "yes", "sun": "unknown"}}},
     {"t": "+2m", "from": "ollie", "react": {"emoji": "❤️", "option": 2}},
@@ -28,16 +28,16 @@
     {"t": "+2m", "from": "dani", "react": {"emoji": "❤️", "option": 1, "set": "place"}},
     {"t": "+0m", "from": "felix", "text": "1!!", "label": {"intent": "vote", "food": true, "placeVote": 1}},
     {"t": "+1m", "from": "gwen", "react": {"emoji": "❤️", "option": 1, "set": "place"}},
-    {"t": "+6m", "from": "ollie", "text": "otto note dress code: all black for gwen's aesthetic", "label": {"intent": "command", "food": false}},
+    {"t": "+6m", "from": "ollie", "text": "homi note dress code: all black for gwen's aesthetic", "label": {"intent": "command", "food": false}},
     {"ff": "18h"},
     {"t": "+0m", "from": "felix", "text": "guys i can't do friday anymore 😭 my TA moved the midterm review to fri night", "label": {"intent": "veto", "food": false, "votes": {"thu": "unknown", "fri": "no", "sat": "unknown", "sun": "unknown"}}},
     {"t": "+5m", "from": "gwen", "text": "ok sat works for me!!", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "unknown", "sat": "yes", "sun": "unknown"}}},
     {"t": "+4m", "from": "dani", "text": "weekend works for me", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "unknown", "sat": "yes", "sun": "yes"}}},
     {"t": "+6m", "from": "ollie", "text": "sun is bad for me, sat yes", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "unknown", "sat": "yes", "sun": "no"}}},
     {"t": "+22m", "from": "felix", "text": "sat works, sorry again guys 🙏", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "unknown", "sat": "yes", "sun": "unknown"}}},
-    {"t": "+3m", "from": "dani", "text": "otto what did we decide about dress code", "label": {"intent": "command", "food": false}},
+    {"t": "+3m", "from": "dani", "text": "homi what did we decide about dress code", "label": {"intent": "command", "food": false}},
     {"t": "+1m", "from": "gwen", "text": "ok whoever's driving text me 617-555-0119 so i can send my address", "label": {"intent": "chatter", "food": false}},
-    {"t": "+2m", "from": "ollie", "text": "otto add to calendar", "label": {"intent": "command", "food": false}}
+    {"t": "+2m", "from": "ollie", "text": "homi add to calendar", "label": {"intent": "command", "food": false}}
   ],
   "expect": {
     "finalDay": "sat",
@@ -49,12 +49,12 @@
       "The first lock is Fri Oct 23 7pm with 4 in, right after Dani's message.",
       "'/food' starts the hungry flow once. Exactly 3 options come back, all ramen/Japanese (dumplings 1 vs ramen 3, below the compromise threshold), within $$$, with vegetarian applied as a filter or a 'check: vegetarian' note, near Harvard Sq, and opening hours checked for Fri 7pm.",
       "The restaurant vote closes after Gwen's tapback (3 of 4) and the plan card shows Fri Oct 23 7pm plus the ramen place.",
-      "Felix's veto (he voted yes on Fri) reopens ONLY the date: Otto posts 3 fresh options that do not include Fri (expected Thu Oct 22, Sat Oct 24, Sun Oct 25 at 7pm), says the place is kept, and the state returns to collecting_availability. The veto reply is prompted.",
+      "Felix's veto (he voted yes on Fri) reopens ONLY the date: Homi posts 3 fresh options that do not include Fri (expected Thu Oct 22, Sat Oct 24, Sun Oct 25 at 7pm), says the place is kept, and the state returns to collecting_availability. The veto reply is prompted.",
       "The ramen place and the dress-code note survive the veto; the restaurant address is not posted again.",
       "Dani's 'weekend' is read as yes for the Sat and Sun options.",
       "After Felix's last message (all 4 answered) the plan locks Sat Oct 24 7pm and goes straight to confirmed with the kept place (no 'Where to?' ask).",
-      "'otto what did we decide about dress code' answers 'all black' from the note.",
-      "'otto add to calendar' produces an .ics for Sat Oct 24 7pm at the ramen place with no attendee emails.",
+      "'homi what did we decide about dress code' answers 'all black' from the note.",
+      "'homi add to calendar' produces an .ics for Sat Oct 24 7pm at the ramen place with no attendee emails.",
       "617-555-0119 never appears in any log line."
     ]
   }

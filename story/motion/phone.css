@@ -1,4 +1,5 @@
-/* Otto motion demo: stage, phone, chat UI, call screen, end card.
+/* Whats the Word motion demo (agent: Homi): stage, phone, chat UI, cards, photos, album screen,
+   call screen, title card, end card.
    Everything is positioned by timeline.js from the current time t (no CSS transitions or
    keyframe animations), so a captured frame is fully deterministic. System fonts only. */
 
@@ -13,7 +14,7 @@
   --amber-2: #f08c1a;
   --amber-ink: #2b1a06;
   --friend: #26262b;
-  --otto-bubble: #2d2519;
+  --homi-bubble: #2d2519;
   --you-a: #3b8cff;
   --you-b: #1f6fe8;
   --hair: rgba(255, 255, 255, 0.08);
@@ -89,7 +90,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 
 .item { position: absolute; left: 0; right: 0; top: 0; padding: 0 12px; will-change: transform, opacity; }
 .item .name { font-size: 12.5px; color: var(--ink-2); margin: 0 0 3px 46px; letter-spacing: -0.1px; }
-.item.otto .name { color: var(--amber); font-weight: 600; }
+.item.homi .name { color: var(--amber); font-weight: 600; }
 .item .row { display: flex; align-items: flex-end; gap: 8px; }
 .item.you .row { justify-content: flex-end; }
 .item .slot { width: 30px; height: 30px; flex: 0 0 30px; position: relative; }
@@ -99,19 +100,19 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .bubble { position: relative; padding: 8px 13px 9px; border-radius: 20px; font-size: 16.5px; line-height: 21.5px; letter-spacing: -0.25px;
   white-space: pre-wrap; overflow-wrap: anywhere; color: #fff; }
 .friend .bubble { background: var(--friend); border-bottom-left-radius: 7px; }
-.otto .bubble { background: var(--otto-bubble); border-bottom-left-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.16); }
+.homi .bubble { background: var(--homi-bubble); border-bottom-left-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.16); }
 .you .bubble { background: linear-gradient(180deg, var(--you-a), var(--you-b)); border-bottom-right-radius: 7px; }
 .bubble.typing { padding: 12px 14px; display: flex; gap: 5px; align-items: center; height: 38px; }
 .bubble.typing i { display: block; width: 8px; height: 8px; border-radius: 50%; background: #9a9aa2; }
 
-.reacts { position: absolute; top: -15px; display: flex; gap: 4px; z-index: 2; }
-.friend .reacts, .otto .reacts { right: -12px; }
+.reacts { position: absolute; top: -18px; display: flex; gap: 4px; z-index: 2; }
+.friend .reacts, .homi .reacts { right: -12px; }
 .you .reacts { left: -12px; }
 .pill { display: flex; align-items: center; gap: 3px; height: 27px; padding: 0 8px 0 6px; border-radius: 14px; background: #34343a;
   box-shadow: 0 0 0 2.5px #000, 0 4px 10px rgba(0,0,0,.35); font-size: 15px; line-height: 1; }
 .pill b { font-size: 12.5px; font-weight: 650; color: #d8d8de; font-variant-numeric: tabular-nums; }
 .flyer { position: absolute; top: -18px; font-size: 22px; line-height: 1; pointer-events: none; z-index: 3; }
-.friend .flyer, .otto .flyer { right: 0; }
+.friend .flyer, .homi .flyer { right: 0; }
 .you .flyer { left: 0; }
 
 .receipt { font-size: 11.5px; color: var(--ink-3); text-align: right; padding: 3px 4px 0 0; font-weight: 500; }
@@ -121,11 +122,48 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .system { text-align: center; font-size: 12.5px; color: var(--ink-2); padding: 8px 20px 6px; display: flex; justify-content: center; align-items: center; gap: 7px; }
 .system .av { width: 18px; height: 18px; border: 0; }
 
+/* inline labels inside bubbles (display only; the words stay the same) */
+.bubble b { font-weight: 700; }
+.tag { display: inline-block; height: 17px; padding: 0 6px; border-radius: 9px; font-size: 10.5px; line-height: 17px; font-weight: 800;
+  letter-spacing: .6px; vertical-align: 1.5px; white-space: nowrap; }
+.nw { white-space: nowrap; }
+.tag.sim { background: rgba(255, 181, 71, 0.16); color: var(--amber); box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.5); }
+.tag.link { background: rgba(255, 255, 255, 0.12); color: #d6d6dc; font-weight: 650; letter-spacing: .1px; }
+.url { color: #8cc2ff; text-decoration: underline; text-decoration-color: rgba(140, 194, 255, 0.45); text-underline-offset: 2px; }
+.est { display: inline-block; padding: 0 5px; border-radius: 5px; background: rgba(255, 255, 255, 0.08); color: #e3d3b4;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .2px; line-height: 16px; white-space: nowrap; }
+.quote { font-size: 12px; line-height: 15px; color: var(--ink-2); margin: 0 0 4px 2px; padding-left: 8px; border-left: 2px solid rgba(255, 255, 255, 0.22); }
+
+/* cards: a Homi bubble with a header, rows (right-aligned amounts) and a footer */
+.item .bw.wide { max-width: 318px; }
+.bubble.card { width: 318px; padding: 10px 13px 11px; font-size: 15px; line-height: 19.5px; letter-spacing: -0.2px; white-space: normal; }
+.card .c-hd { font-weight: 600; font-size: 15.5px; line-height: 20px; }
+.card .c-sec { margin: 9px 0 1px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; color: var(--amber); }
+.card .c-rows { margin-top: 6px; }
+.card .c-sec + .c-rows { margin-top: 2px; }
+.card .c-row { display: flex; align-items: baseline; gap: 8px; padding: 4px 0 3px; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+.card .c-rows .c-row:first-child { border-top: 0; }
+.card .c-row .ic { flex: 0 0 20px; font-size: 14px; }
+.card .c-row .k { flex: 0 0 66px; font-size: 12.5px; font-weight: 750; color: #f1c27d; font-variant-numeric: tabular-nums; }
+.card .c-row .l { flex: 1; min-width: 0; }
+.card .c-row .r { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; color: #fff; }
+.card .c-row .note { display: block; margin-top: 2px; font-size: 12px; line-height: 15.5px; color: #cbbd9f; }
+.card .c-line { padding: 3px 0; }
+.card .c-ft { margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(255, 181, 71, 0.22); font-size: 14px; line-height: 18.5px; color: #f3e2c2; font-weight: 600; }
+.card.compact .c-row { padding: 3px 0 2px; }
+
+/* photo bubbles: generated placeholder art (CSS/SVG, no real photos) */
+.pics { display: flex; gap: 4px; }
+.pics .pic { width: 204px; height: 204px; border-radius: 18px; overflow: hidden; background: #111; }
+.pics.two .pic { width: 139px; height: 176px; }
+.pic svg, .tile svg { width: 100%; height: 100%; display: block; }
+.pics + .bubble { margin-top: 3px; display: inline-block; }
+
 /* avatars */
 .av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
   font-weight: 650; font-size: 13px; letter-spacing: 0; overflow: hidden; }
-.av.otto { background: radial-gradient(circle at 36% 30%, #ffdb8f, #ffb547 52%, #f08c1a 100%); }
-.av.otto svg { width: 100%; height: 100%; display: block; }
+.av.homi { background: radial-gradient(circle at 36% 30%, #ffdb8f, #ffb547 52%, #f08c1a 100%); }
+.av.homi svg { width: 100%; height: 100%; display: block; }
 
 /* compose bar */
 .compose { position: absolute; left: 0; right: 0; bottom: 0; height: 82px; padding: 8px 12px 0; display: flex; gap: 10px; align-items: flex-start;
@@ -166,7 +204,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .call .line { position: absolute; left: 0; right: 0; padding: 12px 14px 13px; border-radius: 18px; background: rgba(255,255,255,0.08);
   backdrop-filter: none; }
 .call .line .sp { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: #cfc6b8; margin-bottom: 5px; }
-.call .line.otto .sp { color: var(--amber); }
+.call .line.homi .sp { color: var(--amber); }
 .call .line .tx { font-size: 18px; line-height: 24px; letter-spacing: -0.3px; color: #fff; }
 .call .line .tx .dim { color: rgba(255,255,255,0.28); }
 .call .wave { display: flex; gap: 2.5px; align-items: center; height: 14px; }
@@ -183,6 +221,34 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .call .sim { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; align-items: center;
   font-size: 11.5px; font-weight: 600; letter-spacing: .3px; color: #cdbfa8; padding: 4px 10px; border-radius: 10px;
   background: rgba(0,0,0,0.35); border: 1px solid rgba(255,181,71,0.25); white-space: nowrap; }
+
+/* ---------- album screen (full screen inside the phone) ---------- */
+.album { position: absolute; inset: 0; z-index: 34; display: none; background: #0b0b0d; }
+.album .nav { position: absolute; top: 50px; left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px 0 10px; color: #4c9bff; font-size: 16.5px; letter-spacing: -0.2px; }
+.album .nav .bk { display: flex; align-items: center; gap: 4px; }
+.album .head { position: absolute; top: 98px; left: 16px; right: 16px; }
+.album .mo { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 8px; border-radius: 12px; background: rgba(255, 181, 71, 0.14);
+  color: var(--amber); font-size: 11.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+.album .atitle { margin-top: 10px; font-size: 27px; font-weight: 750; letter-spacing: -0.7px; line-height: 1.1; }
+.album .asub { margin-top: 6px; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.album .grid { position: absolute; left: 16px; right: 16px; top: 214px; height: 358px; }
+.album .tile { position: absolute; left: 0; top: 0; width: 174px; height: 174px; border-radius: 16px; overflow: hidden; background: #1a1a1e; }
+.album .tile .by { position: absolute; left: 8px; bottom: 8px; display: flex; align-items: center; gap: 5px; padding: 3px 9px 3px 3px; border-radius: 12px;
+  background: rgba(0, 0, 0, 0.6); font-size: 12.5px; font-weight: 650; }
+.album .tile .by .av { width: 18px; height: 18px; font-size: 9.5px; }
+.album .afoot { position: absolute; left: 20px; right: 20px; top: 594px; text-align: center; font-size: 12px; line-height: 1.55; color: var(--ink-3); white-space: pre-line; }
+.album .toast { position: absolute; left: 50%; top: 660px; transform: translateX(-50%); padding: 9px 16px; border-radius: 18px; white-space: nowrap;
+  background: #2a2a30; color: #fff; font-size: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); opacity: 0; }
+
+/* ---------- title card ---------- */
+.titlecard { position: absolute; inset: 0; z-index: 99; display: none; opacity: 0;
+  background: radial-gradient(70% 60% at 50% 42%, #1d160c 0%, #0a0907 60%, #060606 100%); }
+.titlecard .inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.titlecard .tmark { width: 150px; height: 150px; border-radius: 50%; box-shadow: 0 20px 60px rgba(255, 160, 40, 0.25); }
+.titlecard .ttitle { margin-top: 30px; font-size: 104px; font-weight: 750; letter-spacing: -3.5px; line-height: 1; }
+.titlecard .tline { margin-top: 22px; font-size: 34px; font-weight: 600; color: #f1ece4; letter-spacing: -0.6px; }
+.layout-landscape .titlecard .tmark { width: 120px; height: 120px; }
 
 /* ---------- caption ---------- */
 .caption-zone { position: absolute; pointer-events: none; }
@@ -207,7 +273,8 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .layout-vertical .endcard .left { align-items: center; }
 .endcard .emark { width: 168px; height: 168px; border-radius: 50%; box-shadow: 0 20px 60px rgba(255,160,40,0.25); }
 .layout-landscape .endcard .emark { width: 128px; height: 128px; }
-.endcard .etitle { font-size: 120px; font-weight: 750; letter-spacing: -4px; margin-top: 28px; line-height: 1; }
+.endcard .etitle { font-size: 100px; font-weight: 750; letter-spacing: -3.5px; margin-top: 28px; line-height: 1; white-space: nowrap; }
+.endcard .ename { margin-top: 18px; font-size: 22px; font-weight: 750; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
 .endcard .eline { font-size: 38px; line-height: 48px; font-weight: 600; letter-spacing: -0.8px; color: #f1ece4; margin-top: 26px; max-width: 860px; }
 .layout-landscape .endcard .eline { font-size: 36px; line-height: 46px; max-width: 760px; }
 .endcard .etag { font-size: 26px; color: var(--ink-2); margin-top: 18px; }

@@ -23,7 +23,7 @@ export function headerText(st: Step, tally?: string): string {
   });
 }
 
-/** "@otto dinner next week?" -> a plan, with options right away when the trigger names a window. */
+/** "@homi dinner next week?" -> a plan, with options right away when the trigger names a window. */
 export function startPlan(st: Step, from: MemberRef, msgRef: string | undefined, body: string): void {
   const now = st.ctx.now;
   const tz = tzOf(st);

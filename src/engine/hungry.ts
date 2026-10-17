@@ -48,22 +48,32 @@ const IDIOMS: RegExp[] = [
   /\beat (?:my )?dust\b/,
   /\beat your heart out\b/,
 ];
+/**
+ * Money talk is a bill, not a meal ("how much does everyone owe for dinner", "we spent 84 on pizza"): it cancels
+ * food intent outright. Budget phrases ("under $20", "$15 max") are tastes, not money talk.
+ */
+const MONEY =
+  /\b(?:owe[sd]?|owing|venmo|paypal|zelle|cash ?app|costs?|paid|pay(?:ing|s)?|spent|spend|reimburse|split(?:ting)? (?:it|this|that|the (?:bill|check|tab|cost|total)|\$?\d+|\w+ ways|between|among|evenly|equally)|(?:the|our|this|that|a) (?:bill|check|tab))\b|(?<!\b(?:under|below|max|than|within|to|around|about|have|got|only|like)\s?)(?<!~\s?)\$\s?\d(?![\d.,]*\s*(?:max|or less|or under|tops)\b)/;
+
 /** Negatives: cancel unless a strong signal is also present ("already ate", "ate so much"). */
 const NEGATIVES: RegExp[] = [/\bate so much\b/, /\balready ate\b/, /\bjust ate\b/, /\bso full\b/, /\bnot hungry\b/, /\bi ate\b/];
 
 export interface FoodScore {
-  /** Points after cancellation (0 when an idiom or an un-overridden negative is present). */
+  /** Points after cancellation (0 when an idiom, money talk or an un-overridden negative is present). */
   score: number;
   raw: number;
   strong: boolean;
   idiom: boolean;
   negative: boolean;
+  /** Money words ("owe", "paid", "split it", "$84"): a bill, never a food trigger. */
+  money: boolean;
 }
 
 export function foodScore(text: string): FoodScore {
   let t = normText(text);
   const idiom = IDIOMS.some((r) => r.test(t));
   const negative = NEGATIVES.some((r) => r.test(t));
+  const money = MONEY.test(t);
   let raw = 0;
   let strong = false;
   if (STRONG_WHOLE.test(t)) {
@@ -83,8 +93,8 @@ export function foodScore(text: string): FoodScore {
   for (const m of t.matchAll(WEAK)) weak.add(m[1]);
   for (const m of t.matchAll(CUISINE_WORDS)) weak.add(m[1]);
   raw += weak.size;
-  const cancelled = idiom || (negative && !strong);
-  return { score: cancelled ? 0 : raw, raw, strong, idiom, negative };
+  const cancelled = idiom || money || (negative && !strong);
+  return { score: cancelled ? 0 : raw, raw, strong, idiom, negative, money };
 }
 
 // ───────────────────────── §3 taste ─────────────────────────
@@ -230,6 +240,8 @@ function priceIn(t: string): PriceBand | undefined {
     bands.push(n <= 15 ? 1 : n <= 30 ? 2 : n <= 60 ? 3 : 4);
   }
   if (/\bmoderate\b|\bmid[- ]?range\b|\breasonable\b|\bnormal price/.test(t)) bands.push(2);
+  if (/\bnot (?:too |that |very |super |crazy |overly )?(?:expensive|pricey|pricy)\b|\bwon'?t break the bank\b/.test(t)) bands.push(2);
+  if (/\bcheap(?:er)?ish\b|\bon the cheap(?:er)? side\b/.test(t)) bands.push(1);
   if (/\btreat (?:ourselves|yourselves|myself)\b|\bfancy\b|\bsplurge\b|\bnice place\b|\bupscale\b|\bbougie\b/.test(t)) bands.push(3);
   return bands.length ? (Math.min(...bands) as PriceBand) : undefined;
 }
@@ -245,6 +257,8 @@ export function parseTaste(text: string): Taste {
     if (vs.length) t = t.replace(m[0], ' ');
   }
   const cuisines = cuisinesIn(t).filter((c) => !vetoes.includes(c));
+  // A flavor with no named cuisine ("something spicy") stands for the cuisines that usually deliver it.
+  if (!cuisines.length && /(?<!\b(?:not|no|nothing)\s(?:too\s|that\s|very\s|super\s|overly\s)?)\bspicy\b|\bsome heat\b/.test(t)) for (const c of ['thai', 'indian', 'korean']) if (!vetoes.includes(c)) cuisines.push(c);
   const diet: string[] = [];
   for (const [tag, re] of DIETS) if (re.test(t)) diet.push(tag);
   const neighborhoods = neighborhoodsIn(t);
@@ -467,10 +481,17 @@ export function placesHeader(h: HungryState, near: string, options: PlaceOption[
   const where = whereLabel(near);
   const n = options.length;
   const comp = compromise(h);
-  if (comp && n === 3) {
+  // The 2+1 line describes the list, so it is used only when the list really is two of one and one of the other.
+  const serves = (c: string) => options.filter((o) => placeCuisines(o.cuisine).some((t) => [c, ...(RELATED[c] ?? [])].includes(t))).length;
+  if (comp && n === 3 && serves(comp.top[0]) >= 2 && serves(comp.second[0]) >= 1) {
     const [c1, n1] = comp.top;
     const [c2, n2] = comp.second;
-    const line = `${numberWord(n1, true)} said ${cuisineLabel(c1)}, ${numberWord(n2)} said ${cuisineLabel(c2)}: two ${cuisineLabel(c1)} spots and a ${cuisineLabel(c2)} place`;
+    const l2 = cuisineLabel(c2);
+    const tail = `two ${cuisineLabel(c1)} spots and ${/^[aeiou]/i.test(l2) ? 'an' : 'a'} ${l2} place`;
+    // One vote each may be one person naming both ("thai or indian"), so don't claim two people said them.
+    const line = n1 === 1 && n2 === 1
+      ? `${capitalize(cuisineLabel(c1))} or ${l2}: ${tail}`
+      : `${numberWord(n1, true)} said ${cuisineLabel(c1)}, ${numberWord(n2)} said ${l2}: ${tail}`;
     return TEMPLATES.foodHeader({ summary: where ? `${line}, ${where}` : line, n, how });
   }
   const top = rankedCuisines(h)[0]?.[0];

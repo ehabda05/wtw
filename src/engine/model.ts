@@ -11,7 +11,7 @@ export interface EngineHungry extends HungryState {
   memberPlaces?: Record<MemberKey, string[]>;
   /** "Which neighborhood? I never use your location." is asked at most once. */
   askedWhere?: boolean;
-  /** places_result.source ("osm" | "fallback" | "google"), shown by `otto why`. */
+  /** places_result.source ("osm" | "fallback" | "google"), shown by `homi why`. */
   source?: string;
   /** Lookups made so far (an empty result is retried once with new answers, then the flow gives up). */
   searches?: number;
@@ -84,7 +84,7 @@ export type Command =
   | { kind: 'headcount'; n: number }
   | { kind: 'place_set'; place: string }
   | { kind: 'no_place' }
-  | { kind: 'change_place' }
+  | { kind: 'change_place'; cuisines?: string[] }
   | { kind: 'remind' }
   | { kind: 'go' }
   | { kind: 'yes' }

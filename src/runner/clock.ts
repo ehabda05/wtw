@@ -34,7 +34,7 @@ export class SystemClock implements Clock {
 }
 
 /**
- * Live-demo clock (DEMO_MODE=true only): real time plus an offset that `otto demo ff 22h` moves forward, so a
+ * Live-demo clock (DEMO_MODE=true only): real time plus an offset that `homi demo ff 22h` moves forward, so a
  * 24-hour nudge can be shown in a 2-minute demo. The chat is always told when this happens.
  */
 export class OffsetClock extends SystemClock {

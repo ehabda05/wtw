@@ -6,6 +6,7 @@
 // Input format (one item per line; full reference in story/motion/README.md):
 //   Name: message text            a chat message (Name = member id or display name)
 //   + more text                   another bubble from the same sender, no typing indicator
+//   ~Name: text                   a quick message from anyone: no typing indicator, short gap
 //   ...text [#id]                 give a message an id (for @react / @receipt targets)
 //   @member id Name [#color] [bot]   @roster id id ...   @chat Title   @clock 8:14   @fps 30
 //   @chapter Title                @caption Text with *accent*   (@caption alone clears)
@@ -13,6 +14,11 @@
 //   @jump ms Text | Sun Mon ...   @react emoji who [#id|^N]      @receipt Text [#id]
 //   @wait ms                      @at ms
 //   @call {json}  > Name: line  ...  @endcall                  @end {json}
+//   @title {json}                 opening title card {"title","line","duration"}
+//   @card Name {json}             a card bubble {"id","head","rows","sections","foot","hold"} (see README)
+//   @photo Name art[,art] | caption [#id]   photo bubble(s) with generated art (ramen|friends|city|neon)
+//   @album {json}                 full-screen album {"title","header","sub","subAfter","foot","photos","remove","duration"}
+//   @quote text                   reply-quote line shown above the next message
 // Lines starting with # are comments. No dependencies; Node 18+.
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -30,14 +36,20 @@ const words = (s) => s.trim().split(/\s+/).filter(Boolean).length;
 // ---- timing model (ms). Tuned so a 2-sentence bot message stays on screen long enough to read.
 const TYPING = {
   you: (n) => clamp(260 + 36 * n, 550, 1150), // compose-bar typing
-  bot: (n) => clamp(480 + 4 * n, 650, 1000),
-  friend: (n) => clamp(280 + 26 * n, 380, 900),
+  bot: (n) => clamp(420 + 3 * n, 600, 850),
+  friend: (n) => clamp(280 + 20 * n, 380, 720),
 };
 const HOLD = {
-  bot: (n) => clamp(300 + 22 * n, 650, 3400),
-  other: (n) => clamp(260 + 14 * n, 380, 900),
+  bot: (n) => clamp(300 + 17 * n, 650, 2800),
+  other: (n) => clamp(260 + 12 * n, 380, 800),
 };
 const BURST_GAP = 420;
+const QUICK_GAP = 220;
+// Cards are read like a receipt: longer hold, capped so a tall card never stalls the video.
+const CARD_HOLD = (n) => clamp(800 + 10 * n, 1800, 6500);
+const cardText = (c) => [c.head, c.foot, ...(c.rows || []), ...(c.sections || []).flatMap((x) => [x.title, ...x.rows])]
+  .map((r) => (r == null ? '' : typeof r === 'string' ? r : [r.k, r.l, r.note, r.r].filter(Boolean).join(' ')))
+  .join(' ');
 
 const meta = { chat: 'the crew', fps: 30, members: [], roster: [] };
 const events = [];
@@ -47,6 +59,7 @@ let lastYouMsg = null;
 let auto = 0;
 let call = null;
 let caption = null;
+let pendingQuote = null;
 
 const byName = (who) => {
   const k = who.trim().toLowerCase();
@@ -60,12 +73,18 @@ const takeId = (text) => {
 };
 const closeCaption = (t) => { if (caption) { caption.until = t; caption = null; } };
 
-function message(member, rawText, burst) {
+function message(member, rawText, burst, extra = {}) {
   const { text, id } = takeId(rawText);
-  const n = len(text);
   const kind = member.id === 'you' ? 'you' : member.bot ? 'bot' : 'friend';
-  const ev = { t: 0, type: 'message', id: id || `m${++auto}`, from: member.id, text };
-  if (burst && lastMsg && lastMsg.from === member.id) {
+  const ev = Object.assign({ t: 0, type: 'message' }, extra, { id: id || extra.id || `m${++auto}`, from: member.id, text });
+  for (const k of Object.keys(ev)) if (ev[k] === undefined) delete ev[k];
+  if (!text) delete ev.text;
+  delete ev.hold;
+  if (pendingQuote) { ev.quote = pendingQuote; pendingQuote = null; }
+  const n = len(extra.card ? cardText(extra.card) : text || ' ');
+  if (burst === 'quick') {
+    ev.t = T + QUICK_GAP;
+  } else if (burst && lastMsg && lastMsg.from === member.id) {
     ev.t = lastMsg.t + BURST_GAP;
   } else {
     const typing = TYPING[kind](n);
@@ -73,7 +92,9 @@ function message(member, rawText, burst) {
     ev.typing = typing;
   }
   events.push(ev);
-  const hold = (kind === 'bot' ? HOLD.bot : HOLD.other)(n);
+  let hold = extra.hold ?? (extra.card ? CARD_HOLD(n) : (kind === 'bot' ? HOLD.bot : HOLD.other)(n));
+  if (burst === 'quick' && extra.hold == null) hold = Math.min(hold, 320);
+  if (extra.photos) hold = Math.max(hold, 900);
   T = Math.max(T, ev.t + hold);
   lastMsg = { id: ev.id, from: member.id, t: ev.t };
   if (member.id === 'you') lastYouMsg = lastMsg;
@@ -90,7 +111,7 @@ for (let i = 0; i < lines.length; i++) {
         let s = accept + 380;
         for (const l of call.lines) {
           l.t = l.t ?? s;
-          l.duration = l.duration ?? Math.max(700, 180 * words(l.text));
+          l.duration = l.duration ?? Math.max(700, 150 * words(l.text));
           s = l.t + l.duration + 380;
         }
         const last = call.lines[call.lines.length - 1];
@@ -136,7 +157,7 @@ for (let i = 0; i < lines.length; i++) {
           if (clock) ev.clock = clock;
           if (style) ev.style = style;
           events.push(ev);
-          T += 700;
+          T += 550;
           break;
         }
         case 'system': {
@@ -184,6 +205,33 @@ for (let i = 0; i < lines.length; i++) {
           T += 100;
           break;
         }
+        case 'title': {
+          const e = Object.assign({ t: T, type: 'title', duration: 2000 }, arg ? JSON.parse(arg) : {});
+          events.push(e);
+          T += e.duration - 200;
+          break;
+        }
+        case 'card': {
+          const sp2 = arg.indexOf(' ');
+          const card = JSON.parse(arg.slice(sp2 + 1));
+          const { id, hold, ...rest } = card;
+          message(byName(arg.slice(0, sp2)), '', false, { id, hold, card: rest });
+          break;
+        }
+        case 'photo': {
+          const m = /^(\S+)\s+([\w,]+)\s*(?:\|\s*(.*))?$/.exec(arg);
+          if (!m) throw new Error('@photo Name art[,art] | caption');
+          const { text, id } = takeId(m[3] || '');
+          message(byName(m[1]), text, false, { id: id || undefined, photos: m[2].split(',') });
+          break;
+        }
+        case 'album': {
+          const e = Object.assign({ t: T, type: 'album', duration: 3000 }, arg ? JSON.parse(arg) : {});
+          events.push(e);
+          T += e.duration;
+          break;
+        }
+        case 'quote': pendingQuote = arg; break;
         case 'wait': T += Number(arg); break;
         case 'at': T = Number(arg); break;
         case 'call': call = Object.assign({ type: 'call', lines: [] }, arg ? JSON.parse(arg) : {}); break;
@@ -196,6 +244,12 @@ for (let i = 0; i < lines.length; i++) {
         }
         default: throw new Error('unknown directive @' + cmd);
       }
+      continue;
+    }
+    if (line.startsWith('~')) {
+      const q = /^~([^:]{1,24}):\s*(.+)$/.exec(line);
+      if (!q) throw new Error('expected "~Name: text"');
+      message(byName(q[1]), q[2].trim(), 'quick');
       continue;
     }
     if (line.startsWith('+')) {

@@ -1,4 +1,4 @@
-# Why Fenn pivoted from friend groups to couples, and what it means for Otto
+# Why Fenn pivoted from friend groups to couples, and what it means for Homi
 
 Researched 2026-10-16 (about 10 PM EDT) for HackHarvard 2026. Public sources only: no logins, no accounts, no Bookface. Builds on `research/fenn-concepts.md` (not edited). Quotes are kept short and linked.
 
@@ -12,7 +12,7 @@ Researched 2026-10-16 (about 10 PM EDT) for HackHarvard 2026. Public sources onl
 2. **Best-supported inferred reason: the atomic network shrank from about 8 people to 2.** The group product needed every member to install an iOS-only app. A couple needs one other install. The group-planning tools that did scale (Partiful, Doodle, Apple Invites) all let guests take part without installing anything.
 3. **Second reason: a natural payer.** Fenn now sells one $14.99/month subscription covering both partners. A YC couples app (Candle) reported over $150K in monthly revenue and a DAU/MAU near 50% within about 6 months. Both founders' past employer, Life360, sells a single membership per household "Circle". Friend groups have no obvious payer.
 4. **Third reason: frequency.** Couples coordinate daily: pickups, groceries, schedules. That is what Fenn's earliest reviews describe. Friend plans are episodic: only 43% of Americans see friends in person at least weekly.
-5. **For Otto:** living inside the existing chat removes install friction and the iOS-only lock-in. It does **not** solve monetization, episodic usage, platform risk, or commoditization by native polls. The top direct competitor is **Continua** (GV-backed bot that already sits in SMS, iMessage and Discord groups). The biggest long-term risk is that **platform-native tools** (iOS 26 Messages polls with Apple Intelligence suggestions, WhatsApp polls and events, Meta AI in WhatsApp groups) absorb the "find a date" step.
+5. **For Homi:** living inside the existing chat removes install friction and the iOS-only lock-in. It does **not** solve monetization, episodic usage, platform risk, or commoditization by native polls. The top direct competitor is **Continua** (GV-backed bot that already sits in SMS, iMessage and Discord groups). The biggest long-term risk is that **platform-native tools** (iOS 26 Messages polls with Apple Intelligence suggestions, WhatsApp polls and events, Meta AI in WhatsApp groups) absorb the "find a date" step.
 
 ---
 
@@ -68,7 +68,7 @@ Ranked by how much independent, verifiable evidence supports each reason. **Ever
   - **Doodle:** participants do not need an account to vote. https://help.doodle.com/en/articles/8393821-do-i-need-a-doodle-account-to-participate-in-a-group-poll
 - **Counter-signal, VERIFIED (live).** Text.ai, a YC company, first shipped an AI that lived inside group chats ("No new apps to download, no learning curve, just text and go."). It then launched Alfi as a standalone chat app on iOS and Android. https://www.ycombinator.com/launches/NP6-text-ai-ai-in-your-group-chats ; https://www.ycombinator.com/launches/PHB-alfi-your-group-chat-with-social-skills
   - Its stated reason was that users wanted something more social. It did not cite install friction.
-  - INFERRED: a team that already had zero-install distribution still chose its own app. That points to limits in the in-chat form (UI, persistence, monetization) that Otto inherits. See section 3.
+  - INFERRED: a team that already had zero-install distribution still chose its own app. That points to limits in the in-chat form (UI, persistence, monetization) that Homi inherits. See section 3.
 
 ### Rank 2. Couples have a natural payer and proven willingness to pay
 
@@ -145,22 +145,22 @@ All URLs are in section 4.
 
 ---
 
-## 3. What Fenn's pivot means for an in-chat group agent like Otto
+## 3. What Fenn's pivot means for an in-chat group agent like Homi
 
-| Problem that pushed Fenn toward couples | Does Otto escape it? | How Otto should answer it (judges will ask) |
+| Problem that pushed Fenn toward couples | Does Homi escape it? | How Homi should answer it (judges will ask) |
 |---|---|---|
-| **Everyone must install an iOS-only app (cold start)** | **Yes, mostly.** One person adds Otto's number to a group that already exists. Nobody else installs anything or signs up. Comparable products make the same promise: Milo ("No accounts required for your friends."), Continua (add a phone number to a group SMS) and Partiful's no-app links. | "Otto's atomic network is the group chat you already have." Cross-platform reach depends on what Photon's channels actually support (see `photon-capabilities.md`). Do not claim Android coverage for iMessage groups without testing. |
-| **Calendar permissions and OAuth** | **Yes, by design.** Otto asks in chat. | Section 5: friends coordinate over open channels, and calendar sharing is concentrated in couples. Asking fits how friend groups behave. |
+| **Everyone must install an iOS-only app (cold start)** | **Yes, mostly.** One person adds Homi's number to a group that already exists. Nobody else installs anything or signs up. Comparable products make the same promise: Milo ("No accounts required for your friends."), Continua (add a phone number to a group SMS) and Partiful's no-app links. | "Homi's atomic network is the group chat you already have." Cross-platform reach depends on what Photon's channels actually support (see `photon-capabilities.md`). Do not claim Android coverage for iMessage groups without testing. |
+| **Calendar permissions and OAuth** | **Yes, by design.** Homi asks in chat. | Section 5: friends coordinate over open channels, and calendar sharing is concentrated in couples. Asking fits how friend groups behave. |
 | **Data liability (location, message history)** | **Yes.** No location, plan-scoped memory, then forget. | Make it a feature: "remembers the plan, not you". |
 | **Monetization: no natural payer** | **No.** A group has no single subscriber, and "forget everything" rules out profile- or ad-based revenue. | **For the hackathon:** state it plainly and skip it. **For the pitch,** two options are consistent with our privacy principles:<br>(a) booking or merchant fees with a public no-paid-ranking rule. Pally already uses this model: "Merchants can never pay to change what Pally recommends to you." (https://pally.com/)<br>(b) the organizer pays per plan, or a premium tier for large groups and trips. Do not claim either is validated. |
-| **Episodic usage (weak retention)** | **No.** Friend plans stay occasional (43% see friends in person at least weekly). | Measure plans that actually happened, not DAU. Zero install makes it cheap to come back: re-adding Otto or @-mentioning it costs nothing. Forgetting is the normal loop, not churn. |
-| **Distribution without an App Store page** | **Partly.** Every plan shows Otto to N people, like Partiful's invite loop. But nobody can "find" a phone-number bot. | Use a one-line footer on the final plan card ("Planned by Otto, add me to any group: …"), shown once per plan and never as a nudge. |
-| **Platform risk** | **No, and it is worse than for an app.** WhatsApp's Business API terms bar AI providers from distributing general-purpose assistants from 2026-01-15; Meta AI is unaffected (TechCrunch, 2025-10-18). Apple approved only one third-party AI agent (Poke) for Messages for Business as of 2026-06-04 (9to5Mac). | Position Otto as a narrow planning tool, not a general assistant. Keep the core independent of any one channel. Demo on whichever channel Photon supports reliably. Do not depend on WhatsApp Business API approval. |
+| **Episodic usage (weak retention)** | **No.** Friend plans stay occasional (43% see friends in person at least weekly). | Measure plans that actually happened, not DAU. Zero install makes it cheap to come back: re-adding Homi or @-mentioning it costs nothing. Forgetting is the normal loop, not churn. |
+| **Distribution without an App Store page** | **Partly.** Every plan shows Homi to N people, like Partiful's invite loop. But nobody can "find" a phone-number bot. | Use a one-line footer on the final plan card ("Planned by Homi, add me to any group: …"), shown once per plan and never as a nudge. |
+| **Platform risk** | **No, and it is worse than for an app.** WhatsApp's Business API terms bar AI providers from distributing general-purpose assistants from 2026-01-15; Meta AI is unaffected (TechCrunch, 2025-10-18). Apple approved only one third-party AI agent (Poke) for Messages for Business as of 2026-06-04 (9to5Mac). | Position Homi as a narrow planning tool, not a general assistant. Keep the core independent of any one channel. Demo on whichever channel Photon supports reliably. Do not depend on WhatsApp Business API approval. |
 | **Native features commoditize "find a date"** | **No.** iOS 26 Messages polls, WhatsApp polls and events, and @Meta AI in WhatsApp groups are all free and need no install. | Win on what a poll cannot do:<br>- read free-text answers ("either", "after 7", "not Sunday");<br>- close the loop with a published tie-break rule, a venue choice and capped nudges sent as the bot;<br>- work across platforms;<br>- forget afterwards.<br>Be honest in the demo that a native poll covers the single-question case. |
 | **No rich UI or persistent state** | **No.** | A compact plan card that is re-posted, with a version number (as in `fenn-concepts.md`). |
-| **Consent: the group never agreed to an AI reading the chat** | **Not an issue Fenn had.** In Fenn's app, joining was the consent. | Copy the stricter norm: Meta AI in WhatsApp sees only messages that @mention it, and Pally answers only when addressed by name. Otto should read only during an active plan or when mentioned. It should introduce itself, and any member can type `forget` or remove it. |
+| **Consent: the group never agreed to an AI reading the chat** | **Not an issue Fenn had.** In Fenn's app, joining was the consent. | Copy the stricter norm: Meta AI in WhatsApp sees only messages that @mention it, and Pally answers only when addressed by name. Homi should read only during an active plan or when mentioned. It should introduce itself, and any member can type `forget` or remove it. |
 
-**Bottom line (INFERRED).** Fenn's pivot is evidence that a group app which everyone must install is very hard to get going. Otto removes that specific barrier. It does not remove the two other likely reasons, monetization and frequency, and it adds platform risk. For a hackathon, that is the right trade-off. For a company, revenue and repeat use are the open questions.
+**Bottom line (INFERRED).** Fenn's pivot is evidence that a group app which everyone must install is very hard to get going. Homi removes that specific barrier. It does not remove the two other likely reasons, monetization and frequency, and it adds platform risk. For a hackathon, that is the right trade-off. For a company, revenue and repeat use are the open questions.
 
 ---
 
@@ -206,11 +206,11 @@ All URLs are in section 4.
    - A diary study of 36 people coordinating group social activities.
    - People mostly coordinate over open channels (texting, calls, email) and avoid tools that feel disruptive to natural conversation.
    - The result is conversational overload and an uneven split of coordination work, which causes frustration and confusion about plan details.
-   - This is the best academic support for Otto's design: stay in the open channel, and take the coordination work off the organizer.
+   - This is the best academic support for Homi's design: stay in the open channel, and take the coordination work off the organizer.
    - https://researchwith.njit.edu/en/publications/the-doing-of-doing-stuff-understanding-the-coordination-of-social/
 2. **Thayer et al., CSCW 2012.** VERIFIED (live).
    - Among 30 adults who share Google Calendars, 73% shared with a significant other, 33% with a friend, and 17% with groups of associates.
-   - It is small, qualitative and from 2009, but it supports the pattern that calendar sharing clusters in couples, not friend groups. That is where Fenn's calendar-based design fits and where Otto's ask-in-chat design is needed.
+   - It is small, qualitative and from 2009, but it supports the pattern that calendar sharing clusters in couples, not friend groups. That is where Fenn's calendar-based design fits and where Homi's ask-in-chat design is needed.
    - https://depts.washington.edu/csclab/wordpress/wp-content/uploads/Thayer-Derthick-Bietz-Lee-2012.pdf
 3. **Pew Research Center, 2012.** VERIFIED (live).
    - 41% of cell phone owners had used their phone in the past 30 days to coordinate a meeting or get-together.
@@ -219,7 +219,7 @@ All URLs are in section 4.
 4. **Harris Poll, July 2026 (603 Gen Z adults).** VERIFIED (live).
    - 54% of Gen Z prefer weekend activities planned ahead; 46% prefer spontaneous ones.
    - 62% avoid weekend plans because of financial regret.
-   - This is not calendar data, but it does support Otto asking for a price band.
+   - This is not calendar data, but it does support Homi asking for a price band.
    - https://theharrispoll.com/wp-content/uploads/2026/07/The-Gen-Z-Weekend-Report-July-2026.pdf
 
 **Dropped or weak**

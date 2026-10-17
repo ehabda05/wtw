@@ -1,4 +1,4 @@
-/* Otto motion demo: deterministic timeline renderer.
+/* Whats the Word motion demo (agent: Homi): deterministic timeline renderer.
  *
  * Reads script.json (schema in README.md next to this file), builds the chat once, then
  * window.__seek(ms) sets every element's position/opacity from the time alone. There are no
@@ -40,13 +40,49 @@
     .replace(/open (\w{3}) (\d)/g, `open${NB}$1${NB}$2`)
     .replace(/ · /g, `${NB}· `)
     .replace(/(\d+) for (\d+)/g, `$1${NB}for${NB}$2`)
+    .replace(/(\d)-(?=[a-z])/g, '$1‑') // "3-bedroom" never splits at the hyphen
     .replace(/ (\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*)$/u, `${NB}$1`);
+  // Display-only labels: the words stay exactly as written, they just get a visual treatment.
+  //   SIMULATED -> amber pill ("(SIMULATED)" drops its brackets), "(demo link)" -> grey pill,
+  //   "Example listing \u00B7 estimated price" -> small label, URLs -> link blue, **text** -> bold.
+  const fmt = (s) => esc(tidy(s))
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\(SIMULATED\)([.,:;]?)/g, '<span class="nw"><span class="tag sim">SIMULATED</span>$1</span>')
+    .replace(/SIMULATED(?!<)/g, '<span class="tag sim">SIMULATED</span>')
+    .replace(/\(demo link\)([.,:;]?)/g, '<span class="nw"><span class="tag link">demo link</span>$1</span>')
+    .replace(/Example listing\s\u00B7\s?estimated price/g, '<span class="est">Example listing \u00B7 estimated price</span>')
+    .replace(/(https?:\/\/[^\s<]+)/g, '<span class="url">$1</span>');
 
-  const OTTO_FACE =
+  // card: { head, rows: [...], sections: [{ title, rows }], foot, compact }
+  // row: "plain line" | { k: "Days 1\u20134", icon: "\u2708\uFE0F", l: "label", note: "small line", r: "$25.02" }
+  function rowHTML(r) {
+    if (typeof r === 'string') return `<div class="c-line">${fmt(r)}</div>`;
+    const ic = r.icon ? `<span class="ic">${esc(r.icon)}</span>` : '';
+    const k = r.k ? `<span class="k">${fmt(r.k)}</span>` : '';
+    const note = r.note ? `<span class="note">${fmt(r.note)}</span>` : '';
+    const right = r.r != null ? `<span class="r">${fmt(r.r)}</span>` : '';
+    return `<div class="c-row">${ic}${k}<span class="l">${fmt(r.l || '')}${note}</span>${right}</div>`;
+  }
+  function cardHTML(c) {
+    let h = c.head ? `<div class="c-hd">${fmt(c.head)}</div>` : '';
+    if (c.rows) h += `<div class="c-rows">${c.rows.map(rowHTML).join('')}</div>`;
+    for (const s of c.sections || []) {
+      h += (s.title ? `<div class="c-sec">${fmt(s.title)}</div>` : '') + `<div class="c-rows">${s.rows.map(rowHTML).join('')}</div>`;
+    }
+    if (c.foot) h += `<div class="c-ft">${fmt(c.foot)}</div>`;
+    return h;
+  }
+  let artSeq = 0;
+  const art = (name) => {
+    const f = window.HOMI_PHOTOS && window.HOMI_PHOTOS[name];
+    return f ? f('a' + artSeq++) : '';
+  };
+
+  const HOMI_FACE =
     '<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="24" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/>' +
     '<ellipse cx="40" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/><circle cx="25.5" cy="27" r="1.5" fill="#fff" opacity=".9"/>' +
     '<circle cx="41.5" cy="27" r="1.5" fill="#fff" opacity=".9"/></svg>';
-  document.querySelectorAll('[data-otto-face]').forEach((el) => { el.innerHTML = OTTO_FACE; });
+  document.querySelectorAll('[data-homi-face]').forEach((el) => { el.innerHTML = HOMI_FACE; });
 
   function mix(hex, amt) {
     const n = parseInt(hex.replace('#', ''), 16);
@@ -56,17 +92,18 @@
   }
 
   // ---------- state ----------
-  let S, members, items = [], captions = [], chapters = [], jumps = [], calls = [], composes = [], clocks = [], joins = [], endCard = null;
+  let S, members, items = [], captions = [], chapters = [], jumps = [], calls = [], composes = [], clocks = [], joins = [], albums = [];
+  let endCard = null, titleCard = null;
   let DURATION = 60000, V_H = 600, clusterEls = [];
-  const REACT_PAD = 13, TOP_PAD = 10, BOTTOM_PAD = 12;
+  const REACT_PAD = 16, TOP_PAD = 10, BOTTOM_PAD = 12;
 
   function avatarHTML(id, extra = '') {
     const m = members[id] || { name: '?', color: '#666' };
-    if (m.bot) return `<div class="av otto ${extra}">${OTTO_FACE}</div>`;
+    if (m.bot) return `<div class="av homi ${extra}">${HOMI_FACE}</div>`;
     const c = m.color || '#777';
     return `<div class="av ${extra}" style="background:linear-gradient(160deg, ${mix(c, 0.28)}, ${c})">${esc((m.name || '?')[0])}</div>`;
   }
-  const sideOf = (from) => (from === 'you' ? 'you' : members[from] && members[from].bot ? 'otto' : 'friend');
+  const sideOf = (from) => (from === 'you' ? 'you' : members[from] && members[from].bot ? 'homi' : 'friend');
 
   // ---------- compile script.json into items ----------
   function compile(script) {
@@ -79,7 +116,8 @@
     for (const e of ev) {
       switch (e.type) {
         case 'message': {
-          const it = { kind: 'msg', id: e.id || '_m' + auto++, from: e.from, text: e.text, t: e.t, reactions: [] };
+          const it = { kind: 'msg', id: e.id || '_m' + auto++, from: e.from, text: e.text || '', t: e.t, reactions: [],
+            card: e.card || null, photos: e.photos || (e.photo ? [e.photo] : null), quote: e.quote || null };
           if (e.typing > 0 && e.from === 'you') composes.push({ t0: e.t - e.typing, t1: e.t, text: e.text });
           else if (e.typing > 0) items.push({ kind: 'typing', from: e.from, t0: e.t - e.typing, t1: e.t });
           items.push(it);
@@ -114,6 +152,8 @@
         case 'jump': jumps.push({ t: e.t, duration: e.duration || 1600, text: e.text || '', ticker: e.ticker || [] }); break;
         case 'call': calls.push(e); break;
         case 'end': endCard = e; break;
+        case 'title': titleCard = e; break;
+        case 'album': albums.push(e); break;
         default: console.warn('unknown event type', e.type);
       }
     }
@@ -146,10 +186,19 @@
         it.mt = sameRun ? 3 : 11;
         const name = it.showName ? `<div class="name">${esc(members[it.from] ? members[it.from].name : it.from)}</div>` : '';
         const slot = side === 'you' ? '' : `<div class="slot">${avatarHTML(it.from, 'avslot')}</div>`;
-        const body = it.kind === 'typing'
-          ? '<div class="bubble typing"><i></i><i></i><i></i></div>'
-          : `<div class="bubble">${esc(tidy(it.text))}</div><div class="reacts"></div>`;
-        el.innerHTML = `<div class="in">${name}<div class="row">${slot}<div class="bw">${body}</div></div></div>`;
+        let body, wide = false;
+        if (it.kind === 'typing') body = '<div class="bubble typing"><i></i><i></i><i></i></div>';
+        else {
+          const quote = it.quote ? `<div class="quote">${fmt(it.quote)}</div>` : '';
+          let main;
+          if (it.card) { wide = true; main = `<div class="bubble card${it.card.compact ? ' compact' : ''}">${cardHTML(it.card)}</div>`; }
+          else if (it.photos) {
+            main = `<div class="pics${it.photos.length > 1 ? ' two' : ''}">${it.photos.map((p) => `<div class="pic">${art(p)}</div>`).join('')}</div>` +
+              (it.text ? `<div class="bubble">${fmt(it.text)}</div>` : '');
+          } else main = `<div class="bubble">${fmt(it.text)}</div>`;
+          body = quote + main + '<div class="reacts"></div>';
+        }
+        el.innerHTML = `<div class="in">${name}<div class="row">${slot}<div class="bw${wide ? ' wide' : ''}">${body}</div></div></div>`;
         it.inEl = el.firstChild;
         it.rowEl = el.querySelector('.row');
         it.inEl.style.transformOrigin = side === 'you' ? '100% 100%' : '20px 100%';
@@ -247,8 +296,8 @@
       $('call').style.display = 'block';
       c.lineEls = c.lines.map((ln) => {
         const el = document.createElement('div');
-        const isOtto = members[c.caller] && members[c.caller].name === ln.from;
-        el.className = 'line' + (isOtto ? ' otto' : '');
+        const isHomi = members[c.caller] && members[c.caller].name === ln.from;
+        el.className = 'line' + (isHomi ? ' homi' : '');
         const words = ln.text.split(/\s+/);
         el.innerHTML = `<div class="sp"><span>${esc(ln.from)}</span><span class="wave">${'<i></i>'.repeat(5)}</span></div><div class="tx"></div>`;
         tr.appendChild(el);
@@ -262,7 +311,7 @@
     }
     if (calls[0]) {
       const c = calls[0];
-      $('callName').textContent = members[c.caller] ? members[c.caller].name : c.caller || 'Otto';
+      $('callName').textContent = members[c.caller] ? members[c.caller].name : c.caller || 'Homi';
       $('callNum').textContent = c.number || '';
       $('callTag').textContent = c.label || '';
       $('callTag').style.display = c.label ? '' : 'none';
@@ -270,13 +319,39 @@
     }
 
     if (endCard) {
-      $('eTitle').textContent = endCard.title || 'Otto';
+      $('eTitle').textContent = endCard.title || 'Whats the Word';
       $('eLine').textContent = endCard.line || '';
       $('eTag').textContent = endCard.tagline || '';
       $('eBadge').textContent = endCard.badge || '';
       $('eBadge').style.display = endCard.badge ? '' : 'none';
       $('eQrLabel').textContent = endCard.qr || '';
       $('eQr').style.display = endCard.qr ? '' : 'none';
+      $('eName').textContent = endCard.name || '';
+      $('eName').style.display = endCard.name ? '' : 'none';
+    }
+    if (titleCard) {
+      $('tTitle').textContent = titleCard.title || 'Whats the Word';
+      $('tLine').textContent = titleCard.line || '';
+    }
+
+    // album screens: one tile set per album event, positioned per frame
+    const grid = $('albumGrid');
+    for (const a of albums) {
+      a.box = document.createElement('div');
+      a.box.style.cssText = 'position:absolute;inset:0;display:none';
+      const removed = a.remove ? String(a.remove.by).toLowerCase() : null;
+      let kept = 0;
+      a.tiles = (a.photos || []).map((p, i) => {
+        const el = document.createElement('div');
+        el.className = 'tile';
+        const who = members[p.by] ? members[p.by].name : p.by;
+        el.innerHTML = art(p.art) + `<div class="by">${avatarHTML(p.by)}<span>${esc(who)}</span></div>`;
+        a.box.appendChild(el);
+        const gone = removed != null && (p.by === removed || String(who).toLowerCase() === removed);
+        return { el, from: i, to: gone ? -1 : kept++ };
+      });
+      a.kept = kept;
+      grid.appendChild(a.box);
     }
 
     const pw = $('phoneWrap');
@@ -555,7 +630,68 @@
     };
     const m = Math.max(0, eBack(prog(et, 150, 700)));
     $('eMark').style.transform = `scale(${m.toFixed(4)})`;
-    stag('eTitle', 300); stag('eLine', 480); stag('eTag', 640); stag('eBadge', 800); stag('eQr', 950);
+    stag('eTitle', 300); stag('eName', 400); stag('eLine', 480); stag('eTag', 640); stag('eBadge', 800); stag('eQr', 950);
+  }
+
+  const cellXY = (i) => ({ x: (i % 2) * 184, y: Math.floor(i / 2) * 184 });
+
+  function renderAlbum(t) {
+    let a = null;
+    for (const x of albums) if (t >= x.t && t < x.t + x.duration) a = x;
+    const el = $('album');
+    if (!a) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const lt = t - a.t;
+    const up = eOut(prog(lt, 0, 460)), down = eIn(prog(lt, a.duration - 400, 400));
+    el.style.transform = `translateY(${((1 - up + down) * 100).toFixed(3)}%)`;
+    for (const x of albums) x.box.style.display = x === a ? 'block' : 'none';
+    const rm = a.remove;
+    const rp = rm ? prog(lt, rm.at, 380) : 0;
+    const mv = rm ? eInOut(prog(lt, rm.at + 320, 480)) : 0;
+    const set = (id, v) => { const n = $(id); if (n.textContent !== v) n.textContent = v; };
+    set('albumHeader', a.header || 'Members only');
+    set('albumTitle', a.title || '');
+    set('albumSub', rm && lt >= rm.at + 320 ? a.subAfter || a.sub || '' : a.sub || '');
+    set('albumFoot', a.foot || '');
+    // the footer follows the grid: 2 rows of tiles, then 1 row once the removed photos are gone
+    const rows0 = Math.ceil(a.tiles.length / 2), rows1 = Math.ceil(a.kept / 2);
+    const footTop = 214 + (rows0 + (rows1 - rows0) * mv) * 184 + 12;
+    $('albumFoot').style.top = footTop.toFixed(2) + 'px';
+    $('albumToast').style.top = (footTop + 66).toFixed(2) + 'px';
+    for (const tl of a.tiles) {
+      const p0 = cellXY(tl.from);
+      if (tl.to < 0) {
+        const e = eIn(rp);
+        tl.el.style.display = rp >= 1 ? 'none' : 'block';
+        tl.el.style.transform = `translate(${p0.x}px, ${p0.y}px) scale(${(1 - 0.35 * e).toFixed(4)})`;
+        tl.el.style.opacity = (1 - e).toFixed(3);
+      } else {
+        const p1 = cellXY(tl.to);
+        const x = p0.x + (p1.x - p0.x) * mv, y = p0.y + (p1.y - p0.y) * mv;
+        tl.el.style.display = 'block';
+        tl.el.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
+        tl.el.style.opacity = '1';
+      }
+    }
+    const toast = $('albumToast');
+    if (rm && rm.toast) {
+      set('albumToast', rm.toast);
+      const ta = Math.min(eOut(prog(lt, rm.at - 200, 300)), 1 - eIn(prog(lt, rm.at + 1500, 300)));
+      toast.style.opacity = ta.toFixed(3);
+    } else toast.style.opacity = '0';
+  }
+
+  function renderTitle(t) {
+    const el = $('titlecard');
+    if (!titleCard || t < titleCard.t || t >= titleCard.t + (titleCard.duration || 2000)) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const lt = t - titleCard.t, d = titleCard.duration || 2000;
+    el.style.opacity = (1 - eIn(prog(lt, d - 450, 450))).toFixed(3);
+    const m = Math.max(0, eBack(prog(lt, 0, 600)));
+    $('tMark').style.transform = `scale(${(0.6 + 0.4 * m).toFixed(4)})`;
+    const e = eOut(prog(lt, 120, 500));
+    $('tTitle').style.transform = `translateY(${((1 - e) * 18).toFixed(2)}px)`;
+    $('tLine').style.opacity = eOut(prog(lt, 300, 500)).toFixed(3);
   }
 
   function render(t) {
@@ -565,6 +701,8 @@
     renderCompose(t);
     renderJump(t);
     renderCall(t);
+    renderAlbum(t);
+    renderTitle(t);
     renderCaption(t);
     renderChapters(t);
     renderEnd(t);
@@ -610,14 +748,14 @@
 
   async function main() {
     try {
-      const script = window.__OTTO_SCRIPT__ || (await (await fetch('script.json', { cache: 'no-store' })).json());
+      const script = window.__HOMI_SCRIPT__ || (await (await fetch('script.json', { cache: 'no-store' })).json());
       compile(script);
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       build();
       fit();
       window.addEventListener('resize', fit);
       window.__seek = render;
-      window.__otto = { ready: true, duration: DURATION, fps: (S.meta && S.meta.fps) || 30, layout: LAYOUT, stage: STAGE };
+      window.__homi = { ready: true, duration: DURATION, fps: (S.meta && S.meta.fps) || 30, layout: LAYOUT, stage: STAGE };
       const start = Number(params.get('t') || 0);
       render(start);
       if (!RENDER) startPlayback(start);
@@ -625,7 +763,7 @@
       const box = $('err');
       box.style.display = 'flex';
       box.innerHTML = 'Could not load script.json (' + esc(err.message) + ').<br>Browsers block fetch() on file:// pages: run <code>node story/render/serve.mjs</code> and open the URL it prints.';
-      window.__otto = { ready: false, error: String(err) };
+      window.__homi = { ready: false, error: String(err) };
     }
   }
   main();

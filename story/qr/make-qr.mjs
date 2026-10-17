@@ -1,20 +1,23 @@
 // QR code + printable table tent for the judging table.
 //
-//   node story/qr/make-qr.mjs --sms +16175550100            (iMessage/SMS line: opens a new message to Otto)
-//   node story/qr/make-qr.mjs --telegram otto_planner_bot    (opens "add Otto to a group" in Telegram)
-//   node story/qr/make-qr.mjs --url https://github.com/you/otto
+//   node story/qr/make-qr.mjs --sms +16175550100            (iMessage/SMS line: opens a new message to Homi)
+//   node story/qr/make-qr.mjs --telegram homi_planner_bot    (opens "add Homi to a group" in Telegram)
+//   node story/qr/make-qr.mjs --url https://github.com/you/homi
 //
-// Writes story/qr/otto-qr.svg and story/qr/table-tent.html (print it, fold in half).
-// Needs the `qrcode` package from the story tools dir (story/README.md); override with OTTO_STORY_TOOLS.
+// Writes story/qr/homi-qr.svg and story/qr/table-tent.html (print it, fold in half).
+// Needs the `qrcode` package from the story tools dir (story/README.md): HOMI_STORY_TOOLS (a package.json path),
+// else %TEMP%/homi-story-tools, else %TEMP%/otto-story-tools (the folder's pre-rename name).
 
 import { createRequire } from 'node:module';
-import { writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const tools = process.env.OTTO_STORY_TOOLS ?? join(tmpdir(), 'otto-story-tools', 'package.json');
+const tools = process.env.HOMI_STORY_TOOLS
+  ?? ['homi-story-tools', 'otto-story-tools'].map((d) => join(tmpdir(), d, 'package.json')).find((p) => existsSync(p))
+  ?? join(tmpdir(), 'homi-story-tools', 'package.json');
 const QRCode = createRequire(tools)('qrcode');
 
 const [flag, value] = process.argv.slice(2);
@@ -27,10 +30,10 @@ let label;
 if (flag === '--sms') {
   if (!/^\+\d{8,15}$/.test(value)) throw new Error('use E.164, e.g. +16175550100');
   target = `sms:${value}`;
-  label = `Text Otto: ${value.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')}`;
+  label = `Text Homi: ${value.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')}`;
 } else if (flag === '--telegram') {
-  target = `https://t.me/${value.replace(/^@/, '')}?startgroup=otto`;
-  label = `Add Otto to your group: @${value.replace(/^@/, '')}`;
+  target = `https://t.me/${value.replace(/^@/, '')}?startgroup=homi`;
+  label = `Add Homi to your group: @${value.replace(/^@/, '')}`;
 } else if (flag === '--url') {
   target = value;
   label = value.replace(/^https?:\/\//, '');
@@ -39,24 +42,25 @@ if (flag === '--sms') {
 }
 
 const svg = await QRCode.toString(target, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#111111', light: '#ffffff' } });
-writeFileSync(join(here, 'otto-qr.svg'), svg);
+writeFileSync(join(here, 'homi-qr.svg'), svg);
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const panel = `
   <section class="panel">
     <div class="mark"><span></span><span></span></div>
-    <h1>Otto</h1>
-    <p class="tag">The friend who makes plans happen, then forgets.</p>
+    <h1>Whats the Word</h1>
+    <p class="tag">Homi, the friend who makes plans happen.</p>
     <div class="qr">${svg}</div>
     <p class="cta">${esc(label)}</p>
     <ul>
       <li>Finds a date. Nobody's calendar needed.</li>
       <li>Picks a place. Checks in with quiet friends.</li>
-      <li>Then deletes everything. Ask it what it knows.</li>
+      <li>Splits the bill, keeps the photos, plans the next trip.</li>
+      <li>Then forgets. Ask it what it knows.</li>
     </ul>
     <p class="foot">Built on Photon · HackHarvard 2026</p>
   </section>`;
-const html = `<!doctype html><html><head><meta charset="utf-8"><title>Otto table tent</title>
+const html = `<!doctype html><html><head><meta charset="utf-8"><title>Whats the Word table tent</title>
 <style>
   @page { size: letter portrait; margin: 0; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #111; }
@@ -73,4 +77,4 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><title>Otto table
   .foot { font-size: 12px; color: #777; }
 </style></head><body><div class="sheet">${panel}${panel}</div></body></html>`;
 writeFileSync(join(here, 'table-tent.html'), html);
-console.log(`wrote story/qr/otto-qr.svg and story/qr/table-tent.html → ${target}`);
+console.log(`wrote story/qr/homi-qr.svg and story/qr/table-tent.html → ${target}`);

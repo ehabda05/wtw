@@ -37,9 +37,9 @@ test('50% nudge: only when it lands >= 12h before the deadline, moved out of qui
 /** Plan with five members who answered and Sam silent (opted in to calls). */
 function silentSam(): Harness {
   const h = new Harness({ start: '2026-10-17T10:00:00-04:00' });
-  h.say('ana', '@otto dinner next week?');
-  h.say('sam', "otto I'm Sam");
-  h.say('sam', 'otto you can call me');
+  h.say('ana', '@homi dinner next week?');
+  h.say('sam', "homi I'm Sam");
+  h.say('sam', 'homi you can call me');
   h.say('ana', 'fri works');
   h.say('ben', 'fri or sat works');
   h.say('jo', 'either works');
@@ -62,15 +62,15 @@ test('escalation is folded into the 50% nudge: one announced group message + the
 test('PRIVACY §10: the call carries only the open question and the times', () => {
   const h = silentSam();
   const call = ofType(h.advanceTo(t('2026-10-17T22:00:00-04:00')), 'call')[0];
-  assert.equal(call.question, "Hi, this is Otto calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?");
+  assert.equal(call.question, "Hi, this is Homi calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?");
   for (const bad of ['Sam', 'Ana', 'Ben', 'Jo', 'dinner', 'Thai']) assert.ok(!call.question.includes(bad) && !call.options.join(' ').includes(bad), bad);
   assert.ok(call.options.length <= 3);
 });
 
 test('every dm/call action is paired with a group send in the same result (DM opt-in)', () => {
   const h = new Harness({ start: '2026-10-17T10:00:00-04:00' });
-  h.say('ana', '@otto drinks next week?');
-  h.say('jo', 'otto you can DM me');
+  h.say('ana', '@homi drinks next week?');
+  h.say('jo', 'homi you can DM me');
   h.say('ana', 'thu works');
   h.say('ben', 'sat works');
   for (const { a } of h.log) void a;
@@ -83,7 +83,7 @@ test('every dm/call action is paired with a group send in the same result (DM op
 
 test('noise budget + quiet hours hold across a whole plan (fake clock over several days)', () => {
   const h = new Harness({ start: '2026-10-19T22:33:00-04:00' });
-  h.say('sasha', '@otto dinner tomorrow, wed or thu?');
+  h.say('sasha', '@homi dinner tomorrow, wed or thu?');
   h.say('ren', 'wed works, thu maybe');
   h.say('uma', "tomorrow's bad, wed or thu");
   h.advance(3 * DAY);
@@ -99,9 +99,9 @@ test('noise budget + quiet hours hold across a whole plan (fake clock over sever
 /** Short window (4h, no 50% nudge): Thu 09:27 plan for "tonight, fri or sat"; Sam opted in to calls. */
 function shortWindow(): Harness {
   const h = new Harness({ start: '2026-10-22T09:27:00-04:00' });
-  h.say('rina', '@otto dinner tonight, fri or sat?');
-  h.say('sam', "otto i'm sam");
-  h.say('sam', 'otto you can call me, i never check this chat lol');
+  h.say('rina', '@homi dinner tonight, fri or sat?');
+  h.say('sam', "homi i'm sam");
+  h.say('sam', 'homi you can call me, i never check this chat lol');
   h.say('omar', "tonight's bad for me, fri or sat works");
   h.say('gabe', 'down 🫡');
   h.say('rina', "fri or sat works, tonight i can't");
@@ -147,8 +147,8 @@ test('short window: a failed call (ok:false) concludes the same way, without cha
 
 test('ruthless tone: inline-reply nudge to the only pending member; at most 2 nudges per member', () => {
   const h = new Harness({ start: '2026-10-19T21:01:00-04:00' });
-  h.say('nora', '@otto drinks thu, fri or sat?');
-  h.say('raf', 'otto tone ruthless');
+  h.say('nora', '@homi drinks thu, fri or sat?');
+  h.say('raf', 'homi tone ruthless');
   h.say('yuki', 'the last fri at the pub was insane 💀');
   h.say('kai', 'fri!!');
   h.say('nora', 'not thu, fri works');

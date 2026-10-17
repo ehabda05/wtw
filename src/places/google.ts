@@ -1,6 +1,6 @@
 // Optional live provider: Google Places API (New) Text Search.
 // Used only when PLACES_PROVIDER=google AND PLACES_API_KEY is set (decision D5,
-// research/places-api.md §5a). Otherwise Otto runs on the OSM snapshot alone.
+// research/places-api.md §5a). Otherwise Homi runs on the OSM snapshot alone.
 //
 // Request shape verified 2026-10-16 against
 //   https://developers.google.com/maps/documentation/places/web-service/text-search

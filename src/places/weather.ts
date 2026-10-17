@@ -16,7 +16,7 @@
 import { fetchJson } from './http.js';
 
 export const NWS_BASE = 'https://api.weather.gov';
-export const NWS_USER_AGENT = 'otto-hackharvard/0.1 (privacy-first planner)';
+export const NWS_USER_AGENT = 'homi-hackharvard/0.1 (privacy-first planner)';
 
 export interface WeatherResult {
   rainLikely: boolean;

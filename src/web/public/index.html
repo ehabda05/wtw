@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="the crew">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Simulated iMessage group chat running the real Homi engine (Whats the Word).">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Whats the Word Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="layout">
+  <div class="stage" id="stage">
+    <div class="phone-wrap" id="phoneWrap">
+      <div class="phone">
+        <div class="screen" id="screen">
+          <div class="camera" aria-hidden="true"></div>
+          <div class="statusbar" aria-hidden="true">
+            <span id="sbClock">10:00</span>
+            <span class="icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0"/><path d="M4 7a5.7 5.7 0 0 1 8 0"/><circle cx="8" cy="10" r="1.2" fill="#fff" stroke="none"/></svg>
+              <svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.6" y="0.6" width="22.8" height="11.8" rx="3.4" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.2"/><rect x="2.4" y="2.4" width="16.5" height="8.2" rx="2" fill="#fff"/><rect x="24.6" y="4.3" width="1.8" height="4.4" rx="0.9" fill="rgba(255,255,255,.45)"/></svg>
+            </span>
+          </div>
+
+          <header class="chat-header">
+            <span class="back" aria-hidden="true"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></span>
+            <div class="hcenter">
+              <div class="cluster" id="cluster" aria-hidden="true"></div>
+              <div class="title">the crew <span class="chev">›</span></div>
+            </div>
+            <button type="button" class="gear" id="gearBtn" aria-label="Demo controls" data-badge="">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            </button>
+            <span class="facetime" aria-hidden="true"><svg width="24" height="22" viewBox="0 0 26 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="1.5" y="5" width="15" height="14" rx="3"/><path d="m16.5 10 7-4v12l-7-4z"/></svg></span>
+          </header>
+          <div class="simstrip" role="note"><span class="dot"></span>Simulated iMessage · real Homi engine<span class="conn">reconnecting…</span></div>
+
+          <div class="chat" id="chat" aria-live="polite"><div class="chat-list" id="chatList"></div></div>
+          <button type="button" class="newpill" id="newPill" hidden>New messages ↓</button>
+
+          <div class="replybar" id="replyBar" hidden><span id="replyText"></span><button type="button" id="replyCancel" aria-label="Cancel reply">✕</button></div>
+          <form class="photobar" id="photoForm">
+            <div id="photoBar" class="photobar-in" hidden>
+              <div class="thumb" aria-hidden="true"></div>
+              <div class="pcol"><label for="photoCaption"><b id="photoWho">You</b> shares a sample photo · caption</label><input id="photoCaption" value="homi add" maxlength="200" autocomplete="off"></div>
+              <button type="submit" class="psend">Send</button><button type="button" id="photoCancel" aria-label="Cancel photo">✕</button>
+            </div>
+          </form>
+
+          <div class="personas" id="personas" role="group" aria-label="Who is typing"></div>
+          <form class="compose" id="compose" autocomplete="off">
+            <button type="button" class="cam" id="camBtn" aria-label="Share a sample photo">
+              <svg width="20" height="18" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 5h4l2-3h6l2 3h4a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><circle cx="12" cy="11" r="4"/></svg>
+            </button>
+            <div class="field">
+              <input id="input" type="text" enterkeyhint="send" maxlength="2000" placeholder="iMessage" aria-label="Message">
+              <button type="submit" class="send" id="sendBtn" aria-label="Send"><svg width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14V2M1.5 7.5 7 2l5.5 5.5"/></svg></button>
+            </div>
+          </form>
+          <div class="homebar" aria-hidden="true"><i></i></div>
+
+          <div class="picker" id="picker" hidden></div>
+          <div class="call" id="call" hidden></div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="sheet-head"><span>Demo controls</span><button type="button" id="sheetClose" aria-label="Close">Done</button></div>
+    <aside class="side left">
+      <div class="brand"><div class="mark av homi" id="brandMark"></div><div><div class="word">Whats the Word</div><div class="sub">Homi, the friend who makes plans happen.</div></div></div>
+      <div class="badge"><span class="dot"></span>Simulated iMessage · real Homi engine</div>
+      <p class="lede">A live group chat in your browser. The messages run through the same Homi engine, runner, scheduler and encrypted store as production; only the iMessage screen, the people and the clock are pretend.</p>
+      <section class="card try">
+        <h3>Try saying</h3>
+        <div class="says">
+          <button type="button" data-say="@homi dinner next week?">@homi dinner next week?</button>
+          <button type="button" data-say="homi you can call me">homi you can call me</button>
+          <button type="button" data-say="fri works, i'm busy thu and sat">fri works, i'm busy thu and sat</button>
+          <button type="button" data-say="homi find food">homi find food</button>
+          <button type="button" data-say="homi let's do a $10 show-up pledge">homi let's do a $10 show-up pledge</button>
+          <button type="button" data-say="homi split 120">homi split 120</button>
+          <button type="button" data-say="homi start an album for tonight">homi start an album for tonight</button>
+          <button type="button" data-say="homi let's plan Japan for 2030">homi let's plan Japan for 2030</button>
+          <button type="button" data-say="homi what do you know">homi what do you know</button>
+          <button type="button" data-say="homi forget">homi forget</button>
+        </div>
+        <p class="hint">Pick who is typing with the name chips by the message box. Tap any bubble for tapbacks (❤️ votes for an option) or to reply.</p>
+      </section>
+    </aside>
+
+    <aside class="side right">
+      <section class="card clock">
+        <div class="lbl">Fake clock</div>
+        <div class="big" id="clockBig">Sat 10:00 AM</div>
+        <div class="sub" id="clockSub">October 17, 2026 · America/New_York</div>
+        <div class="ffrow">
+          <button type="button" data-ff="1h">⏩ +1h</button>
+          <button type="button" data-ff="12h">⏩ +12h</button>
+          <button type="button" data-ff="next">⏩ Next day</button>
+        </div>
+      </section>
+      <section class="card play">
+        <button type="button" class="primary" id="playBtn"><span class="ic">▶</span> Play the full demo</button>
+        <div class="progress"><i id="progBar"></i></div>
+        <p class="hint" id="playHint">Resets the chat and replays the story from Sat Oct 17, 10:00 AM. About 90 seconds.</p>
+        <button type="button" class="ghost" id="resetBtn">↺ Reset chat</button>
+      </section>
+      <section class="card dmcard">
+        <h3>Private messages</h3>
+        <div class="dms" id="dmList"></div>
+      </section>
+      <section class="card legend">
+        <h3>What's simulated</h3>
+        <ul>
+          <li><b>iMessage UI</b> this page, not Apple's Messages app</li>
+          <li><b>Personas</b> you play all six people</li>
+          <li><b>Clock</b> fast-forward to see nudges, reminders, settlements</li>
+          <li><b>Call audio</b> no phone rings; you type what they say</li>
+          <li><b>Pledge payments</b> no real money moves</li>
+          <li><b>Travel prices</b> labeled estimates, example listings</li>
+          <li><b>Photos</b> generated sample images</li>
+          <li><b>Places</b> offline snapshot, no live search</li>
+        </ul>
+        <p class="real"><b>Real:</b> the Homi engine, runner, scheduler, sealed in-memory store and encrypted album, the same code that runs on Photon.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

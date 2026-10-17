@@ -90,7 +90,7 @@ export function nudgeable(plan: Plan): Member[] {
   return Object.values(plan.members).filter((m) => m.status === 'pending' && m.nudgeCount < MAX_NUDGES_PER_MEMBER);
 }
 
-/** Opted-in members Otto may check on privately: call opt-in, or DM opt-in where the channel can DM. */
+/** Opted-in members Homi may check on privately: call opt-in, or DM opt-in where the channel can DM. */
 export function escalationTargets(pending: Member[], caps: Capabilities): Member[] {
   return pending.filter((m) => m.hasDelivery && (m.optInCall || (m.optInDm && caps.dm)));
 }

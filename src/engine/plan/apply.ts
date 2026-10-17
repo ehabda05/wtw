@@ -10,12 +10,14 @@ import { afterVote } from './availability.js';
 import { onMessage } from './messages.js';
 import { onPlacesResult, placeVote } from './place.js';
 import { onCallResult, onTimer, onWeather } from './timers.js';
+import { EXTENSIONS } from '../ext/index.js';
 
 type Ev<K extends EngineEvent['kind']> = Extract<EngineEvent, { kind: K }>;
 
 /** Tapbacks on option bubbles: ❤️ 👍 ‼️ yes, 👎 no, ❓ maybe, 😂 ignored. Removal never arrives: add-only. */
 function onReaction(st: Step, ev: Ev<'reaction'>): void {
   intro(st);
+  for (const x of EXTENSIONS) if (x.onEvent?.(st, ev)) return;
   const p = planOf(st);
   if (!p || !isOpen(p)) return;
   const m = touch(st, ev.from);
@@ -59,6 +61,7 @@ function onPollVote(st: Step, ev: Ev<'poll_vote'>): void {
 
 /** The runner reports the message ids of tagged sends, so tapbacks and inline replies can be matched. */
 function onSent(st: Step, ev: Ev<'sent'>): void {
+  for (const x of EXTENSIONS) if (ev.tag.startsWith(`${x.name}:`) && x.onSent?.(st, ev.tag, ev.msgRef)) return;
   const p = planOf(st);
   if (!p) return;
   let m: RegExpMatchArray | null;
@@ -94,6 +97,12 @@ export function applyEvent(state: GroupState, event: EngineEvent, ctx: Ctx): App
     case 'places_result': onPlacesResult(st, event); break;
     case 'weather_result': onWeather(st, event); break;
     case 'call_result': onCallResult(st, event); break;
+    case 'photo':
+    case 'travel_result':
+    case 'payment_result':
+      intro(st);
+      for (const x of EXTENSIONS) if (x.onEvent?.(st, event)) break;
+      break;
   }
   const p = planOf(st);
   if (p && event.kind !== 'sent') p.updatedAt = ctx.now;

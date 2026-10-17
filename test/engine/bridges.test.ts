@@ -4,10 +4,10 @@ import { HOUR, Harness, joined, ofType } from './helpers.js';
 
 test('day conflict: immediate prompted bridge; "sat brunch works" adds option 4 with day prefs carried over', () => {
   const h = new Harness({ start: '2026-10-19T18:00:00-04:00' });
-  h.say('cal', '@otto dinner thu, fri or sat? 🍝');
+  h.say('cal', '@homi dinner thu, fri or sat? 🍝');
   h.say('dee', 'either works for me');
-  h.say('ana', "otto I'm Ana");
-  h.say('ben', "otto I'm Ben");
+  h.say('ana', "homi I'm Ana");
+  h.say('ben', "homi I'm Ben");
   h.say('ana', "fri works, i'm busy thu and sat");
   const q = h.say('ben', "sat works. thu and fri i can't, family stuff");
   const bridge = ofType(q, 'send').find((s) => /can only do/.test(s.text))!;
@@ -28,12 +28,12 @@ test('day conflict: immediate prompted bridge; "sat brunch works" adds option 4 
   const lock = h.react('eli', '❤️', 'option:4');
   assert.match(joined(lock), /^Sat Oct 24 · 11am it is: 5 in/);
   assert.equal(h.plan!.lockedBy, 'everyone');
-  assert.match(joined(h.say('dee', 'otto why sat')), /Sat 11am had 5 yes/);
+  assert.match(joined(h.say('dee', 'homi why sat')), /Sat 11am had 5 yes/);
 });
 
 test('time shift: "fri but only after 8:30" proposes Fri 8:30; any yes moves the option', () => {
   const h = new Harness({ start: '2026-10-19T21:00:00-04:00' });
-  h.say('nora', '@otto drinks thu, fri or sat? we deserve it');
+  h.say('nora', '@homi drinks thu, fri or sat? we deserve it');
   h.say('kai', 'fri!!');
   h.say('wes', 'thu works, fri maybe');
   const ask = h.say('sofia', 'fri but only after 8:30');
@@ -49,9 +49,9 @@ test('time shift: "fri but only after 8:30" proposes Fri 8:30; any yes moves the
 
 test('stranded at the deadline: one question inside the lock message; "sat" switches', () => {
   const h = new Harness({ start: '2026-10-17T10:00:00-04:00' });
-  h.say('ana', '@otto dinner next week?');
-  h.say('ana', "otto we're 5");
-  h.say('ben', "otto I'm Ben");
+  h.say('ana', '@homi dinner next week?');
+  h.say('ana', "homi we're 5");
+  h.say('ben', "homi I'm Ben");
   h.say('ana', 'fri works');
   h.say('jo', 'fri or sat');
   h.say('maya', 'fri works');
@@ -66,9 +66,9 @@ test('stranded at the deadline: one question inside the lock message; "sat" swit
 
 test('event less than 24h away: no bridge; lock and be kind', () => {
   const h = new Harness({ start: '2026-10-22T09:27:00-04:00' });
-  h.say('rina', '@otto dinner tonight, fri or sat?');
-  h.say('rina', "otto we're 4");
-  h.say('omar', "otto I'm Omar");
+  h.say('rina', '@homi dinner tonight, fri or sat?');
+  h.say('rina', "homi we're 4");
+  h.say('omar', "homi I'm Omar");
   h.say('rina', 'tonight works');
   h.say('gabe', 'tonight works');
   h.say('omar', "fri works, can't do tonight");

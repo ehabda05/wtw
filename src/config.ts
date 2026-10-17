@@ -4,7 +4,10 @@
 import { existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
-export type SurfaceName = 'sim' | 'terminal' | 'imessage' | 'imessage-local' | 'telegram';
+export type SurfaceName = 'sim' | 'terminal' | 'imessage' | 'imessage-local' | 'telegram' | 'telegram-direct' | 'photon2';
+/** Platforms the Photon 2.0 chat surface polls (PHOTON2_PLATFORMS). */
+export type Photon2Platform = 'telegram' | 'sms' | 'imessage';
+export const PHOTON2_PLATFORMS: readonly Photon2Platform[] = ['telegram', 'sms', 'imessage'];
 export type VoiceMode = 'mock' | 'poll' | 'webhook';
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
@@ -19,6 +22,21 @@ export interface Config {
     telegramWebhookSecret?: string;
   };
   telegramBotUsername?: string;
+  /** Direct Telegram Bot API surface (SURFACES=telegram-direct). Never logged. docs/CHANNELS.md "Direct Telegram". */
+  telegramDirect: {
+    /** @BotFather token (TELEGRAM_BOT_TOKEN, else SPECTRUM_TELEGRAM_BOT_TOKEN). */
+    token?: string;
+    /** TELEGRAM_REACTIONS=on: the bot is a group admin, so reactions arrive and count as votes. */
+    reactions: boolean;
+  };
+  /** Photon 2.0 chat (api.photon.codes/v1). Never logged. docs/CHANNELS.md "Photon 2.0 chat". */
+  photon2: {
+    /** Project API key, pho_sk_... (PHOTON2_API_KEY). */
+    apiKey?: string;
+    /** pho_prj_... (PHOTON2_PROJECT_ID; PHOTON_PROJECT_ID is the Stable CLI's name and is ignored). */
+    projectId?: string;
+    platforms: Photon2Platform[];
+  };
   voice: {
     mode: VoiceMode;
     photonNumber?: string;
@@ -42,9 +60,17 @@ export interface Config {
   /** true when DATA_KEY / ID_SALT were generated in memory (sim only). */
   ephemeralKeys: boolean;
   dbPath: string;
+  /** Directory for persistent extension data (shared album photos, encrypted). */
+  dataDir: string;
+  /** Public base URL for member-only links (album page), e.g. https://wtw.example.com. Unset = demo links. */
+  publicBaseUrl?: string;
+  /** 'simulated' (default). Real payments need an integration: docs/COMMITMENTS.md. */
+  paymentsProvider: string;
+  /** 'estimates' (default). Live search needs provider credentials: docs/TRAVEL.md. */
+  travelProvider: string;
   port: number;
   logLevel: LogLevel;
-  /** DEMO_MODE=true enables the visible `otto demo ff <duration>` chat command (live demo only). */
+  /** DEMO_MODE=true enables the visible `homi demo ff <duration>` chat command (live demo only). */
   demoMode: boolean;
 }
 
@@ -59,7 +85,7 @@ export interface LoadConfigOptions {
   warn?: (msg: string) => void;
 }
 
-const SURFACES: readonly SurfaceName[] = ['sim', 'terminal', 'imessage', 'imessage-local', 'telegram'];
+const SURFACES: readonly SurfaceName[] = ['sim', 'terminal', 'imessage', 'imessage-local', 'telegram', 'telegram-direct', 'photon2'];
 const LEVELS: readonly LogLevel[] = ['debug', 'info', 'warn', 'error', 'silent'];
 
 function str(env: NodeJS.ProcessEnv, name: string): string | undefined {
@@ -102,6 +128,62 @@ export function parseQuietHours(v: string | undefined): [number, number] {
   return [a, b];
 }
 
+/**
+ * PHOTON2_* settings. Warnings name variables, never values. The Photon 2.0 views reuse existing surfaces
+ * (telegram; imessage-shared/-dedicated for SMS + iMessage), so they cannot run next to the Spectrum surface
+ * that owns the same name.
+ */
+export function parsePhoton2(env: NodeJS.ProcessEnv, surfaces: readonly SurfaceName[], warn: (m: string) => void): Config['photon2'] {
+  const platforms: Photon2Platform[] = [];
+  for (const p of (str(env, 'PHOTON2_PLATFORMS') ?? PHOTON2_PLATFORMS.join(',')).split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)) {
+    if (!(PHOTON2_PLATFORMS as readonly string[]).includes(p)) throw new Error(`config: unknown platform "${p}" in PHOTON2_PLATFORMS (use telegram, sms, imessage)`);
+    if (!platforms.includes(p as Photon2Platform)) platforms.push(p as Photon2Platform);
+  }
+  const apiKey = str(env, 'PHOTON2_API_KEY');
+  const projectId = str(env, 'PHOTON2_PROJECT_ID');
+  if (surfaces.includes('photon2')) {
+    if (surfaces.includes('telegram') && platforms.includes('telegram'))
+      throw new Error('config: SURFACES has both telegram (Spectrum) and photon2 with Telegram. Remove one, or set PHOTON2_PLATFORMS=sms,imessage');
+    if (surfaces.includes('imessage') && (platforms.includes('sms') || platforms.includes('imessage')))
+      throw new Error('config: SURFACES has both imessage (Spectrum) and photon2 with sms/imessage. Remove one, or set PHOTON2_PLATFORMS=telegram');
+    if (!apiKey) warn('photon2: PHOTON2_API_KEY is not set (a Photon 2.0 project API key, pho_sk_...). The photon2 surface is skipped.');
+    else if (!apiKey.startsWith('pho_sk_')) warn('photon2: PHOTON2_API_KEY does not look like a project API key (expected the pho_sk_ prefix).');
+    if (!projectId) {
+      const hint = str(env, 'PHOTON_PROJECT_ID') ? ' PHOTON_PROJECT_ID is the Stable Photon CLI name and is ignored here.' : '';
+      warn(`photon2: PHOTON2_PROJECT_ID is not set (pho_prj_...). The photon2 surface is skipped.${hint}`);
+    } else if (!projectId.startsWith('pho_prj_')) warn('photon2: PHOTON2_PROJECT_ID does not look like a Photon 2.0 project id (expected the pho_prj_ prefix).');
+  }
+  return { apiKey, projectId, platforms: platforms.length ? platforms : [...PHOTON2_PLATFORMS] };
+}
+
+/** Bot token for the direct Telegram surface: TELEGRAM_BOT_TOKEN, else SPECTRUM_TELEGRAM_BOT_TOKEN. */
+export function telegramDirectToken(env: NodeJS.ProcessEnv): string | undefined {
+  return str(env, 'TELEGRAM_BOT_TOKEN') ?? str(env, 'SPECTRUM_TELEGRAM_BOT_TOKEN');
+}
+
+/**
+ * Direct Telegram settings. telegram-direct owns the engine surface 'telegram', like the Spectrum telegram surface and
+ * photon2's Telegram view, so it refuses to run next to either. Warnings name variables, never values.
+ */
+export function parseTelegramDirect(
+  env: NodeJS.ProcessEnv,
+  surfaces: readonly SurfaceName[],
+  photon2Platforms: readonly Photon2Platform[],
+  warn: (m: string) => void,
+): Config['telegramDirect'] {
+  const token = telegramDirectToken(env);
+  const reactions = bool(env, 'TELEGRAM_REACTIONS', false);
+  if (surfaces.includes('telegram-direct')) {
+    if (surfaces.includes('telegram'))
+      throw new Error('config: SURFACES has both telegram (Spectrum) and telegram-direct. Both serve the same Telegram surface; keep one (telegram-direct needs only the bot token).');
+    if (surfaces.includes('photon2') && photon2Platforms.includes('telegram'))
+      throw new Error('config: SURFACES has both photon2 with Telegram and telegram-direct. Set PHOTON2_PLATFORMS=sms,imessage (Photon 2.0 keeps SMS/iMessage, telegram-direct serves Telegram), or remove one.');
+    if (!token) warn('telegram-direct: TELEGRAM_BOT_TOKEN is not set (the @BotFather token). The telegram-direct surface is skipped.');
+    else if (!/^\d+:[A-Za-z0-9_-]{20,}$/.test(token)) warn('telegram-direct: TELEGRAM_BOT_TOKEN does not look like a @BotFather token (expected <digits>:<secret>).');
+  }
+  return { token, reactions };
+}
+
 function decodeKey(v: string, name: string): Buffer {
   const buf = Buffer.from(v, 'base64');
   if (buf.length !== 32) throw new Error(`config: ${name} must be 32 random bytes, base64-encoded (run: npm run keys)`);
@@ -116,7 +198,7 @@ export function generateKeys(): { DATA_KEY: string; ID_SALT: string } {
 export function loadConfig(opts: LoadConfigOptions = {}): Config {
   const usingProcessEnv = opts.env === undefined;
   const env = opts.env ?? process.env;
-  const warn = opts.warn ?? ((m: string) => process.stderr.write(`[otto] ${m}\n`));
+  const warn = opts.warn ?? ((m: string) => process.stderr.write(`[homi] ${m}\n`));
 
   if ((opts.loadDotEnv ?? usingProcessEnv) && existsSync('.env')) {
     try {
@@ -160,18 +242,22 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
   if (retentionHours < 0) throw new Error('config: RETENTION_HOURS must be >= 0');
 
   const tgUser = str(env, 'TELEGRAM_BOT_USERNAME');
+  const photon2 = parsePhoton2(env, surfaces, warn);
 
   return {
     surfaces,
     spectrum: {
-      projectId: str(env, 'SPECTRUM_PROJECT_ID'),
-      projectSecret: str(env, 'SPECTRUM_PROJECT_SECRET'),
+      // PROJECT_ID / PROJECT_SECRET are the names the Photon CLI scaffolder writes; accept them too.
+      projectId: str(env, 'SPECTRUM_PROJECT_ID') ?? str(env, 'PROJECT_ID'),
+      projectSecret: str(env, 'SPECTRUM_PROJECT_SECRET') ?? str(env, 'PROJECT_SECRET'),
       imessageLine: line,
       webhookSecret: str(env, 'SPECTRUM_WEBHOOK_SECRET'),
       telegramBotToken: str(env, 'SPECTRUM_TELEGRAM_BOT_TOKEN'),
       telegramWebhookSecret: str(env, 'SPECTRUM_TELEGRAM_WEBHOOK_SECRET'),
     },
     telegramBotUsername: tgUser ? tgUser.replace(/^@/, '') : undefined,
+    telegramDirect: parseTelegramDirect(env, surfaces, photon2.platforms, warn),
+    photon2,
     voice: {
       mode: voiceMode as VoiceMode,
       photonNumber: str(env, 'PHOTON_VOICE_NUMBER'),
@@ -191,7 +277,11 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
     dataKey,
     idSalt,
     ephemeralKeys,
-    dbPath: str(env, 'DB_PATH') ?? './data/otto.db',
+    dbPath: str(env, 'DB_PATH') ?? './data/wtw.db',
+    dataDir: str(env, 'DATA_DIR') ?? './data',
+    publicBaseUrl: str(env, 'PUBLIC_BASE_URL'),
+    paymentsProvider: str(env, 'PAYMENTS_PROVIDER') ?? 'simulated',
+    travelProvider: str(env, 'TRAVEL_PROVIDER') ?? 'estimates',
     port: int(env, 'PORT', 8787),
     logLevel: logLevel as LogLevel,
   };

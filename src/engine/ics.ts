@@ -1,5 +1,5 @@
 // Calendar handoff (DATE_FINDING.md §7): an RFC 5545 VEVENT with no attendees and no organizer, or a plain
-// text block where the channel can't send files. Otto never reads a calendar.
+// text block where the channel can't send files. Homi never reads a calendar.
 
 import type { Plan } from './types.js';
 import { MIN, capitalize, cardWhen, fmtTimeMs, local } from './util.js';
@@ -65,11 +65,11 @@ export function ics(plan: Plan, opts: { tz?: string } = {}): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Otto//Group plan//EN',
+    'PRODID:-//Homi//Group plan//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${plan.id}@otto.plan`,
+    `UID:${plan.id}@homi.plan`,
     `DTSTAMP:${utcStamp(plan.updatedAt)}`,
     dt('DTSTART', start),
     dt('DTEND', end),
@@ -78,7 +78,7 @@ export function ics(plan: Plan, opts: { tz?: string } = {}): string {
   const loc = plan.place?.address ?? plan.place?.name;
   if (loc) lines.push(`LOCATION:${icsEscape(loc)}`);
   if (plan.place?.mapsUrl) lines.push(`URL:${plan.place.mapsUrl}`);
-  lines.push(`DESCRIPTION:${icsEscape(`Planned in your group chat with Otto.${plan.place?.mapsUrl ? ` Map: ${plan.place.mapsUrl}` : ''}`)}`);
+  lines.push(`DESCRIPTION:${icsEscape(`Planned in your group chat with Homi.${plan.place?.mapsUrl ? ` Map: ${plan.place.mapsUrl}` : ''}`)}`);
   lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'TRIGGER:-PT1H', `DESCRIPTION:${icsEscape(summaryOf(plan))}`, 'END:VALARM');
   lines.push('END:VEVENT', 'END:VCALENDAR');
   return lines.map(fold).join('\r\n') + '\r\n';

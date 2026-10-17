@@ -10,3 +10,4 @@ story/out/frames/
 eval/logs/
 .DS_Store
 *.zip
+/logs/

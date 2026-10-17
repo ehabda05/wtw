@@ -23,18 +23,18 @@ function read(text: string, addressed = false): Record<string, Vote | 'unknown'>
 
 const v = (x: ReturnType<typeof read>) => ({ thu: x.thu, fri: x.fri, sat: x.sat });
 
-test('detectAddressed: leading otto, @otto, hey otto, /commands, "otto," and "otto?"', () => {
-  for (const t of ['otto dinner next week?', '@otto where should we eat', 'hey otto, lock fri', 'Otto: status', '/plan', 'ok otto, go', 'what do you think otto?', 'OTTO STOP'])
+test('detectAddressed: leading homi, @homi, hey homi, /commands, "homi," and "homi?"', () => {
+  for (const t of ['homi dinner next week?', '@homi where should we eat', 'hey homi, lock fri', 'Homi: status', '/plan', 'ok homi, go', 'what do you think homi?', 'HOMI STOP'])
     assert.equal(detectAddressed(t), true, t);
-  for (const t of ['dinner next week?', "otto's plan was fine", 'lotto tickets', 'i love ottoman empire history'])
+  for (const t of ['dinner next week?', "homi's plan was fine", 'lotto tickets', "what's up homie"])
     assert.equal(detectAddressed(t), false, t);
 });
 
 test('stripAddress keeps case and removes the address', () => {
-  assert.equal(stripAddress("hey otto, I'm Sam"), "I'm Sam");
-  assert.equal(stripAddress('@otto dinner next week?'), 'dinner next week?');
-  assert.equal(stripAddress('/plan@OttoBot dinner'), '/plan dinner');
-  assert.equal(stripAddress('what do you know otto?'), 'what do you know?');
+  assert.equal(stripAddress("hey homi, I'm Sam"), "I'm Sam");
+  assert.equal(stripAddress('@homi dinner next week?'), 'dinner next week?');
+  assert.equal(stripAddress('/plan@HomiBot dinner'), '/plan dinner');
+  assert.equal(stripAddress('what do you know homi?'), 'what do you know?');
 });
 
 test('DATE_FINDING §3 grammar: the documented cases', () => {

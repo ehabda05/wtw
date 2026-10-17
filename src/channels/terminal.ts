@@ -18,7 +18,7 @@ import {
 import { CAPS, type ChannelAdapter, type ChannelInbound } from './types.js';
 
 export const DEFAULT_TERMINAL_PERSONA = 'you';
-const RESERVED = new Set(['otto', 'http', 'https', 'mailto', 'tel']);
+const RESERVED = new Set(['homi', 'http', 'https', 'mailto', 'tel']);
 
 export interface PersonaLine {
   persona: string;

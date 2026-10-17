@@ -25,7 +25,7 @@ test('dedupe: the same platform message id is processed once', async () => {
 
 test('intro is sent exactly once per space (first sight), state persists between events', async () => {
   const env = makeEnv();
-  for (const t of ['hi all', 'otto dinner?', 'whatever']) await env.runner.handleInbound(textIn('g1', 'persona:ana', t));
+  for (const t of ['hi all', 'homi dinner?', 'whatever']) await env.runner.handleInbound(textIn('g1', 'persona:ana', t));
   assert.deepEqual(env.adapter.sends(), [INTRO]);
   await env.runner.handleInbound(textIn('g2', 'persona:ana', 'hi'));
   assert.deepEqual(env.adapter.sends(), [INTRO, INTRO]);
@@ -35,12 +35,12 @@ test('intro is sent exactly once per space (first sight), state persists between
 test('muted (tombstoned) spaces are dropped silently', async () => {
   const env = makeEnv();
   env.repo.tombstone(env.ids.space('sim', 'g1'), 'sim');
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto hello?'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi hello?'));
   assert.equal(env.engine.events.length, 0);
   assert.equal(env.adapter.calls.length, 0);
 });
 
-test('addressed: platform mention, detectAddressed, or a reply to an Otto message (LRU or plan.refs)', async () => {
+test('addressed: platform mention, detectAddressed, or a reply to a Homi message (LRU or plan.refs)', async () => {
   const engine = fakeEngine((s, ev, ctx) => {
     if (ev.kind === 'message' && ev.text === 'make plan') {
       s.plan = makePlan(ctx.newId(), { refs: { options: { 2: 'opt-ref-2' }, placeOptions: {} } });
@@ -51,12 +51,12 @@ test('addressed: platform mention, detectAddressed, or a reply to an Otto messag
   const addressedOf = () => lastMsg().addressed;
   await env.runner.handleInbound(textIn('g1', 'persona:ana', 'hey', { mentionsAgent: true }));
   assert.equal(addressedOf(), true);
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto when?'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi when?'));
   assert.equal(addressedOf(), true);
   await env.runner.handleInbound(textIn('g1', 'persona:ana', 'lol'));
   assert.equal(addressedOf(), false);
-  assert.equal(env.adapter.sends()[0], INTRO); // Otto's first message got ref r-1
-  await env.runner.handleInbound(textIn('g1', 'persona:ben', 'works for me', { replyTo: 'r-1' })); // r-1 = the intro Otto sent
+  assert.equal(env.adapter.sends()[0], INTRO); // Homi's first message got ref r-1
+  await env.runner.handleInbound(textIn('g1', 'persona:ben', 'works for me', { replyTo: 'r-1' })); // r-1 = the intro Homi sent
   assert.equal(addressedOf(), true);
   await env.runner.handleInbound(textIn('g1', 'persona:ben', 'nah', { replyTo: 'someone-elses-msg' }));
   assert.equal(addressedOf(), false);
@@ -146,11 +146,11 @@ test('typing indicator wraps addressed messages only, where supported', async ()
   const env = makeEnv();
   await env.runner.handleInbound(textIn('g1', 'persona:ana', 'just chatting'));
   assert.ok(!env.adapter.methods().includes('typing'));
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto you there?'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi you there?'));
   const t = env.adapter.calls.filter((c) => c.method === 'typing').map((c) => c.args[1]);
   assert.deepEqual(t, [true, false]);
   const local = makeEnv({ caps: CAPS['imessage-local'] });
-  await local.runner.handleInbound(textIn('g1', 'h', 'otto hi', { surface: 'imessage-local' }));
+  await local.runner.handleInbound(textIn('g1', 'h', 'homi hi', { surface: 'imessage-local' }));
   assert.ok(!local.adapter.methods().includes('typing'));
 });
 
@@ -160,7 +160,7 @@ test('remember_handle seals the CURRENT sender only; dm and call use the sealed 
   const engine = fakeEngine((s, ev) => {
     if (ev.kind !== 'message') return;
     s.plan = s.plan ?? makePlan('plan-1');
-    if (ev.text === 'otto you can call me') {
+    if (ev.text === 'homi you can call me') {
       return [
         { type: 'remember_handle', member: ev.from.key, planId: 'plan-1' },
         { type: 'remember_handle', member: 'f'.repeat(64), planId: 'plan-1' }, // someone else: refused
@@ -176,7 +176,7 @@ test('remember_handle seals the CURRENT sender only; dm and call use the sealed 
   });
   const env = makeEnv({ engine, voice });
   samKey = env.ids.member('sim', 'g1', '+16175550134');
-  await env.runner.handleInbound(textIn('g1', '+16175550134', 'otto you can call me', { from: { handle: '+16175550134' } }));
+  await env.runner.handleInbound(textIn('g1', '+16175550134', 'homi you can call me', { from: { handle: '+16175550134' } }));
   assert.equal(env.repo.delivery.get(samKey, 'plan-1'), '+16175550134');
   assert.equal(env.repo.counts().delivery, 1, 'the other member was not stored');
 
@@ -215,13 +215,13 @@ test('places lookups time out after the budget and still feed a places_result', 
 test('stop: leave where possible (space deleted), tombstone elsewhere (then ignored forever)', async () => {
   const stopEngine = () =>
     fakeEngine((s, ev) => {
-      if (ev.kind === 'message' && ev.text === 'otto stop') {
+      if (ev.kind === 'message' && ev.text === 'homi stop') {
         s.plan = null;
         return [{ type: 'send', text: 'Deleted everything. Bye!', prompting: 'prompted' }, { type: 'leave' }, { type: 'send', text: 'never sent', prompting: 'prompted' }];
       }
     });
   const env = makeEnv({ engine: stopEngine() });
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto stop'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi stop'));
   assert.deepEqual(env.adapter.methods().filter((m) => m !== 'typing').slice(-2), ['send', 'leave']);
   assert.equal(env.adapter.methods().at(-1), 'leave', 'no typing-off after leaving');
   assert.ok(!env.adapter.sends().includes('never sent'));
@@ -229,12 +229,12 @@ test('stop: leave where possible (space deleted), tombstone elsewhere (then igno
 
   const local = makeEnv({ engine: stopEngine(), caps: CAPS['imessage-local'] });
   const m = (t: string) => textIn('chat-l', 'h1', t, { surface: 'imessage-local' });
-  await local.runner.handleInbound(m('otto stop'));
+  await local.runner.handleInbound(m('homi stop'));
   assert.ok(!local.adapter.methods().includes('leave'));
   const sk = local.ids.space('imessage-local', 'chat-l');
   assert.equal(local.repo.isMuted(sk), true);
   const before = local.engine.events.length;
-  await local.runner.handleInbound(m('otto are you there'));
+  await local.runner.handleInbound(m('homi are you there'));
   assert.equal(local.engine.events.length, before, 'tombstoned chat is ignored');
 });
 

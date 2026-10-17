@@ -49,12 +49,12 @@ test('dry-run poll: LLM + agent JSON with the privacy settings, no network, no s
 });
 
 test('dry-run webhook: basic_attributes_only, webhook_url, call_analyzed only, no pii_config', async () => {
-  const { code, out } = await dryRun(['--mode', 'webhook', '--webhook-url', 'https://otto.example.dev/voice/retell']);
+  const { code, out } = await dryRun(['--mode', 'webhook', '--webhook-url', 'https://homi.example.dev/voice/retell']);
   assert.equal(code, 0);
   const agent = (JSON.parse(out).requests as Req[])[1]!.body!;
   assert.equal(agent['data_storage_setting'], 'basic_attributes_only');
   assert.equal(agent['pii_config'], undefined);
-  assert.equal(agent['webhook_url'], 'https://otto.example.dev/voice/retell');
+  assert.equal(agent['webhook_url'], 'https://homi.example.dev/voice/retell');
   assert.deepEqual(agent['webhook_events'], ['call_analyzed']);
   assert.equal(agent['data_storage_retention_days'], 1);
   assert.deepEqual(agent['contact_memory_config'], { enable_read: false, enable_update: false });

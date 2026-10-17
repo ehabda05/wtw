@@ -5,14 +5,14 @@ import { AGENT_PROMPT, assertSafeQuestion, buildQuestion, spokenOptions, spokenT
 test('buildQuestion: three options, spoken weekday + hour', () => {
   assert.equal(
     buildQuestion(['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']),
-    "Hi, this is Otto calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?",
+    "Hi, this is Homi calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?",
   );
 });
 
 test('buildQuestion: two options read as a choice', () => {
   assert.equal(
     buildQuestion(['Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']),
-    "Hi, this is Otto calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?",
+    "Hi, this is Homi calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?",
   );
   assert.equal(buildQuestion(['Fri Oct 23 · 7pm'], undefined, { greeting: 'none' }), 'Does Friday at 7 work for you?');
 });
@@ -50,14 +50,14 @@ test('unparseable labels fall back to a sanitized label', () => {
 });
 
 test('activity: generic words are spoken, free text is dropped', () => {
-  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], 'dinner'), /^Hi, this is Otto calling about your group's dinner plan\. /);
+  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], 'dinner'), /^Hi, this is Homi calling about your group's dinner plan\. /);
   const q = buildQuestion(['Fri Oct 23 · 7pm'], "Sam's birthday at Lucia's");
   assert.ok(!/Sam|Lucia|birthday/.test(q));
   assert.match(q, /your group's plan/);
 });
 
 test('inbound greeting', () => {
-  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], undefined, { greeting: 'inbound' }), /^Hi, it's Otto, thanks for calling/);
+  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], undefined, { greeting: 'inbound' }), /^Hi, it's Homi, thanks for calling/);
 });
 
 test('buildQuestion throws on no options', () => {
@@ -89,6 +89,6 @@ test('assertSafeQuestion: contact data, links, templates, length', () => {
 });
 
 test('agent prompt is the CHANNELS.md prompt with {{question}}', () => {
-  assert.ok(AGENT_PROMPT.startsWith("You are Otto, calling on behalf of a friend group's plan. Ask exactly: {{question}}."));
+  assert.ok(AGENT_PROMPT.startsWith("You are Homi, calling on behalf of a friend group's plan. Ask exactly: {{question}}."));
   assert.ok(AGENT_PROMPT.includes("Never mention anyone's name or any other plan detail."));
 });

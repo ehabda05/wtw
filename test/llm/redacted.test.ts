@@ -49,7 +49,10 @@ test('when enabled, only the redacted reply and option labels are sent', async (
   const payload = JSON.stringify(sent);
   assert.ok(!payload.includes('555'), 'phone number leaked');
   assert.ok(!/\bBen\b/.test(payload), 'name leaked');
-  assert.equal(sent.fallbacks, 'default');
+  // Haiku 5.5 has no server-side fallback: no beta header, no fallbacks param (either would be wasted or a 400).
+  assert.equal(sent.model, 'claude-haiku-5-5');
+  assert.equal(sent.fallbacks, undefined);
+  assert.equal(sent.betas, undefined);
 });
 
 test('refusals and malformed output return null', async () => {

@@ -1,5 +1,5 @@
 // Message routing. Order: intro (once) -> head-count -> commands -> the current state's handler.
-// Before a plan exists Otto answers only when addressed (silence until invited); notice mode is the one
+// Before a plan exists Homi answers only when addressed (silence until invited); notice mode is the one
 // opt-in exception and is gated by the noise budget and quiet hours.
 
 import type { MessageEvent } from '../types.js';
@@ -9,13 +9,14 @@ import { foodTrigger, planOrFood } from '../intent.js';
 import { gateUnprompted } from '../nudge.js';
 import { activeOptions } from '../schedule.js';
 import { DAY } from '../util.js';
-import { type Step, P, intro, isOttoRef, member, planOf, say, touch, tzOf } from './core.js';
+import { type Step, P, intro, isHomiRef, member, planOf, say, touch, tzOf } from './core.js';
 import { onCommand } from './commands.js';
 import { openAvailability, startPlan, tryTextVote, windowReply } from './availability.js';
 import { timeShiftAnswer } from './bridges.js';
 import { maybeEarlyLock } from './lock.js';
 import { onPlaceMessage, pushHungry, startInstant } from './place.js';
 import { isDateVeto, lateVote, reopenDate, strandedAnswer } from './confirmed.js';
+import { EXTENSIONS } from '../ext/index.js';
 
 function idList(st: Step): string {
   const ids = activeOptions(P(st)).map((o) => String(o.id));
@@ -47,9 +48,11 @@ function onIdle(st: Step, ev: MessageEvent, body: string, addressed: boolean): v
 export function onMessage(st: Step, ev: MessageEvent): void {
   intro(st);
   const text = ev.text ?? '';
-  const addressed = ev.addressed || detectAddressed(text) || isOttoRef(planOf(st), ev.replyTo);
+  const addressed = ev.addressed || detectAddressed(text) || isHomiRef(planOf(st), ev.replyTo);
   const body = stripAddress(text);
   if (planOf(st)) touch(st, ev.from, ev.msgRef);
+  // Bills, travel, commitments and the album get first look (src/engine/ext).
+  for (const x of EXTENSIONS) if (x.onMessage?.(st, ev, body, addressed)) return;
   const cmd = parseCommand(body);
   if (cmd && (addressed || UNADDRESSED_COMMANDS.has(cmd.kind)) && onCommand(st, ev, cmd, body, addressed)) return;
   const p = planOf(st);

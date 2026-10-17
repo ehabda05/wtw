@@ -7,7 +7,7 @@
 import { parseDuration } from './clock.js';
 import { randomUUID } from 'node:crypto';
 import type { ChannelAdapter, ChannelInbound } from '../channels/types.js';
-import type { Ctx, EngineEvent, GroupState, MemberRef, MsgRef, Plan, SpaceKey, Surface } from '../engine/types.js';
+import type { ApplyResult, Ctx, EngineEvent, GroupState, MemberRef, MessageEvent, MsgRef, Plan, SpaceKey, Surface } from '../engine/types.js';
 import { shortKey, type Ids } from '../privacy/ids.js';
 import { silentLogger, type Logger } from '../privacy/logger.js';
 import { containsPii } from '../privacy/redact.js';
@@ -15,6 +15,9 @@ import type { Repo } from '../store/repo.js';
 import type { Clock } from './clock.js';
 import { Executor, type SentInfo } from './executor.js';
 import type { CallResult, EngineApi, PlacesService, VoiceService } from './services.js';
+import type { ActionHandler, PhotoStore } from './handlers/types.js';
+import { restorePlaceholders, type RepairFn } from '../llm/router.js';
+import { NameMemory, REPAIR_TIMEOUT_MS, RepairTimeout, knownNamesFor, onlyGenericFallback, repairContext, skipRepair, withTimeout } from './repair.js';
 
 export { type EngineApi } from './services.js';
 
@@ -34,7 +37,7 @@ export class KeyedMutex {
   }
 }
 
-/** Small insertion-ordered LRU set of Otto-sent message refs per space. */
+/** Small insertion-ordered LRU set of Homi-sent message refs per space. */
 class RefLru {
   readonly #spaces = new Map<string, Set<string>>();
   constructor(
@@ -101,16 +104,30 @@ export interface RunnerDeps {
   placesTimeoutMs?: number;
   /** Max engine passes per inbound/timer (1 + follow-ups). */
   maxPasses?: number;
-  /** DEMO_MODE only: the visible `otto demo ff 22h` command moves the clock and runs due jobs. */
+  /** DEMO_MODE only: the visible `homi demo ff 22h` command moves the clock and runs due jobs. */
   demo?: { fastForward(ms: number): Promise<void> };
   /**
    * Gated hosted-LLM fallback (off unless DISABLE_HOSTED_LLM=false and a key is set). Called only for an addressed
    * reply the local parser could not read while dates are open; receives option labels and names to redact.
    */
   hostedLlm?: (text: string, optionLabels: string[], knownNames: string[]) => Promise<{ optionIds: number[]; vote: 'yes' | 'maybe' | 'no' } | null>;
+  /**
+   * Gated LLM repair router (src/llm/router.ts; off unless enabled and a key is set). Called at most once per
+   * ADDRESSED message whose engine result is only a generic fallback; the engine then re-runs on the rewrite.
+   */
+  repairWithLlm?: RepairFn;
+  /** Budget for one repair call (default 4000 ms); on timeout the original reply stands. */
+  repairTimeoutMs?: number;
+  /** Names always redacted before a repair call (e.g. the demo personas), besides the ones Homi has seen. */
+  extraNames?: string[];
+  /** Extension action handlers and the album photo store (src/runner/handlers). */
+  handlers?: ActionHandler[];
+  photoStore?: PhotoStore;
+  /** Public base URL for member-only links (album page). */
+  publicBaseUrl?: string;
 }
 
-const DEMO_FF = /^\s*@?otto[,:]?\s+demo\s+ff\s+((?:\d+[smhd])+)\s*$/i;
+const DEMO_FF = /^\s*@?homi[,:]?\s+demo\s+ff\s+((?:\d+[smhd])+)\s*$/i;
 
 interface Origin {
   spaceKey: SpaceKey;
@@ -136,6 +153,12 @@ export class Runner {
   readonly #maxPasses: number;
   readonly #demo?: RunnerDeps['demo'];
   readonly #hostedLlm?: RunnerDeps['hostedLlm'];
+  readonly #photoStore?: PhotoStore;
+  readonly #publicBaseUrl?: string;
+  readonly #repair?: RepairFn;
+  readonly #repairTimeoutMs: number;
+  readonly #extraNames: string[];
+  readonly #names = new NameMemory();
   #inflight = 0;
   #idleWaiters: (() => void)[] = [];
 
@@ -150,6 +173,11 @@ export class Runner {
     this.#maxPasses = deps.maxPasses ?? 25;
     this.#demo = deps.demo;
     this.#hostedLlm = deps.hostedLlm;
+    this.#photoStore = deps.photoStore;
+    this.#publicBaseUrl = deps.publicBaseUrl;
+    this.#repair = deps.repairWithLlm;
+    this.#repairTimeoutMs = deps.repairTimeoutMs ?? REPAIR_TIMEOUT_MS;
+    this.#extraNames = deps.extraNames ?? [];
     for (const a of deps.adapters ?? []) this.addAdapter(a);
     const onSent = deps.onSent;
     this.#executor = new Executor({
@@ -158,6 +186,7 @@ export class Runner {
       places: deps.places,
       voice: deps.voice,
       placesTimeoutMs: deps.placesTimeoutMs,
+      handlers: deps.handlers,
       onSent: (info) => {
         this.#refs.add(info.spaceKey, info.msgRef);
         onSent?.(info);
@@ -173,8 +202,8 @@ export class Runner {
     return this.#adapters.get(surface);
   }
 
-  /** True if ref is a message Otto sent in this space (recent LRU or a ref stored on the plan). */
-  isOttoRef(spaceKey: SpaceKey, ref: MsgRef | undefined, state?: GroupState | null): boolean {
+  /** True if ref is a message Homi sent in this space (recent LRU or a ref stored on the plan). */
+  isHomiRef(spaceKey: SpaceKey, ref: MsgRef | undefined, state?: GroupState | null): boolean {
     if (!ref) return false;
     if (this.#refs.has(spaceKey, ref)) return true;
     return planRefs(state?.plan).includes(ref);
@@ -209,6 +238,7 @@ export class Runner {
       case 'text': {
         if (!m.from || m.text === undefined) return [];
         const from = this.#memberRef(m.surface, m.spaceId, m.from);
+        if (this.#repair) this.#names.add(spaceKey, from.platformName);
         let addressed = m.mentionsAgent;
         if (!addressed) {
           try {
@@ -217,7 +247,7 @@ export class Runner {
             addressed = false;
           }
         }
-        if (!addressed && m.replyTo) addressed = this.isOttoRef(spaceKey, m.replyTo, state);
+        if (!addressed && m.replyTo) addressed = this.isHomiRef(spaceKey, m.replyTo, state);
         const ev: EngineEvent = { kind: 'message', from, text: m.text, msgRef: m.msgId, addressed };
         if (m.replyTo) ev.replyTo = m.replyTo;
         return [ev];
@@ -246,7 +276,9 @@ export class Runner {
       }
       case 'members': {
         if (!m.members) return [];
-        return [{ kind: 'members_snapshot', members: m.members.map((u) => this.#memberRef(m.surface, m.spaceId, u)) }];
+        const members = m.members.map((u) => this.#memberRef(m.surface, m.spaceId, u));
+        if (this.#repair) for (const r of members) this.#names.add(spaceKey, r.platformName);
+        return [{ kind: 'members_snapshot', members }];
       }
       case 'added_to_group':
         return [{ kind: 'added_to_group' }];
@@ -266,10 +298,11 @@ export class Runner {
       retentionHours: this.#config.retentionHours,
       quietHours: this.#config.quietHours,
       newId: this.#newId,
+      publicBaseUrl: this.#publicBaseUrl,
     };
   }
 
-  /** applyEvent -> save -> execute, repeated for follow-up events. Returns null if Otto left the space. */
+  /** applyEvent -> save -> execute, repeated for follow-up events. Returns null if Homi left the space. */
   async #process(state: GroupState, first: EngineEvent, origin: Origin): Promise<GroupState | null> {
     const queue: EngineEvent[] = [first];
     let passes = 0;
@@ -280,7 +313,8 @@ export class Runner {
       }
       const ev = queue.shift()!;
       const ctx = this.#ctx(origin.adapter);
-      const res = this.#engine.applyEvent(state, ev, ctx);
+      let res = this.#engine.applyEvent(state, ev, ctx);
+      if (passes === 1 && this.#repair && ev.kind === 'message' && ev.addressed) res = await this.#repaired(state, ev, ctx, res, origin);
       state = res.state;
       this.#repo.saveGroup(state, { surface: origin.surface, spaceId: origin.spaceId });
       this.#log.debug('runner: applied', {
@@ -300,11 +334,44 @@ export class Runner {
       });
       if (out.left) {
         this.#refs.drop(origin.spaceKey);
+        this.#names.drop(origin.spaceKey);
         return null;
       }
       queue.push(...out.followUps);
     }
     return state;
+  }
+
+  /**
+   * One repair at most: if the engine's answer to an addressed message is only a generic fallback, ask the router
+   * for a canonical command (redacted snippet, 4 s budget) and re-run the engine on the ORIGINAL pre-event state.
+   * The repaired result is used only if it says something better; otherwise the first result stands.
+   */
+  async #repaired(pre: GroupState, ev: MessageEvent, ctx: Ctx, first: ApplyResult, origin: Origin): Promise<ApplyResult> {
+    if (!this.#repair || !onlyGenericFallback(first.actions, pre) || skipRepair(ev.text)) return first;
+    const space = shortKey(origin.spaceKey);
+    const seen = this.#names.get(origin.spaceKey);
+    const names = knownNamesFor(pre, ev, [...this.#extraNames, ...seen]);
+    const repair = this.#repair;
+    let reason = 'no_rewrite';
+    try {
+      const r = await withTimeout((signal) => repair({ text: ev.text, knownNames: names, context: repairContext(pre, seen.length) }, signal), this.#repairTimeoutMs);
+      const rewrite = r ? restorePlaceholders(r.rewrite, ev.text, names) : null;
+      if (rewrite && rewrite.trim().toLowerCase() !== ev.text.trim().toLowerCase()) {
+        const second = this.#engine.applyEvent(pre, { ...ev, text: rewrite, llmVote: undefined }, ctx);
+        if (!onlyGenericFallback(second.actions, pre)) {
+          this.#log.info('runner: llm repair used: yes', { space });
+          return second;
+        }
+        reason = 'still_generic';
+      } else if (r) {
+        reason = 'unusable';
+      }
+    } catch (err) {
+      reason = err instanceof RepairTimeout ? 'timeout' : 'error';
+    }
+    this.#log.info('runner: llm repair used: no', { space, reason });
+    return first;
   }
 
   async handleInbound(m: ChannelInbound): Promise<void> {
@@ -333,7 +400,7 @@ export class Runner {
           return;
         }
         let state: GroupState = this.#repo.loadGroup(spaceKey) ?? this.#engine.newGroupState(spaceKey, this.#config.defaultTz);
-        const events = this.#toEvents(m, spaceKey, state);
+        const events = m.kind === 'photo' ? await this.#photoEvents(m) : this.#toEvents(m, spaceKey, state);
         if (events.length === 0) return;
         await this.#annotateWithHostedLlm(events, state);
         const origin: Origin = { spaceKey, surface: m.surface, spaceId: m.spaceId, adapter };
@@ -392,6 +459,19 @@ export class Runner {
     }
   }
 
+  /** Photos: bytes go straight to the album store (never the engine, never logs); the engine gets an opaque id. */
+  async #photoEvents(m: ChannelInbound): Promise<EngineEvent[]> {
+    if (!m.from || !m.photo || !this.#photoStore) return [];
+    const photoId = await this.#photoStore.put(m.photo.bytes, m.photo.mime);
+    const caption = m.text?.trim();
+    let addressed = m.mentionsAgent;
+    if (!addressed && caption) addressed = this.#engine.detectAddressed(caption);
+    const ev: EngineEvent = { kind: 'photo', from: this.#memberRef(m.surface, m.spaceId, m.from), msgRef: m.msgId, photoId, mime: m.photo.mime, addressed };
+    if (caption) ev.caption = caption;
+    if (m.replyTo && ev.kind === 'photo') ev.replyTo = m.replyTo;
+    return [ev];
+  }
+
   async #annotateWithHostedLlm(events: EngineEvent[], state: GroupState): Promise<void> {
     if (!this.#hostedLlm || !this.#engine.parseAvailability) return;
     const plan = state.plan;
@@ -401,6 +481,11 @@ export class Runner {
       if (ev.kind !== 'message' || !ev.addressed) continue;
       try {
         if (this.#engine.parseAvailability(ev.text, open, state.space.tz).matched) continue;
+        // A recognised command ("homi go", "homi status", "homi split 84 3 ways") is never an availability reply, even
+        // when it does not apply in the current state. Without this the LLM read "homi go" as "every day works"
+        // (seen live in a Telegram group, 2026-10-17).
+        const body = this.#engine.stripAddress?.(ev.text) ?? ev.text;
+        if (this.#engine.parseCommand?.(body)) continue;
         const names = Object.values(plan.members).map((mb) => mb.name).filter((n): n is string => !!n);
         const vote = await this.#hostedLlm(ev.text, open.map((o) => o.label), names);
         if (vote) {

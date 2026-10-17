@@ -51,7 +51,7 @@ export class Harness {
     }
     for (const a of r.actions) {
       if ((a.type === 'send' || a.type === 'poll' || a.type === 'reply') && a.tag) {
-        const ref = `otto-${++this.seq}`;
+        const ref = `homi-${++this.seq}`;
         this.refs.set(a.tag, ref);
         const res = applyEvent(this.state, { kind: 'sent', tag: a.tag, msgRef: ref, at: this.now }, {
           now: this.now, caps: this.caps, retentionHours: 24, quietHours: [23, 9], newId: () => `id${++this.ids}`,

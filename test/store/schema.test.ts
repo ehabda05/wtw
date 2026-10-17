@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { describeSchema, openDatabase, proveNoTextColumns, schemaSql } from '../../src/store/db.js';
+import { describeSchema, openDatabase, proveNoTextColumns, schemaSql, SCHEMA_VERSION } from '../../src/store/db.js';
 
 const EXPECTED_TABLES = ['delivery', 'jobs', 'plans', 'seen', 'spaces'];
 
@@ -54,11 +54,34 @@ test('database is WAL with secure_delete on a file path', async () => {
   const { mkdtempSync, rmSync } = await import('node:fs');
   const { join } = await import('node:path');
   const { tmpdir } = await import('node:os');
-  const dir = mkdtempSync(join(tmpdir(), 'otto-schema-'));
-  const db = openDatabase(join(dir, 'otto.db'));
+  const dir = mkdtempSync(join(tmpdir(), 'homi-schema-'));
+  const db = openDatabase(join(dir, 'homi.db'));
   assert.equal((db.prepare('PRAGMA journal_mode').get() as { journal_mode: string }).journal_mode, 'wal');
   assert.equal((db.prepare('PRAGMA secure_delete').get() as { secure_delete: number }).secure_delete, 1);
-  assert.equal((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, 1);
+  assert.equal((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, SCHEMA_VERSION);
+  db.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('v1 -> v2 migration keeps jobs and allows extension (ext) jobs', async () => {
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'homi-migrate-'));
+  const file = join(dir, 'homi.db');
+  const v1 = openDatabase(file);
+  // Recreate the v1 jobs table (no 'ext' in the kind CHECK) with one pending job.
+  v1.exec(`DROP TABLE jobs; CREATE TABLE jobs (
+    job_key TEXT PRIMARY KEY, plan_id TEXT NOT NULL, kind TEXT NOT NULL CHECK (kind IN ('purge')),
+    due_at INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'pending', payload BLOB, claimed_at INTEGER) STRICT;
+    INSERT INTO jobs (job_key, plan_id, kind, due_at) VALUES ('p1:purge', 'p1', 'purge', 5);
+    PRAGMA user_version = 1;`);
+  v1.close();
+  const db = openDatabase(file);
+  assert.equal((db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, SCHEMA_VERSION);
+  assert.equal((db.prepare('SELECT count(*) AS n FROM jobs').get() as { n: number }).n, 1);
+  db.prepare("INSERT INTO jobs (job_key, plan_id, kind, due_at) VALUES ('p1:ext:commit:settle', 'p1', 'ext', 9)").run();
+  assert.equal((db.prepare("SELECT count(*) AS n FROM jobs WHERE kind = 'ext'").get() as { n: number }).n, 1);
   db.close();
   rmSync(dir, { recursive: true, force: true });
 });

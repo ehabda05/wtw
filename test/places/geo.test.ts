@@ -69,7 +69,7 @@ test('aliases and normalization', () => {
   for (const [input, id] of cases) assert.equal(idOf(input), id, input);
 });
 
-test('unknown or vague places return null (Otto asks, never calls out)', () => {
+test('unknown or vague places return null (Homi asks, never calls out)', () => {
   for (const s of ['near me', 'here', 'my place', '', '   ', 'Paris', 'but', 'idk']) assert.equal(geocode(s), null, s);
   assert.equal(geocode(undefined), null);
 });

@@ -1,7 +1,7 @@
 {
   "id": "03-conflict-bridge",
   "title": "Hard day conflict bridged with a Sat brunch option",
-  "notes": "Hard day conflict (DATE_FINDING §5). Options from the explicit trigger: 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm. Ana says yes only to Fri and no to Thu/Sat; Ben says yes only to Sat and no to Thu/Fri. That is the textbook conflict, so Otto must answer Ben's message immediately (prompted) with one bridge question offering 'Fri late or Sat brunch'. Ana answers 'sat brunch works actually!', and Otto adds a 4th option, 4 Sat Oct 24 11am (brunch default time), with day-level prefs applied: Ben's 'sat works' carries over. Votes are labeled per weekday, so 'sat' in Ana's and Cal's later messages means the Sat brunch option. Dee says 'either works' (quantifier = all yes) and later hearts option 4 explicitly. Eli's 😂 on option 1 must be ignored. Eli's ❤️ on option 4 is the 5th answer, so the plan locks on Sat (brunch) via 'everyone answered'. 'sat was so fun last time lmao' is a reference without a cue and must be ignored. The bridge is the only unprompted-looking message and it is prompted.",
+  "notes": "Hard day conflict (DATE_FINDING §5). Options from the explicit trigger: 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm. Ana says yes only to Fri and no to Thu/Sat; Ben says yes only to Sat and no to Thu/Fri. That is the textbook conflict, so Homi must answer Ben's message immediately (prompted) with one bridge question offering 'Fri late or Sat brunch'. Ana answers 'sat brunch works actually!', and Homi adds a 4th option, 4 Sat Oct 24 11am (brunch default time), with day-level prefs applied: Ben's 'sat works' carries over. Votes are labeled per weekday, so 'sat' in Ana's and Cal's later messages means the Sat brunch option. Dee says 'either works' (quantifier = all yes) and later hearts option 4 explicitly. Eli's 😂 on option 1 must be ignored. Eli's ❤️ on option 4 is the 5th answer, so the plan locks on Sat (brunch) via 'everyone answered'. 'sat was so fun last time lmao' is a reference without a cue and must be ignored. The bridge is the only unprompted-looking message and it is prompted.",
   "tz": "America/New_York",
   "start": "2026-10-19T18:00:00-04:00",
   "surface": "sim",
@@ -14,7 +14,7 @@
   ],
   "steps": [
     {"t": "+0m", "from": "cal", "text": "ok pre-hackathon hang this week, no excuses", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "cal", "text": "@otto dinner thu, fri or sat? 🍝", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "cal", "text": "@homi dinner thu, fri or sat? 🍝", "label": {"intent": "plan", "food": false}},
     {"t": "+2m", "from": "dee", "text": "either works for me", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "yes", "sat": "yes"}}},
     {"t": "+3m", "from": "ana", "text": "fri works, i'm busy thu and sat", "label": {"intent": "vote", "food": false, "votes": {"thu": "no", "fri": "yes", "sat": "no"}}},
     {"t": "+3m", "from": "ben", "text": "sat works. thu and fri i can't, family stuff", "label": {"intent": "vote", "food": false, "votes": {"thu": "no", "fri": "no", "sat": "yes"}}},
@@ -26,11 +26,11 @@
     {"t": "+0m", "from": "eli", "react": {"emoji": "❤️", "option": 4}},
     {"t": "+2m", "from": "ben", "text": "LETS GO brunch gang", "label": {"intent": "chatter", "food": false}},
     {"t": "+3m", "from": "eli", "text": "new number btw, 857.555.0142, old phone died", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "dee", "text": "otto why sat", "label": {"intent": "command", "food": false}},
-    {"t": "+4m", "from": "ana", "text": "otto place: ben's apt", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "dee", "text": "homi why sat", "label": {"intent": "command", "food": false}},
+    {"t": "+4m", "from": "ana", "text": "homi place: ben's apt", "label": {"intent": "command", "food": false}},
     {"t": "+1m", "from": "ben", "text": "wait i never agreed to cook 💀", "label": {"intent": "chatter", "food": false}},
     {"ff": "12h"},
-    {"t": "+154m", "from": "cal", "text": "otto where are we at", "label": {"intent": "command", "food": false}}
+    {"t": "+154m", "from": "cal", "text": "homi where are we at", "label": {"intent": "command", "food": false}}
   ],
   "expect": {
     "finalDay": "sat",
@@ -39,16 +39,16 @@
     "hungryTriggered": false,
     "maxUnpromptedPer12h": 1,
     "otherChecks": [
-      "Right after Ben's message (not at the deadline), Otto posts exactly one bridge question in the spirit of 'Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch? I'll add it.' It is at most 2 sentences and counts as prompted.",
+      "Right after Ben's message (not at the deadline), Homi posts exactly one bridge question in the spirit of 'Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch? I'll add it.' It is at most 2 sentences and counts as prompted.",
       "After Ana's 'sat brunch works actually!', a 4th option bubble 'Sat Oct 24 · 11am' is added.",
       "Ben's earlier day-level 'sat works' counts as yes on the new Sat 11am option without Ben answering again.",
       "Eli's 😂 tapback on option 1 changes nothing.",
       "'sat was so fun last time lmao' is not counted as a vote.",
       "The plan locks after Eli's ❤️ on option 4 (all 5 answered) on Sat Oct 24 11am, not Sat 7pm.",
-      "'otto why sat' shows the per-option tally including the added brunch option.",
+      "'homi why sat' shows the per-option tally including the added brunch option.",
       "Unaddressed 'brunch' mentions ('sat brunch works', 'LETS GO brunch gang') never start the hungry flow.",
-      "'otto place: ben's apt' confirms the plan with a text place; no places lookup.",
-      "No unprompted message during the 12h fast-forward; 'otto where are we at' shows Sat Oct 24 11am, ben's apt, 5 in.",
+      "'homi place: ben's apt' confirms the plan with a text place; no places lookup.",
+      "No unprompted message during the 12h fast-forward; 'homi where are we at' shows Sat Oct 24 11am, ben's apt, 5 in.",
       "857.555.0142 never appears in any log line."
     ]
   }

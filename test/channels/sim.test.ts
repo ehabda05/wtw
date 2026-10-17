@@ -27,7 +27,7 @@ test('SimHub implements the adapter contract with sim caps and sim-<n> refs', as
   assert.equal(hub.transcript[4].to, 'sam');
   assert.equal(hub.transcript[2].at, 2000);
   assert.ok(space.left);
-  assert.equal(hub.lastOttoMessage(space.id)?.ref, 'sim-4');
+  assert.equal(hub.lastHomiMessage(space.id)?.ref, 'sim-4');
 });
 
 test('personas speak, react and send roster snapshots as ChannelInbound', async () => {
@@ -35,7 +35,7 @@ test('personas speak, react and send roster snapshots as ChannelInbound', async 
   const inbound: ChannelInbound[] = [];
   await hub.start(async (m) => void inbound.push(m));
   const s = hub.createSpace(['ana', 'ben']);
-  const ref = await hub.say(s.id, 'ana', 'otto dinner?', { replyTo: 'sim-1' });
+  const ref = await hub.say(s.id, 'ana', 'homi dinner?', { replyTo: 'sim-1' });
   await hub.react(s.id, 'ben', '❤️', 'sim-2'); // 4-arg overload = persona reaction
   await hub.members(s.id);
   await hub.addedToGroup(s.id);
@@ -75,12 +75,12 @@ test('end to end through the runner: intro, tagged option bubbles, tapback vote,
   const runner = env.runner;
   await hub.start((m) => runner.handleInbound(m));
   const s = hub.createSpace();
-  await hub.say(s.id, 'ana', 'otto dinner next week?');
-  const otto = hub.ottoMessages(s.id);
-  assert.deepEqual(otto.map((e) => e.ref), ['sim-1', 'sim-2', 'sim-3', 'sim-4']);
+  await hub.say(s.id, 'ana', 'homi dinner next week?');
+  const homi = hub.homiMessages(s.id);
+  assert.deepEqual(homi.map((e) => e.ref), ['sim-1', 'sim-2', 'sim-3', 'sim-4']);
   const plan = env.repo.loadGroup(env.ids.space('sim', s.id))?.plan;
   assert.equal(plan?.refs.options[2], 'sim-4');
   await hub.reactAs(s.id, 'ben', '❤️', plan!.refs.options[2]);
   assert.equal(hub.transcript.at(-1)?.kind, 'react');
-  assert.equal(hub.transcript.at(-1)?.from, 'otto');
+  assert.equal(hub.transcript.at(-1)?.from, 'homi');
 });

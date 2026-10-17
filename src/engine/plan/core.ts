@@ -99,7 +99,7 @@ export function touch(st: Step, ref: MemberRef, msgRef?: MsgRef): Member | null 
   return m;
 }
 
-/** PRIVACY §1: the one-time intro, on the first event Otto sees in a chat. Prompted (it answers that event). */
+/** PRIVACY §1: the one-time intro, on the first event Homi sees in a chat. Prompted (it answers that event). */
 export function intro(st: Step): void {
   if (st.s.space.introSent) return;
   st.s.space.introSent = true;
@@ -120,7 +120,7 @@ export function refKey(map: Record<number, MsgRef> | undefined, ref?: MsgRef): n
   return undefined;
 }
 
-export function isOttoRef(p: Plan | null, ref?: MsgRef): boolean {
+export function isHomiRef(p: Plan | null, ref?: MsgRef): boolean {
   if (!p || !ref) return false;
   const r = p.refs;
   return r.header === ref || r.poll === ref || r.placePoll === ref || refKey(r.options, ref) !== undefined || refKey(r.placeOptions, ref) !== undefined;

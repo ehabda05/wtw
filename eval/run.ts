@@ -97,7 +97,7 @@ interface FixtureResult {
   logLines: number;
   logLeaks: number;
   dbPlaintextLeaks: number;
-  ottoMessages: number;
+  homiMessages: number;
   errors: string[];
 }
 
@@ -152,7 +152,7 @@ async function runFixture(fx: Fixture, engine: EngineApi, extras: EngineExtras):
     hungry: { expected: fx.expect.hungryTriggered, actual: false, ok: false },
     place: { expected: fx.expect.place, actual: null, ok: null },
     unprompted: 0, maxUnpromptedIn12h: 0, unpromptedOk: true, quietHourViolations: 0,
-    logLines: 0, logLeaks: 0, dbPlaintextLeaks: 0, ottoMessages: 0, errors: [],
+    logLines: 0, logLeaks: 0, dbPlaintextLeaks: 0, homiMessages: 0, errors: [],
   };
 
   const texts: string[] = [];
@@ -263,7 +263,7 @@ async function runFixture(fx: Fixture, engine: EngineApi, extras: EngineExtras):
     if (userPurge) finalDay = null;
     const sends = d.actions.filter((x) => (x.type === 'send' || x.type === 'reply' || x.type === 'poll' || x.type === 'file'));
     if (sends.some((x) => 'prompting' in x && x.prompting === 'unprompted')) unpromptedTimes.push(d.at);
-    res.ottoMessages += sends.length;
+    res.homiMessages += sends.length;
   }
   res.unprompted = unpromptedTimes.length;
   for (const t of unpromptedTimes) {

@@ -43,7 +43,7 @@ export interface VoiceLoadDeps {
   now: () => number;
   /** Timer used by the voice module (mock delay, poll sleeps). Default: real setTimeout. */
   scheduleTimeout?: (fn: () => void, ms: number) => unknown;
-  /** Inbound "call Otto to RSVP" lookup (webhook mode). */
+  /** Inbound "call Homi to RSVP" lookup (webhook mode). */
   lookupByPhone?: (phone: string) => Promise<InboundCallTarget | null>;
   /** Mock-mode answer delay. */
   mockDelayMs?: number;
@@ -86,7 +86,7 @@ export async function loadVoiceService(
 }
 
 /**
- * Inbound "call Otto to RSVP": find a live plan where the caller (matched against sealed delivery handles) is still
+ * Inbound "call Homi to RSVP": find a live plan where the caller (matched against sealed delivery handles) is still
  * pending, and return only the open question. Unknown callers get null (the voice module rejects them).
  */
 export function makeInboundLookup(

@@ -17,6 +17,8 @@ export function planOrFood(body: string, now: number, tz: string): 'plan' | 'foo
   const win = parseWindow(body, now, tz);
   const planWords = hasPlanWords(body);
   if (fs.idiom) return planWords || win ? 'plan' : null;
+  // Money talk without a window ("how much does everyone owe for dinner") is a bill question, not a plan.
+  if (fs.money && !win) return null;
   const todayOnly = !!win && win.single && !win.explicit && win.days[0] === isoDay(now, tz);
   if (win && !(todayOnly && fs.strong)) return 'plan';
   if (fs.score >= 1 && !planWords) return 'food';

@@ -28,7 +28,7 @@ test('phone numbers in common written forms are scrubbed', () => {
 
 test('emails, @handles and long digit runs are scrubbed', () => {
   assert.equal(redact('ana.b+x@example.co.uk said hi'), '[email] said hi');
-  assert.equal(redact('ping @ana_b and @Otto_Bot'), 'ping @[handle] and @[handle]');
+  assert.equal(redact('ping @ana_b and @Homi_Bot'), 'ping @[handle] and @[handle]');
   assert.equal(redact('order 123456789'), 'order [number]');
   const out = redact('id 1234567 / 12345678901234 / tg -1001234567890');
   assert.ok(!/\d{7,}/.test(out), out);

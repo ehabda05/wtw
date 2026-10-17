@@ -254,7 +254,7 @@ export function tallyLine(plan: Plan): string {
     .join(' · ');
 }
 
-/** `otto why`: "Thu had 1 yes; Fri had 4 yes + 1 maybe; Sat had 3 yes, 2 no". */
+/** `homi why`: "Thu had 1 yes; Fri had 4 yes + 1 maybe; Sat had 3 yes, 2 no". */
 export function whyTally(plan: Plan): string {
   const names = optionShortNames(plan);
   return activeOptions(plan)

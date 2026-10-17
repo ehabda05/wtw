@@ -4,8 +4,10 @@
 import type { Server } from 'node:http';
 import { SimHub } from './channels/sim.js';
 import { ImessageCloudBinding, LocalImessageAdapter } from './channels/imessage.js';
+import { createPhoton2Adapters } from './channels/photon2.js';
 import { SpectrumHub } from './channels/spectrum.js';
 import { TelegramAdapter } from './channels/telegram.js';
+import { createTelegramDirectAdapters } from './channels/telegram-direct.js';
 import { TerminalAdapter } from './channels/terminal.js';
 import type { ChannelAdapter } from './channels/types.js';
 import { loadConfig } from './config.js';
@@ -16,6 +18,9 @@ import { createLogger } from './privacy/logger.js';
 import { Retention } from './privacy/retention.js';
 import { OffsetClock, SystemClock } from './runner/clock.js';
 import { classifyAvailability, isEnabled as hostedLlmEnabled } from './llm/redacted.js';
+import { routerFromConfig } from './llm/router.js';
+import { createExtHandlers } from './runner/handlers/index.js';
+import { galleryFor } from './album/gallery.js';
 import { loadPlacesService, loadVoiceService, makeInboundLookup } from './runner/load.js';
 import { Runner } from './runner/runner.js';
 import { Scheduler } from './runner/scheduler.js';
@@ -31,6 +36,8 @@ async function main(): Promise<void> {
   const clock = config.demoMode ? new OffsetClock() : new SystemClock();
   let scheduler: Scheduler | undefined;
   const llmCfg = { disableHostedLlm: config.disableHostedLlm, apiKey: config.anthropicApiKey };
+  // Repair router: same switch (DISABLE_HOSTED_LLM=false AND ANTHROPIC_API_KEY); HOMI_LLM_MODEL picks the model.
+  const llmRouter = routerFromConfig(config);
   const db = openDatabase(config.dbPath);
   const repo = new Repo(db, new Sealer(config.dataKey), { now: () => clock.now(), logger: logger.child({ mod: 'repo' }) });
   const ids = new Ids(config.idSalt);
@@ -44,6 +51,16 @@ async function main(): Promise<void> {
   );
   buildQuestion = voice.buildQuestion;
   const engine = await loadEngine();
+
+  // Bills are pure engine logic; travel, pledges (payments) and the album have runner-side handlers.
+  const ext = createExtHandlers({
+    dataDir: config.dataDir,
+    publicBaseUrl: config.publicBaseUrl,
+    paymentsProvider: config.paymentsProvider,
+    travelProvider: config.travelProvider,
+    dataKey: config.dataKey,
+    now: () => clock.now(),
+  });
 
   const runner = new Runner({
     engine,
@@ -63,6 +80,10 @@ async function main(): Promise<void> {
         }
       : undefined,
     hostedLlm: hostedLlmEnabled(llmCfg) ? (text, labels, names) => classifyAvailability(llmCfg, text, labels, names) : undefined,
+    repairWithLlm: llmRouter.repair ?? undefined,
+    handlers: ext.handlers,
+    photoStore: ext.photoStore,
+    publicBaseUrl: config.publicBaseUrl,
   });
   voice.service.onResult((r) => void runner.handleCallResult(r));
 
@@ -80,6 +101,10 @@ async function main(): Promise<void> {
       case 'telegram':
         hub.register(new TelegramAdapter({ config, logger: logger.child({ mod: 'telegram' }) }));
         break;
+      case 'telegram-direct':
+        // Direct Bot API long polling: only a @BotFather token, no Photon project, no public URL.
+        adapters.push(...createTelegramDirectAdapters(config, logger.child({ mod: 'telegram-direct' })));
+        break;
       case 'imessage':
         hub.register(new ImessageCloudBinding({ config, logger: logger.child({ mod: 'imessage' }) }));
         break;
@@ -91,6 +116,9 @@ async function main(): Promise<void> {
             isTrigger: (text) => engine.detectAddressed(text),
           }),
         );
+        break;
+      case 'photon2':
+        adapters.push(...(await createPhoton2Adapters(config, logger.child({ mod: 'photon2' }))));
         break;
     }
   }
@@ -108,6 +136,7 @@ async function main(): Promise<void> {
   try {
     server = await startHttpServer(config.port, {
       voice: voice.service,
+      album: galleryFor(ext.photoStore),
       logger: logger.child({ mod: 'http' }),
       health: () => ({ surfaces: config.surfaces, voice: voice.real ? config.voice.mode : 'mock', places: places.real ? config.places.provider : 'stub' }),
     });
@@ -115,12 +144,13 @@ async function main(): Promise<void> {
     log.error('http: could not listen', { port: config.port, err });
   }
 
-  log.info('otto started', {
+  log.info('homi started', {
     surfaces: config.surfaces,
     port: config.port,
     voice: voice.real ? config.voice.mode : 'mock (fallback)',
     places: places.real ? config.places.provider : 'stub (fallback)',
     hostedLlm: !config.disableHostedLlm && !!config.anthropicApiKey,
+    llmFallback: llmRouter.note,
     ephemeralKeys: config.ephemeralKeys,
   });
 
@@ -148,6 +178,6 @@ async function main(): Promise<void> {
 main().catch((err: unknown) => {
   // Boot errors are config / setup problems; print the message only (never env values).
   const msg = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`otto: failed to start: ${msg}\n`);
+  process.stderr.write(`homi: failed to start: ${msg}\n`);
   process.exit(1);
 });

@@ -99,7 +99,7 @@ test('runner end-to-end: injected phone / email / text / handle never reach a lo
   env.adapter.failWith = new Error(`HTTP 400 for "${TEXT}" to ${PHONE} / ${EMAIL} / ${HANDLE} in ${SPACE}`);
   const cap = captureLogs();
   try {
-    await env.runner.handleInbound(textIn(SPACE, HANDLE, `otto ${TEXT} call ${PHONE} or ${EMAIL}`, { from: { handle: HANDLE, platformName: 'Zebulon' } }));
+    await env.runner.handleInbound(textIn(SPACE, HANDLE, `homi ${TEXT} call ${PHONE} or ${EMAIL}`, { from: { handle: HANDLE, platformName: 'Zebulon' } }));
     void createStubPlaces;
   } finally {
     cap.restore();

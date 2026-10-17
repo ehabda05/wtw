@@ -16,7 +16,7 @@ Times are EDT. Product name: TBD (Phase 2).
     - 0 log leaks (502 lines), 0 DB plaintext.
     - Place match 3/4: the OSM snapshot has no Thai near Harvard Sq.
   - **Deck and story:** deck numbers filled, `deck.pdf` re-exported, both demo MP4s rendered.
-  - **Remaining human steps:** the teammate actions above, plus first live run on Photon (Telegram or dedicated iMessage), voice go/no-go, and filling team name, repo URL, video URL and Otto's number.
+  - **Remaining human steps:** the teammate actions above, plus first live run on Photon (Telegram or dedicated iMessage), voice go/no-go, and filling team name, repo URL, video URL and Homi's number.
   - **Fixes during integration:**
     - Estimated prices get one band of slack, and meal places come before cafés (fixed the "coffee shop for dinner" bug).
     - The short-window phone escalation now happens at the deadline.
@@ -109,7 +109,7 @@ More sources are listed in each research file's own Sources section:
 - **D6 (2026-10-16): Toolchain.**
   - Tests use `node:test` + `tsx`, not vitest. Vitest's deep file paths exceed Windows MAX_PATH in this folder, and npm tar failed.
   - Storage: `node:sqlite` (no native build).
-- **D7 (2026-10-16): The product name is "Otto".**
+- **D7 (2026-10-16): The product name is "Homi".**
   - Why: short, a name and not a common word (so mention detection stays clean), sounds like a friend.
   - Rejected: "Remy". An existing iMessage to-do agent and Google's Gemini agent both use it.
 - **D8 (2026-10-16): Scope.** The user asked to finish the whole project end to end, without phase-by-phase stops.
@@ -118,7 +118,7 @@ More sources are listed in each research file's own Sources section:
 - **No public statement from the founders.** Everything below is inference.
 - **Strongest inference:** cold start. Every one of 8 or 9 friends had to install an iOS-only app; a couple needs one other install.
 - **Next strongest:** a couple is a natural paying unit ($14.99 a month), and couples coordinate daily, while friend groups plan occasionally.
-- **What it means for Otto:** we escape the install problem completely. We do **not** escape monetization or episodic usage, so the pitch needs answers for both (story/pitch.md, judge Q&A).
+- **What it means for Homi:** we escape the install problem completely. We do **not** escape monetization or episodic usage, so the pitch needs answers for both (story/pitch.md, judge Q&A).
 - **Closest competitor:** Continua (GV-backed, already a bot in SMS, iMessage and Discord groups). The long-term platform risk is native features: iOS 26 Messages polls and Meta AI in WhatsApp.
 
 ## Facts that changed vs the brief (verified)

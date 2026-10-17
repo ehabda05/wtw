@@ -2,7 +2,7 @@
 
 HackHarvard serves no dinner. Its FAQ tells hackers to explore the restaurants of Harvard Square and Allston (hhuh.io FAQ, 2026-10-16), so every hacker and judge in the room has this problem tonight.
 
-Otto's job here:
+Homi's job here:
 1. ask one question,
 2. merge everyone's answers fairly,
 3. return exactly three good options,
@@ -24,7 +24,7 @@ False positives are worse than misses. A bot that jumps in on "food for thought"
 | **Negative (−1)** | "ate so much", "already ate", "just ate" (people who already ate aren't asking where to eat) |
 
 **Rules:**
-1. **Addressed** (mention, `otto …`, `/food`, or a reply to Otto): needs **≥ 1 point** and no cancel idiom.
+1. **Addressed** (mention, `homi …`, `/food`, or a reply to Homi): needs **≥ 1 point** and no cancel idiom.
    - If the message also names a future window ("dinner next week?"), it is **plan intent**, not food intent. It starts a date plan, and any cuisine word is saved as a hint for later.
 2. **Not addressed:** starts the flow only if **all three** hold:
    - there is an active plan, or notice mode is on;
@@ -44,7 +44,7 @@ If the plan already has a neighborhood, the question drops "and roughly where".
 
 **Collect answers** until the first of these happens:
 - every known active member has answered;
-- someone says "just pick", "otto go" or "whatever you think";
+- someone says "just pick", "homi go" or "whatever you think";
 - 10 minutes pass (job `hungry_deadline`). Food is urgent, so there are no nudges here.
 
 ## 3. Resolve taste fairly
@@ -53,11 +53,11 @@ If the plan already has a neighborhood, the question drops "and roughly where".
 |---|---|---|
 | Cuisine | "thai", "tacos" (→ mexican), "sushi", "ramen", "pho" (→ vietnamese), "pizza", "dumplings", "halal" | +1 per member per cuisine. Synonyms map to OSM-style tags. |
 | Veto | "no sushi", "not thai", "anything but pizza" | Removed from the candidate cuisines, whatever its votes |
-| Budget | "cheap", "broke", "$", "under 15" → **$** · "normal", "$$", "under 30" → **$$** · "treat ourselves", "fancy", "splurge" → **$$$** | **The tightest stated budget wins.** Nobody has to admit they're broke out loud. Otto says "keeping it cheap", never "because Ben said so". |
+| Budget | "cheap", "broke", "$", "under 15" → **$** · "normal", "$$", "under 30" → **$$** · "treat ourselves", "fancy", "splurge" → **$$$** | **The tightest stated budget wins.** Nobody has to admit they're broke out loud. Homi says "keeping it cheap", never "because Ben said so". |
 | Diet | vegetarian, vegan, halal, kosher, gluten-free, nut allergy, dairy-free, pescatarian, shellfish allergy | A hard filter where the data has the tag (OSM `diet:*`). Otherwise a soft preference, and the option line gets a short "check: nut allergy" note. |
 | Where | "Harvard Square", "harvard sq", "Allston", "Central", "near Porter" | Matched against the bundled gazetteer (`src/places/geo.ts`). |
 | Where (two places) | "Harvard Square" and "Allston" | **Meet in the middle:** search around the midpoint of the two centroids. The option header says "halfway between Harvard Sq and Allston". |
-| Where (vague) | "near me", "here" | Otto asks once: "Which neighborhood? I never use your location." |
+| Where (vague) | "near me", "here" | Homi asks once: "Which neighborhood? I never use your location." |
 | Wildcard | "anything", "idc", "whatever" | Counts as answered and adds no cuisine weight |
 
 **Split groups get a compromise, not a winner-take-all.**
@@ -99,11 +99,11 @@ Thai, cheap, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3
 
 **When the vote ends:** after 10 minutes, or as soon as a majority of members who answered have voted.
 
-**Winner:** the most votes; ties go to rank order. With no votes at all, Otto says "Going with #1 since nobody objected 🍜".
+**Winner:** the most votes; ties go to rank order. With no votes at all, Homi says "Going with #1 since nobody objected 🍜".
 
 **Closing message:**
 - "{Name} it is: {address} {maps link}."
-- If the plan has a future event time: "Want a reminder 30 min before? Say "otto remind me"."
+- If the plan has a future event time: "Want a reminder 30 min before? Say "homi remind me"."
 - For an instant plan: no reminder offer, because the plan is now.
 
 **Back to the plan:**
@@ -122,7 +122,7 @@ It never receives member names, phone numbers, device location, or the neighborh
 
 ## 7. Offline fallback
 
-`src/places/data/harvard-allston.json` is a bundled snapshot of Harvard Square and Allston restaurants, built from OpenStreetMap (ODbL, attribution in the file and the README). If the live lookup fails or takes longer than 3 seconds, Otto uses the snapshot and says so in `otto why`. The demo can never dead-end.
+`src/places/data/harvard-allston.json` is a bundled snapshot of Harvard Square and Allston restaurants, built from OpenStreetMap (ODbL, attribution in the file and the README). If the live lookup fails or takes longer than 3 seconds, Homi uses the snapshot and says so in `homi why`. The demo can never dead-end.
 
 ## 8. Provider choice (decision D5, from `research/places-api.md`)
 
@@ -138,4 +138,4 @@ It never receives member names, phone numbers, device location, or the neighborh
 | Geocoding | Bundled gazetteer of ~20 Boston/Cambridge/Somerville neighborhoods | The neighborhood string never leaves the server |
 | Walking time | Haversine × 1.3 ÷ 78 m/min (1.3 m/s) | No routing API |
 
-Attribution "© OpenStreetMap contributors (ODbL)" appears in the README, in the data file header, and in `otto why`.
+Attribution "© OpenStreetMap contributors (ODbL)" appears in the README, in the data file header, and in `homi why`.

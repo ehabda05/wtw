@@ -46,9 +46,9 @@ All times are EDT. The venue **closes overnight** (hhuh.io FAQ), so plan where t
 - [ ] `npm test` green; `npm run eval` numbers pasted into README and deck slide 8
 - [ ] Video under the Devpost limit, captions on, "simulated" labels visible
 - [ ] Deck (`story/deck/index.html`) runs offline. `deck.pdf` backup exists.
-- [ ] Phone loop `story/out/otto-phone-1080x1920.mp4` copied to **two** laptops
+- [ ] Phone loop `story/out/homi-phone-1080x1920.mp4` copied to **two** laptops
 - [ ] Agent number QR on the end card and on a table tent: `node story/qr/make-qr.mjs --sms +1XXXXXXXXXX` (or `--telegram <bot>`), then print `story/qr/table-tent.html`
 - [ ] Devpost submitted to the Photon challenge; "What is simulated" section filled
 - [ ] Fallback ladder rehearsed once (Wi-Fi off → sim; voice off → recorded call)
 - [ ] Retell agent privacy settings verified in the dashboard (basic attributes / 1-day retention)
-- [ ] After the event: run `otto stop` in every demo group, and delete the demo DB (`data/otto.db`)
+- [ ] After the event: run `homi stop` in every demo group, and delete the demo DB (`data/homi.db`)

@@ -1,4 +1,4 @@
-// Read-only command answers: the one-message plan card, `otto why`, bill split, calendar handoff, notes.
+// Read-only command answers: the one-message plan card, `homi why`, bill split, calendar handoff, notes.
 
 import { TEMPLATES as T } from '../templates.js';
 import {
@@ -6,7 +6,7 @@ import {
 } from '../schedule.js';
 import { whoLabel } from '../nudge.js';
 import { ICS_MIME, ics, icsText } from '../ics.js';
-import { cardWhen, fmtTime, money, relLabel, shortDay } from '../util.js';
+import { cardWhen, fmtTime, listJoin, money, relLabel, shortDay } from '../util.js';
 import { type Step, P, planOf, say, tzOf } from './core.js';
 
 function chosenCounts(st: Step): { yes: number; maybe: number } {
@@ -16,7 +16,7 @@ function chosenCounts(st: Step): { yes: number; maybe: number } {
   return { yes: Object.values(p.members).filter((m) => m.status !== 'out').length, maybe: 0 };
 }
 
-/** `otto where are we at`: date, place, who's in, who's pending, in one message. */
+/** `homi where are we at`: date, place, who's in, who's pending, in one message. */
 export function statusText(st: Step): string {
   const p = planOf(st);
   if (!p) return T.statusNone();
@@ -29,7 +29,11 @@ export function statusText(st: Step): string {
     case 'collecting_availability': {
       const ch = chooseOption(p);
       const top = ch?.ranked.find((r) => r.id === ch.optionId);
-      const lead = top && top.yes > 0 ? `${optionShortNames(p)[top.id]} leads with ${top.yes} yes` : 'no picks yet';
+      const names = optionShortNames(p);
+      const tied = top ? ch!.ranked.filter((r) => r.yes === top.yes) : [];
+      const lead = !top || top.yes === 0 ? 'no picks yet'
+        : tied.length > 1 ? `${listJoin(tied.map((r) => names[r.id]))} are tied at ${top.yes} yes`
+        : `${names[top.id]} leads with ${top.yes} yes`;
       const pend = Object.values(p.members).filter((m) => m.status === 'pending');
       const unknown = Math.max(0, groupSize(p) - activeMembers(p).length);
       const who = pend.length || unknown ? whoLabel(pend, unknown) : undefined;
@@ -58,7 +62,7 @@ export function statusText(st: Step): string {
 
 const OSM = '© OpenStreetMap contributors, ODbL';
 
-/** `otto why`: the tally plus low-confidence reads, time constraints, who forced a lock, and the data source. */
+/** `homi why`: the tally plus low-confidence reads, time constraints, who forced a lock, and the data source. */
 export function whyText(st: Step, ref?: string): string {
   const p = P(st);
   const h = p.hungry;
@@ -90,7 +94,7 @@ export function whyText(st: Step, ref?: string): string {
   return T.why({ tally: whyTally(p), notes: notes.join('; ') || undefined });
 }
 
-/** `otto split 142.50 [5 ways]`: rounds up to the cent so the total is covered. Defaults to the yes count. */
+/** `homi split 142.50 [5 ways]`: rounds up to the cent so the total is covered. Defaults to the yes count. */
 export function splitText(st: Step, amount: number, ways?: number): string {
   const p = planOf(st);
   let n = ways;
@@ -106,22 +110,24 @@ export function calendar(st: Step): void {
   if (!p || p.eventAt === undefined) return say(st, T.icsNoDate());
   if (st.ctx.caps.files) {
     const slug = p.activity.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-    st.acts.push({ type: 'file', name: `otto-${slug}.ics`, mime: ICS_MIME, content: ics(p), caption: T.icsCaption({ activity: p.activity }), prompting: 'prompted' });
+    st.acts.push({ type: 'file', name: `homi-${slug}.ics`, mime: ICS_MIME, content: ics(p), caption: T.icsCaption({ activity: p.activity }), prompting: 'prompted' });
     return;
   }
   say(st, T.icsText({ block: icsText(p, tzOf(st)) }));
 }
 
-const STATUS_WORDS = /^(?:plan|time|date|day|place|spot|address|location|restaurant|where|when)$/;
+const STATUS_WORDS = /^(?:plan|time|date|day|place|spot|address|location|restaurant|where|when|status|update|updates|progress|tally|summary|vote|votes|count|latest)$/;
 
-/** `otto what did we decide about parking`: answers from plan notes only. */
+/** `homi what did we decide about parking`: answers from plan notes only. */
 export function noteGet(st: Step, key: string): string {
   const p = P(st);
-  const k = key.toLowerCase();
+  // "what's the status of the reservation": look for a "reservation" note, else show the plan card.
+  const of = key.toLowerCase().match(/^(?:status|update|progress|latest) (?:of|on|for|with) (?:the )?(.+)$/);
+  const k = of ? of[1] : key.toLowerCase();
   const entries = Object.entries(p.notes);
   const hit = entries.find(([n]) => n === k) ?? entries.find(([n]) => n.includes(k) || k.includes(n));
   if (hit) return T.noteFound({ key: hit[0], value: hit[1] });
-  if (STATUS_WORDS.test(k)) return statusText(st);
+  if (of || STATUS_WORDS.test(k)) return statusText(st);
   return T.noteMissing({ key: k });
 }
 

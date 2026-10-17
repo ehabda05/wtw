@@ -15,11 +15,11 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   assert.deepEqual(ofType(h.say('maya', 'guys we never hang out anymore'), 'send').map((s) => s.text), [T.intro({ hours: 24 })]);
 
   // Plan start: options right away.
-  const start = h.say('lee', '@otto dinner next week?');
+  const start = h.say('lee', '@homi dinner next week?');
   assert.deepEqual(ofType(start, 'send').map((s) => s.text).slice(1), ['1 · Thu Oct 22 · 7pm', '2 · Fri Oct 23 · 7pm', '3 · Sat Oct 24 · 7pm']);
 
-  for (const [who, name] of [['ana', 'Ana'], ['ben', 'Ben'], ['sam', 'Sam'], ['jo', 'Jo'], ['maya', 'Maya']]) h.say(who, `otto I'm ${name}`);
-  assert.match(joined(h.say('sam', 'otto you can call me')), /I'll call you once and tell the group first/);
+  for (const [who, name] of [['ana', 'Ana'], ['ben', 'Ben'], ['sam', 'Sam'], ['jo', 'Jo'], ['maya', 'Maya']]) h.say(who, `homi I'm ${name}`);
+  assert.match(joined(h.say('sam', 'homi you can call me')), /I'll call you once and tell the group first/);
 
   // Words and reactions, with one conflict bridge.
   h.say('ana', "fri works, i'm busy thu and sat");
@@ -45,7 +45,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   const res = h.apply({ kind: 'call_result', planId: h.plan!.id, member: 'k-sam', answerText: 'Friday works', ok: true, simulated: true });
   const lines = ofType(res, 'send').map((s) => s.text);
   assert.equal(lines[0], "Sam's in for Fri (by phone). 5 for 6 🎉 (simulated call)");
-  assert.match(lines[1], /^Fri Oct 23 · 7pm it is: 5 in\. Where to: say "otto find food"/);
+  assert.match(lines[1], /^Fri Oct 23 · 7pm it is: 5 in\. Where to: say "homi find food"/);
   assert.ok(ofType(res, 'send').every((s) => s.prompting === 'prompted'));
   assert.equal(h.plan!.lockedBy, 'everyone');
 
@@ -55,7 +55,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   h.say('ana', 'thai sounds amazing');
   h.say('ben', 'something cheap pls');
   h.say('jo', 'harvard square');
-  const look = ofType(h.say('lee', 'otto go'), 'lookup_places')[0];
+  const look = ofType(h.say('lee', 'homi go'), 'lookup_places')[0];
   assert.deepEqual(look.query.cuisines, ['thai']);
   assert.equal(look.query.priceMax, 1);
   assert.equal(look.query.near, 'Harvard Square');
@@ -65,7 +65,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   assert.match(joined(close), /^Tasty Thai it is: 1234 Mass Ave https:\/\/maps\.example\/tasty 🍜 Want a reminder 30 min before/);
   assert.match(joined(close), /Locked: Fri Oct 23, 7pm · Tasty Thai · 5 in\./);
   assert.equal(h.plan!.state, 'confirmed');
-  assert.equal(ofType(h.say('lee', 'otto add to calendar'), 'file').length, 1);
+  assert.equal(ofType(h.say('lee', 'homi add to calendar'), 'file').length, 1);
 
   // Reminder ladder.
   assert.equal(joined(h.advanceTo(at('2026-10-22T19:00:00-04:00'))), 'Tomorrow 7pm: Tasty Thai, 1234 Mass Ave · https://maps.example/tasty');
@@ -74,12 +74,12 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   assert.equal(h.plan!.state, 'completed');
 
   // After dinner.
-  assert.equal(joined(h.say('ana', 'otto split 142.50 5 ways')), '$28.50 each for 5 people (tip not included).');
-  const dump = joined(h.say('jo', 'otto what do you know'));
+  assert.equal(joined(h.say('ana', 'homi split 142.50 5 ways')), '$142.50 split 5 ways: $28.50 each.');
+  const dump = joined(h.say('jo', 'homi what do you know'));
   assert.match(dump, /chosen Fri Oct 23 7pm \(5 yes\)/);
   assert.match(dump, /place Tasty Thai, 1234 Mass Ave/);
   assert.match(dump, /names I know: Lee|names I know: .*Sam/);
-  assert.equal(joined(h.say('ana', 'otto forget')), "Done: I've deleted this plan.");
+  assert.equal(joined(h.say('ana', 'homi forget')), "Done: I've deleted this plan.");
   assert.equal(h.plan, null);
   assert.equal(h.jobs.size, 0);
 

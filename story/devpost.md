@@ -1,12 +1,12 @@
-# Devpost submission: Otto
+# Devpost submission: Whats the Word
 
 > Paste section by section into https://hackharvard2026.devpost.com/ before **Sun Oct 18, 7:45 AM**.
 > Submit to: **Build a Messaging Agent with Photon 2.0**, which covers the iMessage track and Best Voice Agent. Also pick any general track that fits.
 > Fill the `{{…}}` placeholders from `eval/results.json` and the team list.
 
-**Project name:** Otto
+**Project name:** Whats the Word
 
-**Tagline (49 chars):** The friend who makes plans happen, then forgets.
+**Tagline (56 chars):** Homi, the friend in your group chat who makes plans happen.
 
 ---
 
@@ -22,16 +22,20 @@ Polls and calendar links pull the plan out of the chat. New apps ask everyone to
 
 ## What it does
 
-You add Otto's number to your group. That's the whole setup.
+You add Homi's number to your group. That's the whole setup.
 
-- **Finds a date with nobody's calendar.** "@otto dinner next week?" → Otto proposes three concrete times and announces when it will decide. People answer with a tapback or in plain words: "fri or sat", "anything but thu", "fri but after 8:30", "either". Otto decides by quorum, not unanimity.
-- **Bridges conflicts.** If Ana can only do Friday and Ben only Saturday, Otto asks right away whether a late Friday or a Saturday brunch works for both, then adds that option.
+- **Finds a date with nobody's calendar.** "@homi dinner next week?" → Homi proposes three concrete times and announces when it will decide. People answer with a tapback or in plain words: "fri or sat", "anything but thu", "fri but after 8:30", "either". Homi decides by quorum, not unanimity.
+- **Bridges conflicts.** If Ana can only do Friday and Ben only Saturday, Homi asks right away whether a late Friday or a Saturday brunch works for both, then adds that option.
 - **Picks a place.** "ok I'm starving where are we eating" → one question (cuisine, budget, roughly where). The tightest budget wins quietly, vetoes are respected, and two neighborhoods mean it meets you in the middle. You get exactly three one-line options with walk time and opening hours *at the plan's time*.
 - **Checks in with quiet friends without making anyone the bad guy.**
-  - Nudges come from Otto, are visible to the group, are capped, and respect quiet hours, with a tone dial (gentle / normal / ruthless).
-  - If someone opted in, Otto **calls them**, asks only the open question, and posts the answer back in the group: "Sam's in for Fri (by phone)."
+  - Nudges come from Homi, are visible to the group, are capped, and respect quiet hours, with a tone dial (gentle / normal / ruthless).
+  - If someone opted in, Homi **calls them**, asks only the open question, and posts the answer back in the group: "Sam's in for Fri (by phone)."
 - **Keeps it on track.** Plan card ("where are we at?"), `.ics` handoff (no calendar access), day-before and hour-before reminders, veto-and-swap ("can't do Friday anymore" reopens only the date), plan-scoped notes, bill split, and "explain yourself".
-- **Then forgets.** "otto what do you know" dumps everything it has. "otto forget" deletes it. Otherwise it deletes itself 24 hours after the event.
+- **Splits the bill, properly.** Supports equal, custom and itemized splits, with tip, tax, service and fees and several people paying. "homi settle up" says who pays whom, and the shares always add up to the cent (largest-remainder rounding).
+- **Show-up pledges (optional).** Everyone puts down $10 and gets it back by checking in. The group has to agree beforehand where no-show money goes (group fund, the people who showed, or a charity). Check-ins, refunds, forfeits, cancellation and disputes are all built in, and **payments are simulated** in this build.
+- **Keeps the memories.** "homi start an album" opens a members-only album for the night. Photos are added only when someone sends them with "homi add", and anyone can remove their own.
+- **Plans the next trip.** "homi let's plan Japan for 2030" collects origin, dates, group size, budget and interests, then gives an itinerary with flights, stays (Airbnb-style options first), transport, activities and costs. It offers a comfort upgrade with the price difference spelled out, plus less obvious savings. Dates too far ahead to book get **clearly labeled estimates and example listings**.
+- **Then forgets.** "homi what do you know" dumps everything it has. "homi forget" deletes the plan, which otherwise deletes itself 24 hours after the event. The tab, trip and album stay only until the group deletes them.
 
 ## How we built it
 
@@ -41,7 +45,7 @@ You add Otto's number to your group. That's the whole setup.
   - **Offline development:** the terminal provider plus our own in-process simulator.
 - **Voice:**
   - The call runs on a **Photon 2.0 SMS number**, which goes over SIP/TLS to a **Retell** hosted voice agent.
-  - Outbound calls ask one question. Inbound "call Otto to RSVP" works through Retell's inbound webhook.
+  - Outbound calls ask one question. Inbound "call Homi to RSVP" works through Retell's inbound webhook.
   - Retell is set to store basic attributes only, for 1 day.
 - **Engine:** a pure state machine, `applyEvent(state, event, ctx) → {state, actions}`, with no I/O and no clock reads. Every behavior is unit-tested, and whole conversations replay in milliseconds.
 - **Local language understanding:**
@@ -63,7 +67,7 @@ You add Otto's number to your group. That's the whole setup.
 
 - **Group semantics on Photon.** Free projects get *shared* iMessage lines, and shared lines can't see group chats (photon-hq/spectrum-ts#217). We designed for three group surfaces and made the engine capability-driven, so whichever line we get works.
 - **Voice.** Voice runs on Photon 2.0 SIP on an SMS number, not on the iMessage line. Getting SIP/TLS digest auth, the hosted agent's privacy settings, and the inbound webhook to line up took real reading.
-- **No calendars, by choice.** Free-form date parsing is unreliable. Our own test showed a popular parser reading "Fri or Sat works" as two different weeks. The fix was to only interpret replies relative to the options Otto itself proposed.
+- **No calendars, by choice.** Free-form date parsing is unreliable. Our own test showed a popular parser reading "Fri or Sat works" as two different weeks. The fix was to only interpret replies relative to the options Homi itself proposed.
 - **Privacy constraints at 4 AM.** No message text in storage meant designing every feature (nudges, names, reply addressing) around IDs instead of content.
 
 ## Accomplishments that we're proud of
@@ -89,6 +93,9 @@ You add Otto's number to your group. That's the whole setup.
 - **Offline simulator (`npm run sim`):** a stand-in group chat for when the venue network fails. In the simulator the phone call is mocked and labeled "(simulated call)".
 - **Restaurant price bands** are our team's estimates, shown as "~$ (est.)", because OpenStreetMap has no price data. Venue names, cuisines, addresses and opening hours come from OpenStreetMap.
 - **Clock fast-forward:** to show a 24-hour nudge in a 2-minute demo we fast-forward the clock, and we say so when we do it.
+- **Pledge payments:** every deposit, refund and forfeit is **SIMULATED** (labeled "SIMULATED"); no money moves. Real deposits need a payment provider plus each participant's explicit authorization in that provider's secure checkout.
+- **Trip prices:** spring 2030 can't be booked yet, so flights, stays and costs are **labeled estimates**, and listings are **representative examples**, not real bookable offers. Live search needs travel-provider credentials (docs/TRAVEL.md).
+- **Album photos in the demo:** generated placeholder images, and the album URL is a demo link.
 - **Live surfaces:** in the live demo, the following ran on real Photon channels: {{LIVE_SURFACES}}.
 
 ## Built with
@@ -99,4 +106,5 @@ typescript · node.js · photon · spectrum-ts · imessage · telegram · sip ·
 
 - **Repo:** {{REPO_URL}}
 - **Demo video:** {{VIDEO_URL}}
-- **Try it:** text {{OTTO_NUMBER}} or add {{TELEGRAM_BOT}} to a group
+- **Repo branch with these features:** `feature/homi-features`
+- **Try it:** text {{HOMI_NUMBER}} or add {{TELEGRAM_BOT}} to a group

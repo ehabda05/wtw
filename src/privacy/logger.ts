@@ -94,7 +94,9 @@ function isSafeError(err: Error): boolean {
 function sanitizeError(err: Error): Record<string, unknown> {
   const out: Record<string, unknown> = { name: redact(String(err.name ?? 'Error')).slice(0, 60) };
   if (isSafeError(err)) out.message = redact(String(err.message ?? '')).slice(0, 300);
-  const code = (err as { code?: unknown }).code;
+  // API errors (e.g. Photon's ApiError) carry a machine code like SPACE_NOT_SENDABLE in their problem body.
+  const bodyCode = ((err as { body?: unknown }).body as { code?: unknown } | undefined)?.code;
+  const code = (err as { code?: unknown }).code ?? bodyCode;
   if (typeof code === 'string' && /^[A-Z0-9_]{1,40}$/.test(code)) out.code = code;
   if (typeof code === 'number') out.code = code;
   for (const k of ['status', 'statusCode'] as const) {

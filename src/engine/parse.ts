@@ -1,40 +1,41 @@
 // Stage 1 of intent detection (rules): addressing, commands, activity/window words, and the closed-vocabulary
-// reply grammar from DATE_FINDING.md §3. Otto only matches replies against the options it posted, so this is a
+// reply grammar from DATE_FINDING.md §3. Homi only matches replies against the options it posted, so this is a
 // small classification problem, not open-ended NLP. Pure; text is only read, never returned or stored
-// (except the pieces a member explicitly hands Otto: names, notes, place text).
+// (except the pieces a member explicitly hands Homi: names, notes, place text).
 
 import type { DayPref, Option, Tone, Vote } from './types.js';
 import type { ActivityInfo, Command, ParsedAvailability, WindowSpec } from './model.js';
 import { addDays, dayOfMonth, hm, isoDay, longDay, listJoin, monthOf, normText, shortDay, titleCase, clean, weekdayOf } from './util.js';
+import { cuisinesIn } from './hungry.js';
 
 // ───────────────────────── addressing ─────────────────────────
 
-const LEAD = /^\s*(?:(?:hey|hi|hello|yo|ok|okay|oi)\s*,?\s+)?@?otto(?![\w'’])[\s,:;!.\-]*/i;
+const LEAD = /^\s*(?:(?:hey|hi|hello|yo|ok|okay|oi)\s*,?\s+)?@?homi(?![\w'’])[\s,:;!.\-]*/i;
 
-/** True for a leading "otto" / "@otto" / "hey otto", a "/command", an @otto mention, or "otto" followed by , or ?. */
+/** True for a leading "homi" / "@homi" / "hey homi", a "/command", an @homi mention, or "homi" followed by , or ?. */
 export function detectAddressed(text: string): boolean {
   const t = normText(text);
   if (/^\/[a-z]/.test(t)) return true;
   if (LEAD.test(t)) return true;
-  if (/@otto(?![\w'])/.test(t)) return true;
-  if (/(?:^|[^\w'])otto\s*[,?]/.test(t)) return true;
+  if (/@homi(?![\w'])/.test(t)) return true;
+  if (/(?:^|[^\w'])homi\s*[,?]/.test(t)) return true;
   return midCommand(t) !== null;
 }
 
-/** "wait otto what do you know": a short lead-in, then "otto" and a recognized command. */
+/** "wait homi what do you know": a short lead-in, then "homi" and a recognized command. */
 function midCommand(text: string): string | null {
-  const m = text.match(/^((?:[\w']+[\s,]+){1,3})otto(?![\w'])[\s,:]+(.+)$/i);
+  const m = text.match(/^((?:[\w']+[\s,]+){1,3})homi(?![\w'])[\s,:]+(.+)$/i);
   if (!m) return null;
   const cmd = parseCommand(m[2]);
   return cmd && !['yes', 'no', 'go'].includes(cmd.kind) ? m[2] : null;
 }
 
-/** Removes the address ("hey otto, ", "@otto", trailing ", otto?", "/cmd@bot") and keeps the original case. */
+/** Removes the address ("hey homi, ", "@homi", trailing ", homi?", "/cmd@bot") and keeps the original case. */
 export function stripAddress(text: string): string {
   let t = text.replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"').replace(/️/g, '').trim();
   t = midCommand(t) ?? t.replace(LEAD, '');
-  t = t.replace(/[\s,]*@?otto[\s?!.]*$/i, (m) => (m.includes('?') ? '?' : ''));
-  t = t.replace(/@otto(?![\w'])\s*/gi, '');
+  t = t.replace(/[\s,]*@?homi[\s?!.]*$/i, (m) => (m.includes('?') ? '?' : ''));
+  t = t.replace(/@homi(?![\w'])\s*/gi, '');
   t = t.replace(/^\/([a-z]+)@\w+/i, '/$1');
   return t.replace(/\s+/g, ' ').trim();
 }
@@ -265,7 +266,7 @@ const NAME_STOP = new Set([
   'still', 'very', 'really', 'gonna', 'going', 'confused', 'lost', 'good', 'great', 'happy', 'sorry', 'ready', 'home', 'stuck',
   'if', 'when', 'later', 'thinking', 'craving', 'easy', 'flexible', 'cool', 'all', 'any', 'either', 'either', 'excited', 'bored',
   'mon', 'monday', 'tue', 'tuesday', 'wed', 'wednesday', 'thu', 'thursday', 'fri', 'friday', 'sat', 'saturday', 'sun', 'sunday',
-  'yes', 'no', 'yeah', 'nope', 'busy', 'driving', 'working', 'eating', 'cooking', 'leaving', 'heading', 'otto', 'everyone',
+  'yes', 'no', 'yeah', 'nope', 'busy', 'driving', 'working', 'eating', 'cooking', 'leaving', 'heading', 'homi', 'everyone',
   'thai', 'cheap', 'fancy', 'kosher', 'halal', 'pescatarian', 'gluten', 'lactose', 'dairy', 'nut',
   'dying', 'dead', 'sleepy', 'cold', 'hot', 'sad', 'mad', 'glad', 'curious', 'wondering', 'asking', 'kidding', 'joking', 'serious',
   'outside', 'inside', 'nearby', 'close', 'far', 'travelling', 'traveling', 'abroad', 'stuffed', 'full', 'fasting', 'dieting', 'in,',
@@ -286,7 +287,7 @@ const TZ_CITIES: Record<string, [string, string]> = {
   anchorage: ['America/Anchorage', 'Anchorage'],
 };
 
-/** City (as typed) -> [IANA zone, display city], for "otto we're in <city>". */
+/** City (as typed) -> [IANA zone, display city], for "homi we're in <city>". */
 export function cityZone(place: string): [string, string] | null {
   const k = normText(place).replace(/[.!?]+$/, '').replace(/,.*$/, '').trim();
   return TZ_CITIES[k] ?? null;
@@ -330,6 +331,37 @@ function splitArgs(a: string): Command | null {
   return { kind: 'split', amount, ways: ways && ways > 0 ? ways : undefined };
 }
 
+const HELP_RE =
+  /^(?:help(?: me| pls| please)?|what can you do(?: for us)?|what (?:else |all )?can you do|what do you do|what are you|who are you|what can (?:i|we) (?:ask|say to|tell) you|how do(?:es)? (?:this|you|it|homi) work|how do (?:i|we) use (?:you|this|homi)|what are (?:your|the) (?:commands|features)|what can homi do|commands|features|\?|hi|hello|hey|yo|sup|what'?s up|wassup)\??$/;
+
+/** The status card family: "whats the status", "which day is winning", "who hasn't answered", "where are we at with this". */
+const STATUS_RES: RegExp[] = [
+  /^(?:so |ok |okay )?(?:where (?:are|r) we(?: at| on)?|where we at|where do we stand|where (?:do )?things stand)(?: (?:with|on) (?:this|that|it|the plan|the vote|the date|dinner|things))?(?: now| so far| right now)?\??$/,
+  /^(?:(?:what'?s|whats|what is|what are|how'?s|hows|how is|how are) |show (?:me |us )?|give (?:me |us )?|got |any |quick )?(?:the |an? |our |this )?(?:status|tally|progress|summary|update|updates|latest|verdict|count|score|news|votes?)(?: update| check| so far| looking| now| report| yet| on (?:this|the plan|the vote|dinner))?\??$/,
+  /^(?:(?:which|what) (?:day|date|time|option|one|night)(?: is|'?s)?|which|what'?s|whats|what is|who'?s|whos|who is)(?: currently| now)? (?:winning|leading|ahead|in the lead|on top)(?: so far| now| right now)?\??$/,
+  /^(?:which|what) (?:day |date |way |option |one )?(?:are|r) we leaning(?: towards?)?\??$|^(?:which|what) way (?:is|are) (?:it|we|the vote) (?:leaning|going)\??$/,
+  /^how(?:'?s| is| are| does)(?: the)? (?:vote|votes|voting|poll|tally|count|it|things|everything|this)(?: look| looking| going)?(?: so far| now)?\??$/,
+  /^how many (?:votes|yes(?:es)?|people)(?: (?:so far|do we have|are in|said yes|have voted))*\??$/,
+  /^who(?:'?s|\s+is|\s+are)?(?:\s+still)?\s+(?:hasn'?t|haven'?t|has not|have not|didn'?t|did not|not yet|yet to|is yet to|needs? to|missing|left|pending)(?:\s+(?:answered|voted|replied|responded|picked|said anything|answer|vote|reply|respond|pick|yet|so far))*\??$/,
+  /^who(?:'?s| is)? (?:missing|left|pending)\??$|^who (?:are|r) we (?:waiting|still waiting) (?:on|for)\??$|^(?:who )?(?:are )?we (?:still )?waiting on anyone\??$/,
+  /^remind (?:me|us) (?:what|where|which|who|when (?:is|'s|are)|how)\b/,
+];
+
+export function isStatusAsk(b: string): boolean {
+  return STATUS_RES.some((r) => r.test(b));
+}
+
+const REMIND_RE =
+  /^(?:can you |could you |pls |please |ok |okay )?(?:remind (?:me|us|everyone|the group|all of us|everybody)(?: (?:before|about|of|ahead|beforehand|when|30|an hour|the day|to go|in time|later|closer)\b.*)?|(?:set|add|make|schedule|create) (?:up )?(?:a |an |the )?reminders?\b.*|reminders?(?: please| pls| plz| on)?)$/;
+
+/** "lets do sushi instead", "how about pizza instead?": a new cuisine for an already chosen (or open) place. */
+export function insteadCuisine(b: string): string[] | null {
+  const m = b.match(/^(?:actually |nah |hmm+ |ok |okay |wait )?(?:let'?s |lets |can we |could we |how about |what about |maybe |should we |i'?d rather )?(?:do |get |go for |go with |try |have |switch to |change (?:it )?to |make it |eat |grab )?(.{2,40}?) instead\??$/);
+  if (!m) return null;
+  const c = cuisinesIn(m[1]);
+  return c.length ? c : null;
+}
+
 /**
  * Parses a command from the de-addressed body (case preserved; matching is case-insensitive).
  * Returns null when the body is not a command. Whether an unaddressed command counts is decided by the caller.
@@ -350,8 +382,8 @@ export function parseCommand(body: string): Command | null {
   if (/^(?:please )?forget(?: (?:it|this|that|the plan|this plan|everything|about it|it all))?$|^delete (?:the|this) plan$/.test(b)) return { kind: 'forget' };
   if (/^(?:privacy|privacy policy|what'?s your privacy policy|are you private|is this private|how do you use (?:my|our) data)\??$/.test(b)) return { kind: 'privacy' };
   if (/what do you know|what have you (?:got|stored|saved)|what do you (?:have|store|keep) (?:on|about) us|^dump$|what data do you have/.test(b)) return { kind: 'dump' };
-  if (/^(?:help|what can you do|commands|\?|hi|hello|hey|yo|sup)\??$/.test(b)) return { kind: 'help' };
-  if (/^(?:where are we at|where are we|where we at|status|what'?s the plan|whats the plan|what is the plan|plan status|where do we stand|what'?s happening|update me)\??$/.test(b)) return { kind: 'status' };
+  if (HELP_RE.test(b)) return { kind: 'help' };
+  if (/^(?:where are we at|where are we|where we at|status|what'?s the plan|whats the plan|what is the plan|plan status|where do we stand|what'?s happening|update me)\??$/.test(b) || isStatusAsk(b)) return { kind: 'status' };
   const why = b.match(/^(?:why|explain|explain yourself|how did you decide|show (?:me )?the tally)(?:\s+(.+?))?\??$/);
   if (why) return { kind: 'why', ref: why[1] };
   if (/^(?:find (?:us )?(?:food|a place|a spot|somewhere to eat|a restaurant|somewhere)|food options|pick a (?:place|spot|restaurant)|where should we eat)\b/.test(b)) return { kind: 'food' };
@@ -400,7 +432,9 @@ export function parseCommand(body: string): Command | null {
   }
   if (/^(?:no place needed|no place|we don'?t need a place|don'?t need a place|we'?ll figure (?:it|that) out|place doesn'?t matter|skip the place|no need for a place)\b/.test(b)) return { kind: 'no_place' };
   if (/^(?:change|switch) (?:the )?(?:place|spot|restaurant)|^(?:let'?s go )?somewhere else$|^different (?:place|spot)$|^new (?:place|spot)$/.test(b)) return { kind: 'change_place' };
-  if (/^remind (?:me|us)(?: 30 (?:min|mins|minutes) before)?$/.test(b)) return { kind: 'remind' };
+  if (/^remind (?:me|us)(?: 30 (?:min|mins|minutes) before)?$/.test(b) || REMIND_RE.test(b)) return { kind: 'remind' };
+  const instead = insteadCuisine(b);
+  if (instead) return { kind: 'change_place', cuisines: instead };
 
   const noteSet = raw.replace(/[.!]+$/, '').match(/^(?:note|remember)(?: that)?:?\s+(.+?)\s*(?::|=|\s-\s|\s+is\s+|\s+are\s+)\s*(.+)$/i);
   if (noteSet) {
@@ -410,6 +444,7 @@ export function parseCommand(body: string): Command | null {
   }
   if (/^(?:notes|what are the notes|show (?:me )?(?:the )?notes)\??$/.test(b)) return { kind: 'notes' };
   const noteGet =
+    b.match(/^(?:what'?s|whats|what is|show (?:me )?) the note (?:on|about|for|re) (.+?)\??$/) ??
     b.match(/^what (?:did|do) we (?:decide|say|agree|have|pick)(?: (?:about|on|for|re))? (.+?)\??$/) ??
     b.match(/^what about (?:the )?(.+?)\??$/) ??
     b.match(/^(?:what'?s|what is|what was) the (.+?)(?: note| situation)?\??$/);
@@ -430,15 +465,22 @@ export function parseCommand(body: string): Command | null {
 /** Trailing emoji, punctuation and skin tones (keeps "?" because it carries meaning). */
 export const TRAIL = /[\s!.,\p{Extended_Pictographic}\u200d\u{1F3FB}-\u{1F3FF}\uFE0F]+$/u;
 
-/** Commands that also count when nobody addressed Otto. */
+/** Commands that also count when nobody addressed Homi. */
 export const UNADDRESSED_COMMANDS = new Set<Command['kind']>(['out']);
 
 // ───────────────────────── reply grammar (DATE_FINDING §3) ─────────────────────────
 
 const NOT_SURE = /\bnot sure\b|\bunsure\b|\bnot certain\b|\bidk\b/;
 const NO_RE = /\b(not|can'?t|cannot|cant|no|busy|out|bad|won'?t|wont|doesn'?t|don'?t|dont|doesnt|nope|unavailable|nah|never|booked|except)\b|👎|❌/;
-const MAYBE_RE = /\b(maybe|prob|probs|probably|might|should be|possibly|tentative|tentatively|if|perhaps|could|likely)\b|❓|🤔/;
-const YES_RE = /\b(works?|good|down|in|free|can do|can make|yes|yeah|yep|yup|ya|perfect|fine|available|totally|definitely)\b|✅|👍|❤|🙌|💯|♥/;
+const MAYBE_RE = /\b(maybe|prob|probs|probably|might|should be|possibly|tentative|tentatively|if|perhaps|could(?! do\b| make\b)|likely)\b|❓|🤔/;
+const YES_RE = /\b(works?|good|down|in|free|can do|can make|could do|could make|yes|yeah|yep|yup|ya|perfect|fine|available|totally|definitely)\b|✅|👍|❤|🙌|💯|♥/;
+/** Preference words ("weekend is better for me"): a yes cue, but not in past-tense chatter or a question. */
+const SOFT_YES = /\b(better|best|prefer|prefers|preferred|preferably|ideal|ideally|i'?d (?:say|go with|pick|vote for)|go with|vote for|let'?s do)\b/;
+const PAST = /\b(was|were|last|yesterday|did|had|ago)\b/;
+/** "than sat" / "over sat" after a preference word is the loser, not a yes. */
+const COMPARED = /\s*\b(?:than|over|instead of)\b.*$/;
+/** Chat filler that carries no answer ("honestly", "tbh", "pretty much"); removed before reading a reply. */
+const FILLER = /\b(?:honestly|tbh|tbf|ngl|lol+|lmao+|lmfao|haha+|imo|imho|fr|pretty much|basically|literally|lowkey|highkey|i guess|i think|to be honest)\b/g;
 
 const BARE_YES =
   /^(?:i'?m in|im in|i'?m down|im down|down|count me in|in|i'?m free|im free|works for me|sounds good|yes|yeah|yep|yup|sure|ok|okay|i can make it|i can come|i'?ll be there|i'?m there|👍|✅|❤|♥)(?: lol| too| as well)?[!.\s]*$/;
@@ -447,8 +489,19 @@ const NONE_RE =
   /^(?:none|neither|nothing works|none work|none works|none for me|none of (?:these|them|those|the (?:dates|times|options))(?: work| works)?(?: for me)?|(?:i )?can'?t do any(?: of (?:these|them|those))?|i can'?t make any(?: of (?:these|them|those))?|no dates work)[!.\s]*$/;
 const ALL_RE =
   /^(?:either|any|all|both|whatever|anything|everything|all good|any works|either works|all work|all of them|any of them|any of those|all three|any day|any day works|all are good|any is fine|either is fine|both work|both are good|anything works|any time|anytime|all work for me|whichever)(?: (?:works|is fine|is good|for me|works for me|lol))?[!.\s]*$/;
-const EXCLUDE_RE = /\b(?:anything|all|any|everything|either|any day|any of them|all of them)\s+(?:works\s+)?(?:but|except|other than|besides|apart from)\s+(.+)$/;
+const ALL_WORDS =
+  "anything|all|any|everything|either|any day|any night|any evening|any time|anytime|whenever|every day|everyday|every night|all days|any of them|all of them|any of those|all of those";
+const EXCLUDE_RE = new RegExp(
+  `\\b(?:${ALL_WORDS})\\s+(?:else\\s+)?(?:(?:works|is fine|is good|works for me)\\s+)?(?:but|except(?: for)?|other than|besides|apart from)\\s+(.+)$`,
+);
+/** "i can't do any day but sat": the exclusion flips (only Sat works). */
+const EXCLUDE_NEG = /\b(?:can'?t|cannot|cant|won'?t|not)\s+(?:do\s+|make\s+|make it\s+|be free\s+|free\s+|go\s+)?(?:on\s+)?$/;
+/** Whole-message "free whenever" family. */
+const FREE_ALL =
+  /^(?:i'?m |im |i am )?(?:free |good |down |around |available |flexible |easy )?(?:whenever|any ?time|any day|any night|every day|all week)(?: really| honestly)?(?: works| is fine| is good| works for me| for me)?$/;
 const QUANT_ALL_WORD = /\b(either|both|any|all|anything|everything|whatever|whichever)\b/;
+/** "not thu but anything else works": the quantifier covers only what the message has not answered yet. */
+const REST_WORD = /\b(?:else|other|others|the rest)\b/;
 
 interface Refs {
   days: Set<string>;
@@ -565,7 +618,12 @@ function polarity(c: string): Vote | null {
   if (NO_RE.test(c)) return 'no';
   if (MAYBE_RE.test(c)) return 'maybe';
   if (YES_RE.test(c)) return 'yes';
+  if (softYes(c)) return 'yes';
   return null;
+}
+
+function softYes(c: string): boolean {
+  return SOFT_YES.test(c) && !PAST.test(c) && !/\?\s*$/.test(c);
 }
 
 function splitClauses(t: string): Array<{ text: string; delim: string }> {
@@ -590,7 +648,7 @@ export interface ParseAvailabilityOpts {
   now?: number;
   /** Inline reply to this option bubble: references default to it. */
   replyOptionId?: number;
-  /** Addressed / reply-to-Otto: bare "yes" counts too (low confidence). */
+  /** Addressed / reply-to-Homi: bare "yes" counts too (low confidence). */
   addressed?: boolean;
 }
 
@@ -607,6 +665,7 @@ export function parseAvailability(text: string, options: Option[], tz: string, o
   const evening = active.some((o) => Number(o.time.slice(0, 2)) >= 16);
   let t = normText(stripAddress(text)).replace(/(\d)\.(\d{2})\b/g, '$1:$2').replace(/(\w)\/(?=[a-z])/g, '$1 ');
   t = t.replace(/\b(fri|sat|sun|mon|tue|wed|thu|thurs|tues|weds)(?:day)?'s\b/g, '$1').replace(/\b(tonight|today|tomorrow)'s\b/g, '$1');
+  t = t.replace(FILLER, ' ').replace(/\s+([,.!?])/g, '$1').replace(/^[\s,.!]+/, '').replace(/\s+/g, ' ').trim();
   if (!t) return res;
   /** Whole-message forms ("either", "down", "none") are matched without trailing emoji/punctuation. */
   const core = t.replace(TRAIL, '');
@@ -643,17 +702,26 @@ export function parseAvailability(text: string, options: Option[], tz: string, o
     }
     return res;
   }
-  if (ALL_RE.test(core)) {
+  if (ALL_RE.test(core) || FREE_ALL.test(core)) {
     setAll('yes');
     return res;
   }
   const ex = core.match(EXCLUDE_RE);
   if (ex) {
-    const refs = findRefs(ex[1], active, today);
+    // "any day but monday works, sat is best": the exclusion is the first clause after "but".
+    const what = ex[1].split(/[,;.!]|\bbut\b|\bthough\b/)[0];
+    const refs = findRefs(what, active, today);
+    const neg = EXCLUDE_NEG.test(core.slice(0, ex.index));
+    const [all, other]: Vote[] = neg ? ['no', 'yes'] : ['yes', 'no'];
     if (refs.days.size || refs.ids.size) {
-      setAll('yes');
-      for (const d of refs.days) res.dayPrefs[d] = { vote: 'no' };
-      for (const id of refs.ids) res.optionVotes[id] = 'no';
+      setAll(all);
+      for (const d of refs.days) res.dayPrefs[d] = { vote: other };
+      for (const id of refs.ids) res.optionVotes[id] = other;
+      return res;
+    }
+    // "any day but monday" when no Monday was proposed: every proposed option.
+    if (dayTokens(what).length || /\b(?:weekends?|weekdays?|weeknights?|tonight|today|tomorrow|tmrw?|tmr)\b/.test(what)) {
+      setAll(all);
       return res;
     }
   }
@@ -664,7 +732,7 @@ export function parseAvailability(text: string, options: Option[], tz: string, o
   let prevVote: Vote | null = null;
   let prevAny = false;
   for (const { text: c, delim } of splitClauses(t)) {
-    const refs = findRefs(c, active, today);
+    const refs = findRefs(softYes(c) ? c.replace(COMPARED, '') : c, active, today);
     let tw = timeWindow(c, evening);
     let pol = polarity(c);
     if (!pol && /\?\s*$/.test(c) && (refs.days.size || refs.ids.size)) pol = 'maybe';
@@ -672,9 +740,11 @@ export function parseAvailability(text: string, options: Option[], tz: string, o
     const hasRefs = refs.days.size > 0 || refs.ids.size > 0;
     if (!hasRefs) {
       if (refs.any && pol) {
-        // "either works" inside a longer message
-        for (const o of active) res.dayPrefs[o.day] = { vote: pol };
-        res.all = pol;
+        // "either works" inside a longer message; "anything else works" covers only what is still unanswered.
+        const rest = REST_WORD.test(c);
+        const voted = new Set(active.filter((o) => o.id in res.optionVotes).map((o) => o.day));
+        for (const o of active) if (!rest || !(o.day in res.dayPrefs || voted.has(o.day))) res.dayPrefs[o.day] = { vote: pol };
+        if (!rest) res.all = pol;
         anyRef = true;
         prevDays = active.map((o) => o.day);
         prevVote = pol;
@@ -720,7 +790,7 @@ export function parseAvailability(text: string, options: Option[], tz: string, o
   }
 }
 
-/** Option references only (for "otto lock fri", "otto why sat", stranded "sat"). */
+/** Option references only (for "homi lock fri", "homi why sat", stranded "sat"). */
 export function optionRefs(text: string, options: Option[], tz: string, now: number): number[] {
   const active = options.filter((o) => !o.removed);
   const t = normText(text);

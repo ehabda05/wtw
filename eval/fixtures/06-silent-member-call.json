@@ -1,7 +1,7 @@
 {
   "id": "06-silent-member-call",
   "title": "Silent Sam opts in to a call and answers by phone",
-  "notes": "Tests the escalation ladder up to an opt-in phone call (DATE_FINDING §6, PRIVACY §6/§10). The story needs a non-Monday start. The chat is first seen on Wed Oct 21 19:30 (pre-plan chatter, so the intro happens 13h before anything else). The plan is started on Thu Oct 22 09:00 with 'dinner tonight, fri or sat?', which gives options 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm and a deadline of Thu 13:00 (first option - 6h). This 4h window was chosen on purpose: Nudge A (50% = 11:00) and Nudge B (~2h before the deadline = 11:00) are due at the same moment, so the spec's merge rule applies and only one unprompted group message goes out ('4 of 5 have picked. Still need Sam, so I'm giving them a quick call (they said that's ok)'). Sam gives a name ('otto i'm sam') and opts in to calls, then goes silent. The scripted phone answer 'uh yeah friday works, saturday i'm busy' maps through the same grammar to Thu unknown, Fri yes, Sat no. Sam is the last pending member, so the call result completes 'everyone answered' and the lock is prompted (result of an announced call). Gabe's bare 'down' is all = yes (low confidence, rule 7). Lily's 'the second one works' is an index reference. Lily's quoted 'friday works' after the lock is chatter.",
+  "notes": "Tests the escalation ladder up to an opt-in phone call (DATE_FINDING §6, PRIVACY §6/§10). The story needs a non-Monday start. The chat is first seen on Wed Oct 21 19:30 (pre-plan chatter, so the intro happens 13h before anything else). The plan is started on Thu Oct 22 09:00 with 'dinner tonight, fri or sat?', which gives options 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm and a deadline of Thu 13:00 (first option - 6h). This 4h window was chosen on purpose: Nudge A (50% = 11:00) and Nudge B (~2h before the deadline = 11:00) are due at the same moment, so the spec's merge rule applies and only one unprompted group message goes out ('4 of 5 have picked. Still need Sam, so I'm giving them a quick call (they said that's ok)'). Sam gives a name ('homi i'm sam') and opts in to calls, then goes silent. The scripted phone answer 'uh yeah friday works, saturday i'm busy' maps through the same grammar to Thu unknown, Fri yes, Sat no. Sam is the last pending member, so the call result completes 'everyone answered' and the lock is prompted (result of an announced call). Gabe's bare 'down' is all = yes (low confidence, rule 7). Lily's 'the second one works' is an index reference. Lily's quoted 'friday works' after the lock is chatter.",
   "tz": "America/New_York",
   "start": "2026-10-21T19:30:00-04:00",
   "surface": "sim",
@@ -17,9 +17,9 @@
     {"t": "+2m", "from": "omar", "text": "dying. 3 psets due fri 💀", "label": {"intent": "chatter", "food": false}},
     {"t": "+1m", "from": "gabe", "text": "same. lets figure it out tmrw", "label": {"intent": "chatter", "food": false}},
     {"ff": "13h"},
-    {"t": "+27m", "from": "rina", "text": "@otto dinner tonight, fri or sat?", "label": {"intent": "plan", "food": false}},
-    {"t": "+2m", "from": "sam", "text": "otto i'm sam", "label": {"intent": "command", "food": false}},
-    {"t": "+1m", "from": "sam", "text": "otto you can call me, i never check this chat lol", "label": {"intent": "command", "food": false}},
+    {"t": "+27m", "from": "rina", "text": "@homi dinner tonight, fri or sat?", "label": {"intent": "plan", "food": false}},
+    {"t": "+2m", "from": "sam", "text": "homi i'm sam", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "sam", "text": "homi you can call me, i never check this chat lol", "label": {"intent": "command", "food": false}},
     {"t": "+5m", "from": "omar", "text": "tonight's bad for me, fri or sat works", "label": {"intent": "vote", "food": false, "votes": {"thu": "no", "fri": "yes", "sat": "yes"}}},
     {"t": "+3m", "from": "gabe", "text": "down 🫡", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "yes", "sat": "yes"}}},
     {"t": "+4m", "from": "lily", "text": "the second one works, sat i might have a thing", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "maybe"}}},
@@ -29,10 +29,10 @@
     {"ff": "2h"},
     {"t": "+5m", "from": "lily", "text": "sam really said 'friday works' to a robot on the phone lmaooo", "label": {"intent": "chatter", "food": false}},
     {"t": "+2m", "from": "sam", "text": "lol sorry my phone lives on dnd 🫠", "label": {"intent": "chatter", "food": false}},
-    {"t": "+3m", "from": "rina", "text": "otto place: lily's apartment", "label": {"intent": "command", "food": false}},
+    {"t": "+3m", "from": "rina", "text": "homi place: lily's apartment", "label": {"intent": "command", "food": false}},
     {"t": "+2m", "from": "omar", "text": "if anyone needs a ride text me 6175550177", "label": {"intent": "chatter", "food": false}},
-    {"t": "+3m", "from": "gabe", "text": "otto add to calendar", "label": {"intent": "command", "food": false}},
-    {"t": "+1m", "from": "rina", "text": "otto what do you know", "label": {"intent": "command", "food": false}},
+    {"t": "+3m", "from": "gabe", "text": "homi add to calendar", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "rina", "text": "homi what do you know", "label": {"intent": "command", "food": false}},
     {"ff": "2h"}
   ],
   "expect": {
@@ -44,13 +44,13 @@
     "otherChecks": [
       "Wednesday-evening chatter (no plan) gets only the one-time intro; 'due fri' is not read as anything.",
       "Options: Thu Oct 22 7pm ('tonight'), Fri Oct 23 7pm, Sat Oct 24 7pm; the lock time is announced as 1pm today.",
-      "'otto you can call me' is acknowledged and stored as a per-plan opt-in for Sam only.",
+      "'homi you can call me' is acknowledged and stored as a per-plan opt-in for Sam only.",
       "At Thu 11:00 exactly one group message announces both the collective status and the call to Sam (Nudge A and Nudge B merged), and it is sent BEFORE or together with the call action in the same applyEvent result.",
       "The call's dynamic variables contain only the open question and options (e.g. 'Does Thursday at 7, Friday at 7 or Saturday at 7 work?'), never other members' names, the group name or chat text.",
-      "Sam's phone answer is read as Fri yes, Sat no, Thu unknown. Otto posts a call-result line like 'Sam's in for Fri (by phone)', and the plan locks Fri Oct 23 7pm with 5 in (prompted, not a deadline lock).",
+      "Sam's phone answer is read as Fri yes, Sat no, Thu unknown. Homi posts a call-result line like 'Sam's in for Fri (by phone)', and the plan locks Fri Oct 23 7pm with 5 in (prompted, not a deadline lock).",
       "Nothing fires at the 13:00 deadline (the job was cancelled by the early lock).",
       "Lily's quoted 'friday works' after the lock is not processed as a vote.",
-      "'otto what do you know' lists the plan (dinner, options, chosen Fri 7pm, place lily's apartment, names given: Sam, nudges/calls sent, deletion time) and offers 'otto forget'; it never prints Sam's phone number or any message text.",
+      "'homi what do you know' lists the plan (dinner, options, chosen Fri 7pm, place lily's apartment, names given: Sam, nudges/calls sent, deletion time) and offers 'homi forget'; it never prints Sam's phone number or any message text.",
       "Each member is nudged at most 2 times per plan; only Sam is nudged (the merged collective mention plus the call), and Sam is called exactly once.",
       "6175550177 never appears in any log line, and Sam's delivery handle never appears in logs or group messages."
     ]

@@ -14,6 +14,7 @@ import { type Step, P, availabilityOpen, cancel, defer, howOf, planOf, purgePlan
 import { lockOption } from './lock.js';
 import { afterVote, applyParsed } from './availability.js';
 import { closePlaces, startSearch } from './place.js';
+import { EXTENSIONS } from '../ext/index.js';
 
 type Timer = Extract<EngineEvent, { kind: 'timer' }>;
 
@@ -167,6 +168,10 @@ function remindHour(st: Step): void {
 export function onTimer(st: Step, ev: Timer): void {
   const p = planOf(st);
   if (!p || ev.planId !== p.id) return;
+  if (ev.job === 'ext') {
+    const x = EXTENSIONS.find((e) => e.name === ev.payload?.ext);
+    return x?.onTimer?.(st, ev);
+  }
   const now = st.ctx.now;
   switch (ev.job) {
     case 'availability_nudge': return availabilityNudge(st);

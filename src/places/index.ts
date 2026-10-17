@@ -11,7 +11,7 @@
 // The neighborhood string is geocoded locally (geo.ts) and never leaves the server.
 //
 // `source` values: 'google' | 'osm' | 'fallback' (Google failed, snapshot used: say so in
-// "otto why") | 'no-coverage' (known neighborhood, but the snapshot has nothing near it) |
+// "homi why") | 'no-coverage' (known neighborhood, but the snapshot has nothing near it) |
 // 'unknown-neighborhood' (ask the group to pick a neighborhood).
 
 import type { PlacesQuery } from '../engine/types.js';

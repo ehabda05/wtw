@@ -9,7 +9,7 @@
 //  - mention metadata (message.mentions[].address === our line) -> mentionsAgent.
 // Local (platform 'local_imessage'):
 //  - replies are wrapped with a stub target: unwrapped; send via space.send (message.reply is a no-op).
-//  - allowlist: a chat that never had an Otto trigger is dropped before anything is logged.
+//  - allowlist: a chat that never had a Homi trigger is dropped before anything is logged.
 
 import type { Capabilities, Surface } from '../engine/types.js';
 import type { Config } from '../config.js';
@@ -111,9 +111,9 @@ export function normalizeImessageCloud(space: SpaceLike & { phone?: unknown; typ
   return { inbound: { ...base, kind: 'other', from, mentionsAgent: false }, membershipChanged: false, addedSelf: false };
 }
 
-/** Default allowlist trigger for local iMessage: Otto's name or a slash command. */
+/** Default allowlist trigger for local iMessage: Homi's name or a slash command. */
 export function defaultLocalTrigger(text: string): boolean {
-  return /\botto\b/i.test(text) || /^\s*\/(plan|otto|start)\b/i.test(text);
+  return /\bhomi\b/i.test(text) || /^\s*\/(plan|homi|start)\b/i.test(text);
 }
 
 export interface LocalNormalizeOptions {
@@ -126,7 +126,7 @@ export interface LocalNormalizeOptions {
 export function normalizeImessageLocal(space: SpaceLike & { type?: unknown }, message: MessageLike, opts: LocalNormalizeOptions): ChannelInbound | null {
   const { inner, replyTo } = unwrapReply(message.content);
   const text = (inner.type === 'text' || inner.type === 'markdown') && typeof inner.text === 'string' ? inner.text : undefined;
-  // Allowlist BEFORE anything else (no logging): unknown chats need an explicit Otto trigger.
+  // Allowlist BEFORE anything else (no logging): unknown chats need an explicit Homi trigger.
   if (!opts.isKnown(space.id)) {
     if (text === undefined || !(opts.isTrigger ?? defaultLocalTrigger)(text)) return null;
   }

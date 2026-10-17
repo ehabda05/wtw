@@ -76,7 +76,7 @@ export interface VoiceDeps {
   now(): number;
   scheduleTimeout?(fn: () => void, ms: number): unknown;
   fetch?: typeof fetch;
-  /** Inbound "call Otto to RSVP" lookup (webhook mode). Without it every inbound call is rejected. */
+  /** Inbound "call Homi to RSVP" lookup (webhook mode). Without it every inbound call is rejected. */
   lookupByPhone?(phone: string): Promise<InboundCallTarget | null>;
   /** Redacted operational log. Lines never contain numbers, names, questions or answers. */
   log?(line: string): void;

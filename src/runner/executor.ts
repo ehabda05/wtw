@@ -8,6 +8,7 @@ import { shortKey } from '../privacy/ids.js';
 import { silentLogger, type Logger } from '../privacy/logger.js';
 import type { Repo } from '../store/repo.js';
 import type { PlacesService, VoiceService } from './services.js';
+import type { ActionHandler } from './handlers/types.js';
 
 export interface ExecContext {
   spaceKey: SpaceKey;
@@ -26,7 +27,7 @@ export interface ExecContext {
 
 export interface ExecOutcome {
   followUps: EngineEvent[];
-  /** Otto left or tombstoned this space: the caller must not persist it again. */
+  /** Homi left or tombstoned this space: the caller must not persist it again. */
   left: boolean;
 }
 
@@ -45,8 +46,10 @@ export interface ExecutorDeps {
   places?: PlacesService;
   voice?: VoiceService;
   placesTimeoutMs?: number;
-  /** Called for every message Otto sends (the runner keeps an LRU of Otto refs; the sim tags its transcript). */
+  /** Called for every message Homi sends (the runner keeps an LRU of Homi refs; the sim tags its transcript). */
   onSent?: (info: SentInfo) => void;
+  /** Extension action handlers (travel, payments, album): src/runner/handlers. */
+  handlers?: ActionHandler[];
 }
 
 export class TimeoutError extends Error {
@@ -79,6 +82,7 @@ export class Executor {
   readonly #voice?: VoiceService;
   readonly #placesTimeoutMs: number;
   readonly #onSent?: (info: SentInfo) => void;
+  readonly #handlers: ActionHandler[];
 
   constructor(deps: ExecutorDeps) {
     this.#repo = deps.repo;
@@ -87,6 +91,7 @@ export class Executor {
     this.#voice = deps.voice;
     this.#placesTimeoutMs = deps.placesTimeoutMs ?? 3000;
     this.#onSent = deps.onSent;
+    this.#handlers = deps.handlers ?? [];
   }
 
   async execute(actions: Action[], ctx: ExecContext): Promise<ExecOutcome> {
@@ -291,8 +296,9 @@ export class Executor {
         return;
       }
       default: {
-        const never: never = action;
-        this.#log.warn('executor: unknown action', { action: (never as { type?: string }).type });
+        const h = this.#handlers.find((x) => x.types.includes(action.type));
+        if (h) return h.run(action, ctx, out);
+        this.#log.warn('executor: no handler for action', { action: action.type });
       }
     }
   }

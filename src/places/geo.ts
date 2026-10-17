@@ -286,7 +286,7 @@ const MIDPOINT_PREFIX =
 const SPLITTER = /\s+(?:\+|&|and|\/)\s+|\s*\+\s*|\s*\/\s*/;
 
 /**
- * Neighborhood text -> centroid, or null if we don't know it (Otto then asks the group to
+ * Neighborhood text -> centroid, or null if we don't know it (Homi then asks the group to
  * pick from the list; we never call out to a geocoder).
  * "A + B", "A and B", "between A and B" -> midpoint, labeled "halfway between A and B".
  */
@@ -333,7 +333,7 @@ function midpointOf(hoods: Neighborhood[]): GeoPoint {
   return { lat: Number(lat.toFixed(7)), lon: Number(lon.toFixed(7)), label, midpoint: true, ids: hoods.map((h) => h.id) };
 }
 
-/** Labels Otto can offer when a neighborhood is unknown ("Which neighborhood? Harvard Sq, Allston, ..."). */
+/** Labels Homi can offer when a neighborhood is unknown ("Which neighborhood? Harvard Sq, Allston, ..."). */
 export function knownNeighborhoods(): string[] {
   return NEIGHBORHOODS.map((h) => h.label);
 }

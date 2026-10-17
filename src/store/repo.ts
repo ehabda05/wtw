@@ -210,7 +210,7 @@ export class Repo {
     this.tx(() => this.#deletePlanRows(planId));
   }
 
-  /** Delete every row for a space (after Otto left). */
+  /** Delete every row for a space (after Homi left). */
   deleteSpace(spaceKey: SpaceKey): void {
     this.tx(() => {
       const plans = this.db.prepare('SELECT plan_id FROM plans WHERE space_key = ?').all(spaceKey) as { plan_id: string }[];

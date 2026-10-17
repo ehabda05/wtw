@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Otto Motion Demo</title>
+<title>Whats the Word Demo</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="phone.css">
 </head>
 <body>
 <!--
-  Otto motion demo. Driven entirely by script.json (see README.md in this folder).
+  Whats the Word motion demo (the agent is Homi). Driven entirely by script.json (see README.md in this folder).
   URL params: ?layout=vertical|landscape  &t=12000 (start at ms)  &render=1 (no playback, no controls)
   window.__seek(ms) renders the exact frame for time ms. Open through a local server
   (node story/render/serve.mjs) so the page can fetch script.json.
@@ -20,10 +20,10 @@
 
     <aside class="side side-left">
       <div class="brand">
-        <div class="mark av otto" data-otto-face></div>
+        <div class="mark av homi" data-homi-face></div>
         <div>
-          <div class="word">Otto</div>
-          <div class="sub">The friend who makes plans happen, then forgets.</div>
+          <div class="word">Whats the Word</div>
+          <div class="sub">Homi, the friend who makes plans happen.</div>
         </div>
       </div>
       <ol class="chapters" id="chapters"></ol>
@@ -77,9 +77,9 @@
             <div class="who" id="callWho">
               <div class="ring-wrap">
                 <div class="ring"></div><div class="ring"></div><div class="ring"></div>
-                <div class="big-av av otto" data-otto-face></div>
+                <div class="big-av av homi" data-homi-face></div>
               </div>
-              <div class="cname" id="callName">Otto</div>
+              <div class="cname" id="callName">Homi</div>
               <div class="cnum" id="callNum">(617) 555-01xx</div>
               <div class="cstate" id="callState">incoming call</div>
             </div>
@@ -99,6 +99,21 @@
             <div class="sim" id="callNote"><svg width="12" height="12" viewBox="0 0 24 22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M2 8h4l6-5v16l-6-5H2z" fill="currentColor"/></svg><span id="callNoteText">Simulated call audio</span></div>
           </div>
 
+          <div class="album" id="album">
+            <div class="nav">
+              <div class="bk"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg><span>the crew</span></div>
+              <div>Share</div>
+            </div>
+            <div class="head">
+              <div class="mo"><svg width="11" height="13" viewBox="0 0 11 13" fill="currentColor"><path d="M2.5 5.5V4a3 3 0 0 1 6 0v1.5h.5a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1zm1.5 0h3V4a1.5 1.5 0 0 0-3 0z"/></svg><span id="albumHeader">Members only</span></div>
+              <div class="atitle" id="albumTitle">Ramen night · Fri Oct 23</div>
+              <div class="asub" id="albumSub"></div>
+            </div>
+            <div class="grid" id="albumGrid"></div>
+            <div class="afoot" id="albumFoot"></div>
+            <div class="toast" id="albumToast"></div>
+          </div>
+
           <div class="homebar"></div>
         </div>
       </div>
@@ -109,11 +124,20 @@
       <div class="caption" id="caption"></div>
     </div>
 
+    <div class="titlecard" id="titlecard">
+      <div class="inner">
+        <div class="tmark av homi" data-homi-face id="tMark"></div>
+        <div class="ttitle" id="tTitle">Whats the Word</div>
+        <div class="tline" id="tLine"></div>
+      </div>
+    </div>
+
     <div class="endcard" id="endcard">
       <div class="inner">
         <div class="left">
-          <div class="emark av otto" data-otto-face id="eMark"></div>
-          <div class="etitle" id="eTitle">Otto</div>
+          <div class="emark av homi" data-homi-face id="eMark"></div>
+          <div class="etitle" id="eTitle">Whats the Word</div>
+          <div class="ename" id="eName"></div>
           <div class="eline" id="eLine"></div>
           <div class="etag" id="eTag"></div>
           <div class="badge" id="eBadge"></div>
@@ -135,6 +159,7 @@
 </div>
 <div id="err"></div>
 
+<script src="photos.js"></script>
 <script src="timeline.js"></script>
 </body>
 </html>

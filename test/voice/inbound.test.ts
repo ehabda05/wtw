@@ -6,7 +6,7 @@ import { signPayload } from '../../src/voice/webhook.js';
 const KEY = 'key_inbound_test';
 const NOW = 1_792_000_000_000;
 const MEMBER = '+16175550142';
-const QUESTION = "Hi, it's Otto, thanks for calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
+const QUESTION = "Hi, it's Homi, thanks for calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
 
 function inboundBody(from: string | null = MEMBER, event = 'call_inbound'): string {
   return JSON.stringify({

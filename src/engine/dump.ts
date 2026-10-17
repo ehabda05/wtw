@@ -1,4 +1,4 @@
-// PRIVACY.md §8: "otto what do you know". Built from the same GroupState that the purge deletes, so the dump
+// PRIVACY.md §8: "homi what do you know". Built from the same GroupState that the purge deletes, so the dump
 // cannot drift from what is stored. Prints decrypted plan fields only: never member keys, plan ids, message
 // ids or ciphertext (it says how many message IDs it holds, never which).
 
@@ -8,6 +8,8 @@ import { TEMPLATES as T } from './templates.js';
 import { activeOptions, counts, tallyLine } from './schedule.js';
 import { clean, relLabel } from './util.js';
 import { cuisineLabel, rankedCuisines } from './hungry.js';
+import { EXTENSIONS } from './ext/index.js';
+
 
 const STATE_LABEL: Record<string, string> = {
   idle: 'no plan',
@@ -27,7 +29,9 @@ export function dump(state: GroupState, now?: number): string {
   const inner = `tone ${sp.tone}, time zone ${sp.tz}, notice ${sp.notice ? 'on' : 'off'}`;
   const settings = `settings (${inner})`;
   const p = state.plan as EnginePlan | null;
-  if (!p) return T.dumpNoPlan({ settings: `settings only (${inner})` });
+  const ext = EXTENSIONS.flatMap((x) => x.dump?.(state, now ?? 0) ?? []);
+  if (!p && !ext.length) return T.dumpNoPlan({ settings: `settings only (${inner})` });
+  if (!p) return T.dumpPlan({ parts: [`settings (${inner})`, ...ext].join(' · ') });
   const at = now ?? p.updatedAt;
   const parts: string[] = [settings];
   parts.push(`plan "${p.activity}"${p.windowLabel ? ` (${p.windowLabel})` : ''}, ${STATE_LABEL[p.state] ?? p.state}`);
@@ -70,6 +74,7 @@ export function dump(state: GroupState, now?: number): string {
     if (h.options.length && h.phase !== 'done') parts.push(`place options ${h.options.map((o) => clean(o.name)).join(', ')}`);
   }
   if (p.remindReq30) parts.push('30-minute reminder requested');
+  parts.push(...ext);
   parts.push(`${p.nudges.length} ${p.nudges.length === 1 ? 'nudge' : 'nudges'} sent`);
   parts.push(p.purgeAt ? `deletes ${relLabel(p.purgeAt, at, sp.tz)}` : 'deletes 24h after the event');
   return T.dumpPlan({ parts: parts.join(' · ') });

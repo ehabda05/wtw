@@ -8,12 +8,12 @@ import { Sealer } from '../../src/privacy/crypto.js';
 import { Ids } from '../../src/privacy/ids.js';
 import { createLogger, type Logger, type LogSink } from '../../src/privacy/logger.js';
 import { FakeClock } from '../../src/runner/clock.js';
-import { Runner } from '../../src/runner/runner.js';
+import { Runner, type RunnerDeps } from '../../src/runner/runner.js';
 import type { EngineApi, PlacesService, VoiceService } from '../../src/runner/services.js';
 import { openDatabase } from '../../src/store/db.js';
 import { Repo } from '../../src/store/repo.js';
 
-export const INTRO = "Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group.";
+export const INTRO = "Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group.";
 
 export type Handler = (state: GroupState, event: EngineEvent, ctx: Ctx) => Action[] | void;
 
@@ -33,7 +33,7 @@ export function fakeEngine(on?: Handler): FakeEngine {
       return { space: { spaceKey, introSent: false, tone: 'normal', tz, notice: false, muted: false }, plan: null };
     },
     detectAddressed(text: string): boolean {
-      return /\botto\b/i.test(text) || /^\s*\//.test(text);
+      return /\bhomi\b/i.test(text) || /^\s*\//.test(text);
     },
     applyEvent(state: GroupState, event: EngineEvent, ctx: Ctx) {
       events.push(event);
@@ -160,6 +160,8 @@ export interface EnvOptions {
   dbPath?: string;
   logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent';
   placesTimeoutMs?: number;
+  /** Extra Runner deps (e.g. repairWithLlm, repairTimeoutMs, extraNames). */
+  runnerDeps?: Partial<RunnerDeps>;
 }
 
 export const SALT = 'test-salt-0123456789abcdef';
@@ -189,6 +191,7 @@ export function makeEnv(opts: EnvOptions = {}): Env {
     voice: opts.voice,
     newId: () => `id-${++n}`,
     placesTimeoutMs: opts.placesTimeoutMs,
+    ...opts.runnerDeps,
   });
   return { repo, ids, clock, runner, adapter, engine, sealer, logger, lines, dataKey };
 }

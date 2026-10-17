@@ -1,10 +1,10 @@
-// Tiny node:http server: GET /health, POST /voice/retell, POST /voice/inbound. 404 otherwise.
-// Raw bodies go straight to the VoiceService handlers (signature checks need the exact bytes). Bodies and
-// headers are never logged.
+// Tiny node:http server: GET /health, POST /voice/retell, POST /voice/inbound, GET /a/<albumId>[/<photoId>]
+// (shared album, docs/ALBUM.md). 404 otherwise. Bodies, headers and album paths are never logged.
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { silentLogger, type Logger } from '../privacy/logger.js';
 import type { VoiceService } from '../runner/services.js';
+import type { AlbumGallery } from '../album/gallery.js';
 
 export const MAX_BODY_BYTES = 1_000_000;
 
@@ -13,6 +13,8 @@ export interface HttpDeps {
   logger?: Logger;
   /** Extra fields for /health (never personal data). */
   health?: () => Record<string, unknown>;
+  /** Shared-album gallery (galleryFor(ext.photoStore) from src/album). Unset = album links 404. */
+  album?: AlbumGallery;
 }
 
 function readBody(req: IncomingMessage, limit = MAX_BODY_BYTES): Promise<string> {
@@ -69,10 +71,21 @@ export function createHttpHandler(deps: HttpDeps) {
         log.info('http: voice webhook', { path, status: out.status });
         return;
       }
+      if ((req.method === 'GET' || req.method === 'HEAD') && (path === '/a' || path.startsWith('/a/'))) {
+        // Capability links: the album id is the secret, so the path is never logged.
+        const out = deps.album ? await deps.album.handle(path) : null;
+        if (!out) {
+          send(res, 404, JSON.stringify({ error: 'not found' }));
+          return;
+        }
+        res.writeHead(out.status, out.headers);
+        res.end(req.method === 'HEAD' ? undefined : out.body);
+        return;
+      }
       send(res, 404, JSON.stringify({ error: 'not found' }));
     } catch (err) {
       const status = (err as { status?: number }).status ?? 500;
-      log.warn('http: request failed', { path, status, err });
+      log.warn('http: request failed', { path: path.startsWith('/a/') ? '/a/:album' : path, status, err });
       if (!res.headersSent) send(res, status, JSON.stringify({ error: status === 413 ? 'body too large' : 'internal error' }));
       else res.end();
     }

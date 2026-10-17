@@ -36,7 +36,7 @@ for (const handlePurgeTimer of [true, false]) {
     const env = makeEnv({ engine: planningEngine(handlePurgeTimer) });
     const scheduler = new Scheduler({ repo: env.repo, runner: env.runner, clock: env.clock, retention: new Retention(env.repo, env.logger), logger: env.logger });
     scheduler.start();
-    await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto dinner tonight'));
+    await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi dinner tonight'));
     await env.runner.handleInbound(textIn('g1', 'persona:ben', 'sounds good'));
     const before = env.repo.counts();
     assert.equal(before.plans, 1);

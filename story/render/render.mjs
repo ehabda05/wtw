@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deterministic frame capture + encode for the Otto motion demo.
+// Deterministic frame capture + encode for the Whats the Word motion demo (agent: Homi).
 //
 //   node story/render/render.mjs                       # both MP4s + posters, frames deleted after
 //   node story/render/render.mjs --only=vertical       # one layout
@@ -9,8 +9,9 @@
 //   node story/render/render.mjs --deck-stills         # PNG of every deck slide to story/out/stills
 //   node story/render/render.mjs --poster=19400        # time (ms) used for the poster PNGs
 //
-// Tools are NOT installed in the project (Windows MAX_PATH). They live in OTTO_TOOLS
-// (default C:\Users\<you>\AppData\Local\Temp\otto-story-tools) with playwright-core and ffmpeg-static.
+// Tools are NOT installed in the project (Windows MAX_PATH). They live in HOMI_TOOLS, else the first of
+// %TEMP%\homi-story-tools or %TEMP%\otto-story-tools (the pre-rename folder) that has node_modules,
+// with playwright-core and ffmpeg-static.
 // Browser: installed Microsoft Edge (EDGE_PATH to override). ffmpeg: FFMPEG env, else ffmpeg-static,
 // else ffmpeg on PATH.
 import { createRequire } from 'node:module';
@@ -23,17 +24,20 @@ import { startServer, STORY_ROOT } from './serve.mjs';
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => { const m = /^--([^=]+)(?:=(.*))?$/.exec(a); return m ? [m[1], m[2] ?? true] : [a, true]; }),
 );
-const TOOLS = process.env.OTTO_TOOLS || join(os.homedir(), 'AppData', 'Local', 'Temp', 'otto-story-tools');
+const TMP = join(os.homedir(), 'AppData', 'Local', 'Temp');
+const TOOLS = process.env.HOMI_TOOLS
+  || ['homi-story-tools', 'otto-story-tools'].map((d) => join(TMP, d)).find((d) => existsSync(join(d, 'node_modules')))
+  || join(TMP, 'homi-story-tools');
 const requireTools = createRequire(join(TOOLS, 'package.json'));
 const { chromium } = requireTools('playwright-core');
 
 const OUT = join(STORY_ROOT, 'out');
 const FPS = Number(args.fps || 30);
 const LAYOUTS = {
-  vertical: { w: 1080, h: 1920, file: 'otto-phone-1080x1920.mp4', poster: 'otto-poster-1080x1920.png' },
-  landscape: { w: 1920, h: 1080, file: 'otto-demo-1920x1080.mp4', poster: 'otto-poster-1920x1080.png' },
+  vertical: { w: 1080, h: 1920, file: 'homi-phone-1080x1920.mp4', poster: 'homi-poster-1080x1920.png' },
+  landscape: { w: 1920, h: 1080, file: 'homi-demo-1920x1080.mp4', poster: 'homi-poster-1920x1080.png' },
 };
-const POSTER_T = Number(args.poster || 19400);
+const POSTER_T = Number(args.poster || 81500); // the bill-split card (Act 3)
 
 function findEdge() {
   const c = [
@@ -66,8 +70,8 @@ async function openLayout(browser, base, name) {
   const page = await browser.newPage({ viewport: { width: L.w, height: L.h }, deviceScaleFactor: 1 });
   page.on('console', (m) => { if (m.type() === 'warning' || m.type() === 'error') console.log(`[${name}] ${m.text()}`); });
   await page.goto(`${base}/motion/index.html?layout=${name}&render=1`);
-  await page.waitForFunction(() => window.__otto && (window.__otto.ready || window.__otto.error));
-  const info = await page.evaluate(() => window.__otto);
+  await page.waitForFunction(() => window.__homi && (window.__homi.ready || window.__homi.error));
+  const info = await page.evaluate(() => window.__homi);
   if (!info.ready) throw new Error(`motion page failed: ${info.error}`);
   // Raw CDP screenshots are several times faster than page.screenshot() for long frame runs.
   const cdp = await page.context().newCDPSession(page).catch(() => null);
@@ -142,7 +146,9 @@ async function deckStills(browser, base) {
   const dir = join(OUT, 'stills');
   mkdirSync(dir, { recursive: true });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  for (let i = 1; i <= 8; i++) {
+  await page.goto(`${base}/deck/index.html`);
+  const count = await page.evaluate(() => document.querySelectorAll('.slide').length);
+  for (let i = 1; i <= count; i++) {
     await page.goto(`${base}/deck/index.html?s=${i}#${i}`);
     await page.waitForFunction(() => window.__deckReady === true);
     await page.waitForTimeout(400);
@@ -169,7 +175,7 @@ try {
     const fr = join(OUT, 'frames');
     if (!args['keep-frames'] && existsSync(fr) && readdirSync(fr).length === 0) rmSync(fr, { recursive: true, force: true });
     // the vertical poster doubles as the generic poster
-    if (existsSync(join(OUT, LAYOUTS.vertical.poster))) copyFileSync(join(OUT, LAYOUTS.vertical.poster), join(OUT, 'otto-poster.png'));
+    if (existsSync(join(OUT, LAYOUTS.vertical.poster))) copyFileSync(join(OUT, LAYOUTS.vertical.poster), join(OUT, 'homi-poster.png'));
   }
 } finally {
   await browser.close();

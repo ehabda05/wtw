@@ -122,6 +122,31 @@ export function stubMessage(id: string): MessageLike {
   return { id, content: { type: 'text', text: '' } };
 }
 
+// ───────────── inbound photos (shared album) ─────────────
+
+const IMAGE_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic']);
+export const MAX_INBOUND_PHOTO_BYTES = 10 * 1024 * 1024;
+
+/** Image attachments of a message (a reply is unwrapped; a group yields its images and first text). Pure. */
+export function imageAttachments(c: ContentLike): { items: ContentLike[]; caption?: string; replyTo?: string } {
+  const replyTo = c.type === 'reply' ? c.target?.id : undefined;
+  const inner = c.type === 'reply' && c.content ? c.content : c;
+  const parts = inner.type === 'group' && inner.items ? inner.items.map((it) => it.content).filter((x): x is ContentLike => !!x) : [inner];
+  const items = parts.filter(
+    (p) => p.type === 'attachment' && typeof p.mimeType === 'string' && IMAGE_TYPES.has(p.mimeType.split(';')[0].trim().toLowerCase()) && typeof p.read === 'function',
+  );
+  const caption = parts.find((p) => (p.type === 'text' || p.type === 'markdown') && typeof p.text === 'string')?.text;
+  return { items, ...(caption ? { caption } : {}), ...(replyTo ? { replyTo: String(replyTo) } : {}) };
+}
+
+/** Reads one image attachment into memory (never to disk here); null when it is over 10 MB. */
+export async function readImage(att: ContentLike): Promise<{ mime: string; bytes: Uint8Array } | null> {
+  if (typeof att.size === 'number' && att.size > MAX_INBOUND_PHOTO_BYTES) return null;
+  const bytes = await (att.read as () => Promise<Uint8Array>)();
+  if (!bytes || bytes.byteLength === 0 || bytes.byteLength > MAX_INBOUND_PHOTO_BYTES) return null;
+  return { mime: String(att.mimeType), bytes };
+}
+
 /**
  * Base ChannelAdapter over a spectrum-ts platform. Subclasses set surface/caps and may override outbound methods.
  */
@@ -166,8 +191,29 @@ export abstract class SpectrumChannel implements ChannelAdapter {
     if (message) this.cache.messages.set(message.id, message);
   }
 
+  /**
+   * Hands a normalized message to the runner. Image attachments (album photos) become kind 'photo' with the bytes
+   * read in memory only (one inbound per image, max 10 per message); the runner passes them straight to the store.
+   */
   async deliver(m: ChannelInbound): Promise<void> {
-    if (this.onInbound) await this.onInbound(m);
+    if (!this.onInbound) return;
+    const msg = (m.kind === 'text' || m.kind === 'other') && m.from ? this.cache.messages.get(m.msgId) : undefined;
+    const found = msg ? imageAttachments(msg.content) : undefined;
+    if (!found?.items.length) return this.onInbound(m);
+    let n = 0;
+    for (const att of found.items.slice(0, 10)) {
+      const photo = await readImage(att).catch((err: unknown) => {
+        this.log.warn('spectrum: photo attachment unreadable', { surface: this.surface, err });
+        return null;
+      });
+      if (!photo) continue;
+      const text = m.text ?? found.caption;
+      const k = n++;
+      await this.onInbound({
+        ...m, kind: 'photo', msgId: k === 0 ? m.msgId : `${m.msgId}:${k}`, photo,
+        ...(text ? { text } : {}), ...(m.replyTo ?? found.replyTo ? { replyTo: m.replyTo ?? found.replyTo } : {}),
+      });
+    }
   }
 
   protected async space(spaceId: string): Promise<SpaceLike> {

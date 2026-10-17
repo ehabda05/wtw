@@ -1,4 +1,4 @@
--- Otto storage (docs/ARCHITECTURE.md "Storage", docs/PRIVACY.md "What Otto stores").
+-- Homi storage (docs/ARCHITECTURE.md "Storage", docs/PRIVACY.md "What Homi stores").
 --
 -- There is NO column anywhere that can hold message text (test/store/schema.test.ts proves it):
 --   * every plaintext TEXT column is an HMAC/SHA-256 hex key, an opaque id without spaces, or an enum,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS spaces (
                   CHECK (surface IN ('sim', 'terminal', 'imessage-shared', 'imessage-dedicated', 'imessage-local', 'telegram')),
   settings_blob   BLOB,                       -- sealed JSON: intro_sent, tone, tz, notice, headcount, current plan id
   space_id_sealed BLOB,                       -- sealed raw platform chat id, only for routing scheduled sends
-  muted           INTEGER NOT NULL DEFAULT 0 CHECK (muted IN (0, 1)),   -- tombstone after stop where Otto cannot leave
+  muted           INTEGER NOT NULL DEFAULT 0 CHECK (muted IN (0, 1)),   -- tombstone after stop where Homi cannot leave
   updated_at      INTEGER NOT NULL
 ) STRICT;
 
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   kind       TEXT    NOT NULL
              CHECK (kind IN ('availability_nudge', 'availability_escalate', 'availability_deadline', 'bridge_timeout',
                              'dates_nudge', 'dates_abandon', 'details_nudge', 'hungry_deadline', 'remind_day',
-                             'remind_hour', 'remind_30', 'complete', 'purge')),
+                             'remind_hour', 'remind_30', 'complete', 'purge', 'ext')),
   due_at     INTEGER NOT NULL,
   status     TEXT    NOT NULL DEFAULT 'pending'
              CHECK (status IN ('pending', 'firing', 'done', 'failed')),

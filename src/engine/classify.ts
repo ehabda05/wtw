@@ -1,6 +1,6 @@
-// classify(): what Otto would make of one message in context, without changing anything. Used by the eval
+// classify(): what Homi would make of one message in context, without changing anything. Used by the eval
 // harness for intent accuracy and food precision/recall. `food` is semantic (eval/FORMAT.md): true for real
-// intent to eat together, a food answer, or a restaurant vote, even when Otto must stay silent (no plan).
+// intent to eat together, a food answer, or a restaurant vote, even when Homi must stay silent (no plan).
 
 import type { Plan } from './types.js';
 import type { Command, EngineHungry, EnginePlan } from './model.js';

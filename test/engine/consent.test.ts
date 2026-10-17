@@ -27,19 +27,19 @@ test('added_to_group triggers the same single intro', () => {
 
 test('before a plan: privacy, what do you know, help and plan/food triggers answer when addressed', () => {
   const h = new Harness({ start: START });
-  const p = h.say('kofi', 'otto privacy');
+  const p = h.say('kofi', 'homi privacy');
   assert.equal(texts(p).length, 2);
   assert.equal(texts(p)[1], T.privacy({ hours: 24 }));
-  assert.match(joined(h.say('kofi', 'otto what do you know')), /settings only .* and no plan/);
-  assert.equal(joined(h.say('kofi', 'otto')), T.help());
-  assert.match(joined(h.say('ana', '@otto dinner next week?')), /Dinner, next week/);
+  assert.match(joined(h.say('kofi', 'homi what do you know')), /settings only .* and no plan/);
+  assert.equal(joined(h.say('kofi', 'homi')), T.help());
+  assert.match(joined(h.say('ana', '@homi dinner next week?')), /Dinner, next week/);
 });
 
-test('otto stop: purge + leave where the channel can leave', () => {
+test('homi stop: purge + leave where the channel can leave', () => {
   const h = new Harness({ start: START });
-  h.say('ana', '@otto dinner next week?');
+  h.say('ana', '@homi dinner next week?');
   const planId = h.plan!.id;
-  const out = h.say('ben', 'otto stop');
+  const out = h.say('ben', 'homi stop');
   assert.ok(out.some((a) => a.type === 'purge' && a.planId === planId));
   assert.ok(out.some((a) => a.type === 'cancel' && a.keyPrefix === `${planId}:`));
   assert.ok(out.some((a) => a.type === 'leave'));
@@ -48,26 +48,26 @@ test('otto stop: purge + leave where the channel can leave', () => {
   assert.equal(h.state.space.introSent, false, 'settings row is deleted too');
 });
 
-test('otto stop where Otto cannot leave: tombstone + "please remove me", then total silence', () => {
+test('homi stop where Homi cannot leave: tombstone + "please remove me", then total silence', () => {
   const h = new Harness({ start: START, surface: 'imessage-local' });
-  h.say('ana', '@otto dinner next week?');
-  const out = h.say('ben', 'otto stop');
+  h.say('ana', '@homi dinner next week?');
+  const out = h.say('ben', 'homi stop');
   assert.ok(out.some((a) => a.type === 'tombstone'));
   assert.ok(!out.some((a) => a.type === 'leave'));
   assert.match(joined(out), /please remove me/);
   assert.equal(h.state.space.muted, true);
-  assert.deepEqual(h.say('ana', '@otto dinner next week?'), []);
+  assert.deepEqual(h.say('ana', '@homi dinner next week?'), []);
   assert.deepEqual(h.apply({ kind: 'added_to_group' }), []);
 });
 
-test('otto forget deletes the plan and stays; jobs are cancelled', () => {
+test('homi forget deletes the plan and stays; jobs are cancelled', () => {
   const h = new Harness({ start: START });
-  h.say('ana', '@otto dinner next week?');
+  h.say('ana', '@homi dinner next week?');
   assert.ok(h.jobs.size > 0);
-  const out = h.say('jo', 'otto forget');
+  const out = h.say('jo', 'homi forget');
   assert.equal(joined(out), T.forgetDone());
   assert.equal(h.plan, null);
   assert.equal(h.jobs.size, 0);
   assert.ok(!out.some((a) => a.type === 'leave'));
-  assert.equal(joined(h.say('jo', 'otto forget')), T.forgetNothing());
+  assert.equal(joined(h.say('jo', 'homi forget')), T.forgetNothing());
 });

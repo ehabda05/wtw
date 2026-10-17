@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Otto Pitch Deck</title>
+<title>Whats the Word Deck</title>
 <!--
-  Otto pitch deck. Single offline file: system fonts, inline SVG, no CDN.
+  Whats the Word pitch deck (the agent is Homi). Single offline file: system fonts, inline SVG, no CDN.
   Keys: Right / Space / PageDown = next, Left / PageUp = back, Home / End, N = speaker notes, P = print mode.
   URL: index.html#3 opens slide 3; index.html?print=1 opens print mode (used for deck.pdf).
   Placeholder still to fill: {{TEAM}}.
@@ -35,7 +35,7 @@
   em { font-style: normal; color: var(--amber); }
   .notes { display: none; }
 
-  /* Otto mark */
+  /* Homi mark (the agent avatar) */
   .mark { border-radius: 50%; background: radial-gradient(circle at 36% 30%, #ffdb8f, #ffb547 52%, #f08c1a 100%); position: relative; flex: none; }
   .mark svg { width: 100%; height: 100%; display: block; }
 
@@ -43,7 +43,7 @@
   .center { position: absolute; left: 80px; right: 80px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
   .s-title .row { display: flex; align-items: center; gap: 34px; }
   .s-title .mark { width: 132px; height: 132px; box-shadow: 0 20px 70px rgba(255,160,40,0.28); }
-  .s-title .name { font-size: 132px; font-weight: 780; letter-spacing: -5px; line-height: 1; }
+  .s-title .name { font-size: 112px; font-weight: 780; letter-spacing: -4px; line-height: 1; white-space: nowrap; }
   .s-title .line { font-size: 36px; line-height: 1.3; font-weight: 600; letter-spacing: -0.8px; color: #efe9e0; margin-top: 44px; max-width: 980px; text-wrap: balance; }
   .s-title .meta { display: flex; gap: 16px; margin-top: 46px; align-items: center; flex-wrap: wrap; }
   .chip { padding: 10px 18px; border-radius: 24px; border: 1.5px solid var(--line); font-size: 18px; font-weight: 600; color: var(--ink-2); }
@@ -108,19 +108,32 @@
   .watch li .k { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,181,71,0.15); color: var(--amber); font-size: 16px; font-weight: 750; display: flex; align-items: center; justify-content: center; transform: translateY(-3px); }
   .s-demo .label { margin-top: 44px; font-size: 15px; color: var(--ink-3); }
 
-  /* ---------- slide 6 ---------- */
+  /* ---------- slide 6 (after the plan) ---------- */
+  .s-after h2 { font-size: 44px; max-width: 1100px; }
+  .s-after .grid { position: absolute; left: 80px; right: 80px; top: 190px; bottom: 62px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; }
+  .s-after .card { position: relative; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); padding: 20px 24px 18px; display: flex; flex-direction: column; }
+  .s-after .card .t { display: flex; align-items: center; gap: 14px; font-size: 27px; font-weight: 720; letter-spacing: -0.6px; }
+  .s-after .card .t i { font-style: normal; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,181,71,0.12); display: flex; align-items: center; justify-content: center; font-size: 23px; }
+  .s-after .card .d { margin-top: 10px; font-size: 17.5px; line-height: 1.42; color: var(--ink-2); letter-spacing: -0.1px; }
+  .s-after .card .st { margin-top: auto; padding-top: 12px; font-size: 14.5px; line-height: 1.4; color: #d8d8de; display: flex; gap: 10px; align-items: baseline; }
+  .s-after .chip2 { flex: none; padding: 3px 9px; border-radius: 9px; font-size: 11.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .s-after .chip2.real { color: #7fe0a6; background: rgba(127,224,166,0.12); box-shadow: inset 0 0 0 1px rgba(127,224,166,0.35); }
+  .s-after .chip2.sim { color: var(--amber); background: rgba(255,181,71,0.12); box-shadow: inset 0 0 0 1px rgba(255,181,71,0.45); }
+  .s-after .chip2.int { color: #9cc3ff; background: rgba(156,195,255,0.10); box-shadow: inset 0 0 0 1px rgba(156,195,255,0.35); }
+
+  /* ---------- slide 7 (privacy) ---------- */
   .s-privacy h2 { font-size: 66px; letter-spacing: -2.4px; }
   .plist { margin-top: 54px; list-style: none; display: flex; flex-direction: column; gap: 24px; }
   .plist li { display: flex; gap: 20px; align-items: baseline; font-size: 28px; line-height: 1.3; color: #e8e8ec; letter-spacing: -0.4px; }
   .plist li::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); transform: translateY(-4px); }
   .plist code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 25px; color: var(--amber); }
 
-  /* ---------- slide 7 ---------- */
+  /* ---------- slide 8 (architecture) ---------- */
   .s-arch h2 { font-size: 46px; }
   .s-arch svg { position: absolute; left: 50px; top: 168px; width: 1180px; height: 480px; }
   .s-arch svg text { font-family: var(--font); }
 
-  /* ---------- slide 8 ---------- */
+  /* ---------- slide 9 (measured + next) ---------- */
   .s-next h2 { font-size: 46px; }
   .s-next .cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 44px; margin-top: 34px; }
   .evalbox { border: 2px dashed rgba(255,181,71,0.45); border-radius: 20px; padding: 18px 22px 16px; background: rgba(255,181,71,0.04); }
@@ -173,17 +186,17 @@
     <div class="event">HackHarvard 2026 · Photon “Build a Messaging Agent” track</div>
     <div class="center">
     <div class="row">
-      <div class="mark" data-otto-face></div>
-      <div class="name">Otto</div>
+      <div class="mark" data-homi-face></div>
+      <div class="name">Whats the Word</div>
     </div>
-    <div class="line">Otto is the friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards.</div>
+    <div class="line">Meet Homi, the friend in your group chat who makes plans happen. It never gets tired, and it forgets everything afterwards.</div>
     <div class="meta">
       <span class="chip">Team: {{TEAM}}</span>
       <span class="chip amber">Built on Photon</span>
     </div>
     </div>
-    <div class="num">1 / 8</div>
-    <aside class="notes">Hi, we're {{TEAM}}. This is Otto, a friend that lives in your group chat and has one job: making the plan actually happen. It finds a date without anyone opening a calendar, picks a place to eat, checks in on the quiet friend, even by phone, and then forgets everything. It runs on Photon.</aside>
+    <div class="num">1 / 9</div>
+    <aside class="notes">Hi, we're {{TEAM}}. This is Whats the Word, and its agent is Homi: a friend that lives in your group chat and has one job, making the plan actually happen. Homi finds a date without anyone opening a calendar, picks a place to eat, checks in on the quiet friend, even by phone, and after the night it splits the bill, keeps the photos and starts the next trip. Then it forgets. It runs on Photon.</aside>
   </section>
 
   <!-- 2. Problem -->
@@ -210,8 +223,8 @@
       <div class="says">Americans aged 15-24 spent 153 minutes a day with friends in person in 2003 — and 67 in 2019.</div>
     </div>
     <div class="foot">Source: Kannan &amp; Veazie, SSM-Population Health 2023 (ATUS 2003-2020)</div>
-    <div class="num">2 / 8</div>
-    <aside class="notes">This is a story about friendship. Friendship runs on time together, and that time is collapsing: Americans aged 15 to 24 spent 153 minutes a day with friends in person in 2003, and 67 in 2019, before COVID. You've lived the reason. Everyone hearts the idea, and six days later, nothing.</aside>
+    <div class="num">2 / 9</div>
+    <aside class="notes">This is a story about friendship. Friendship runs on time together, and that time is collapsing: Americans aged 15 to 24 spent 153 minutes a day with friends in person in 2003, and 67 in 2019, before COVID. You've lived the reason. Everyone hearts the idea, and six days later, nothing. That's the gap Homi fills.</aside>
   </section>
 
   <!-- 3. Why -->
@@ -230,7 +243,7 @@
       <p>36% vs 14% reply when one vs many are asked (Blair et al. 2005).</p>
     </div>
     <div class="foot">Blair, Thompson &amp; Wuensch, Basic &amp; Applied Social Psychology 27(2), 2005: email field experiment, 400 participants. Shown as a mechanism, not a group-chat statistic.</div>
-    <div class="num">3 / 8</div>
+    <div class="num">3 / 9</div>
     <aside class="notes">Why does it keep happening? One person always organizes: a study of students' phone logs found one side is almost twice as likely to reach out. Silence feels like rejection, so nobody chases. Ask everyone at once and fewer answer: 36 percent alone versus 14 in a crowd. And every planning tool pulls you out of the chat.</aside>
   </section>
 
@@ -239,33 +252,63 @@
     <div class="center">
     <div class="kicker">The insight</div>
     <h2>The fix has to live in <em>the chat you already have</em>, and carry the social cost so no human has to.</h2>
-    <div class="sub"><b>Nobody keeps their social life in a calendar.</b> Otto never asks for one.</div>
+    <div class="sub"><b>Nobody keeps their social life in a calendar.</b> Homi never asks for one.</div>
     </div>
-    <div class="num">4 / 8</div>
-    <aside class="notes">So here's our insight. The fix has to live in the chat you already have, and Otto carries the social cost, the nudging and the chasing, so no friend has to. And since nobody keeps their social life in a calendar, Otto never asks for one. It proposes three times, and people just react.</aside>
+    <div class="num">4 / 9</div>
+    <aside class="notes">So here's our insight. The fix has to live in the chat you already have, and Homi carries the social cost, the nudging and the chasing, so no friend has to. And since nobody keeps their social life in a calendar, Homi never asks for one. It proposes three times, and people just react.</aside>
   </section>
 
   <!-- 5. Demo -->
   <section class="slide s-demo" data-title="Live demo">
     <div class="vid">
-      <video src="../out/otto-phone-1080x1920.mp4" poster="../out/otto-poster-1080x1920.png" autoplay loop muted playsinline></video>
-      <img class="print-only" src="../out/otto-poster-1080x1920.png" alt="Otto demo: the group chat with three date options and hearts">
+      <video src="../out/homi-phone-1080x1920.mp4" poster="../out/homi-poster-1080x1920.png" autoplay loop muted playsinline></video>
+      <img class="print-only" src="../out/homi-poster-1080x1920.png" alt="Whats the Word demo: Homi splits the ramen bill in the group chat">
     </div>
     <div class="side">
       <div class="kicker">Live demo</div>
       <h2>Watch for three things.</h2>
       <ul class="watch">
-        <li><span class="k">1</span><span>Hearts and plain replies like “fri or sat works” both count as votes.</span></li>
-        <li><span class="k">2</span><span>The quiet friend gets a short call, only because they opted in, and the group hears first.</span></li>
-        <li><span class="k">3</span><span>Ask what it knows. Tell it to forget.</span></li>
+        <li><span class="k">1</span><span>Hearts and plain replies like “anything but thu” both count as votes.</span></li>
+        <li><span class="k">2</span><span>The quiet friend gets a short call from Homi, only because they opted in, and the group hears first.</span></li>
+        <li><span class="k">3</span><span>After dinner: the bill, the pledge, the album, the next trip. Then ask what it knows, and tell it to forget.</span></li>
       </ul>
-      <div class="label">Video: phone mock-up of the flow. Call audio is simulated.</div>
+      <div class="label">Video: phone mock-up of the flow (2.5 min). Call audio and pledge payments are simulated; trip prices are estimates.</div>
     </div>
-    <div class="num">5 / 8</div>
-    <aside class="notes">Here's the flow in a phone mock-up; the call audio is simulated. Watch three things. Hearts and plain-word replies both count as votes. The quiet friend gets a short call only because they opted in, and the group is told first. And at the end we ask what it knows, then tell it to forget.</aside>
+    <div class="num">5 / 9</div>
+    <aside class="notes">Here's the whole story in a phone mock-up of Whats the Word; the call audio and the pledge payments are simulated. Watch three things. Hearts and plain-word replies both count as votes. The quiet friend gets a short call from Homi only because they opted in, and the group is told first. And after the dinner, Homi splits the bill, settles a show-up pledge, keeps a members-only album and sketches a trip, then we ask what it knows and tell it to forget.</aside>
   </section>
 
-  <!-- 6. Privacy -->
+  <!-- 6. After the plan -->
+  <section class="slide s-after" data-title="After the plan">
+    <div class="kicker">After the plan</div>
+    <h2>Split it, pledge it, keep it, <em>go further</em>.</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="t"><i>🧾</i>Split the bill</div>
+        <div class="d">Itemized receipts, shared plates, tax and tip by share. It adds up to the cent, then says who pays whom across every payer.</div>
+        <div class="st"><span class="chip2 real">In the app</span><span>Math only. No money moves.</span></div>
+      </div>
+      <div class="card">
+        <div class="t"><i>🤝</i>Show-up pledge</div>
+        <div class="d">Optional $10 each, back when you check in. Nothing is held until everyone agrees where no-show money goes; disputes go to a vote.</div>
+        <div class="st"><span class="chip2 sim">Simulated</span><span>Every deposit, refund and forfeit is labeled SIMULATED. Real payments need a provider integration.</span></div>
+      </div>
+      <div class="card">
+        <div class="t"><i>📸</i>Shared album</div>
+        <div class="d">Photos go to an album only the group can open. Anyone can remove their own, and it stays until the group deletes it.</div>
+        <div class="st"><span class="chip2 int">Demo link</span><span>Album flow in the app; real photo hosting needs integration.</span></div>
+      </div>
+      <div class="card">
+        <div class="t"><i>✈️</i>Plan the trip</div>
+        <div class="d">Itinerary and a per-person budget, a comfort upgrade with the price difference explained, and the savings people miss.</div>
+        <div class="st"><span class="chip2 int">Estimates</span><span>Example listings, estimated prices. Live fares and booking need integration.</span></div>
+      </div>
+    </div>
+    <div class="num">6 / 9</div>
+    <aside class="notes">The plan is only half the job. After the night, Homi splits the bill: Ben paid $141.61, and every share adds up to the cent, including Jo's Uber. The optional show-up pledge holds nothing until everyone agrees where no-show money goes; in the demo every payment is labeled simulated, and real money would need a payment provider. Photos go to a members-only album, here with a demo link. And Homi starts the next trip, Japan 2030, with every price labeled as an estimate. Being honest about the status: bill math is real, payments are simulated, album hosting and live travel prices need integration.</aside>
+  </section>
+
+  <!-- 7. Privacy -->
   <section class="slide s-privacy" data-title="Privacy by design">
     <div class="kicker">Privacy by design</div>
     <h2>Ask it what it knows. <em>Tell it to forget.</em></h2>
@@ -273,14 +316,14 @@
       <li><span>It stores the plan, never the conversation: no table can hold message text.</span></li>
       <li><span>Everything personal is encrypted at rest, and logs scrub names and numbers.</span></li>
       <li><span>It never asks where you are: one typed neighborhood, kept with the plan.</span></li>
-      <li><span>It deletes everything 24 hours after the event, or now with <code>otto forget</code>.</span></li>
+      <li><span>It deletes everything 24 hours after the event, or now with <code>homi forget</code>.</span></li>
       <li><span>DMs and calls only reach people who opted in, and the group is always told.</span></li>
     </ul>
-    <div class="num">6 / 8</div>
-    <aside class="notes">Privacy is the product, not a footnote. Otto stores the plan, never the conversation, and it's encrypted. It never asks where you are. It deletes everything a day after the event. Anyone can ask what it knows and get the full dump, or say forget and it's gone. Private DMs and calls only happen for people who opted in.</aside>
+    <div class="num">7 / 9</div>
+    <aside class="notes">Privacy is the product, not a footnote. Homi stores the plan, never the conversation, and it's encrypted. It never asks where you are. It deletes everything a day after the event. Anyone can ask what it knows and get the full dump, or say forget and it's gone. Private DMs and calls only happen for people who opted in. The album, the tab and the trip stay only until the group deletes them, and "homi stop" deletes everything.</aside>
   </section>
 
-  <!-- 7. Architecture -->
+  <!-- 8. Architecture -->
   <section class="slide s-arch" data-title="How it works">
     <div class="kicker">How it works</div>
     <h2>Thin adapters, a pure engine, and a store that forgets.</h2>
@@ -339,15 +382,15 @@
       <!-- retention / forget strip -->
       <rect x="306" y="400" width="872" height="62" rx="16" fill="rgba(255,181,71,0.07)" stroke="rgba(255,181,71,0.35)" stroke-dasharray="5 5"/>
       <text x="330" y="438" font-size="17" font-weight="650" fill="#ffb547">Forget path:</text>
-      <text x="440" y="438" font-size="17" fill="#f2f2f5">event + 24h, or “otto forget” → rows, delivery lookup, jobs deleted → VACUUM</text>
+      <text x="440" y="438" font-size="17" fill="#f2f2f5">event + 24h, or “homi forget” → rows, delivery lookup, jobs deleted → VACUUM</text>
       <path d="M1040 378 V396" stroke="#ffb547" stroke-width="2" fill="none" marker-end="url(#aha)"/>
       <text x="306" y="384" font-size="13" fill="#7c7c86">runner: dedupe · load · apply · persist · execute (one Node 22 process)</text>
     </svg>
-    <div class="num">7 / 8</div>
-    <aside class="notes">Under the hood: friends talk in their existing chats through Photon. Thin adapters turn each message into a typed event, so raw text never leaves memory. A pure state machine decides what happens, which makes every rule testable. Places get only a derived coordinate, the call gets only the question, and storage is encrypted and swept.</aside>
+    <div class="num">8 / 9</div>
+    <aside class="notes">Under the hood: friends talk to Homi in their existing chats through Photon. Thin adapters turn each message into a typed event, so raw text never leaves memory. A pure state machine decides what happens, which makes every rule testable. Places get only a derived coordinate, the call gets only the question, and storage is encrypted and swept.</aside>
   </section>
 
-  <!-- 8. Measured + next -->
+  <!-- 9. Measured + next -->
   <section class="slide s-next" data-title="What we measured and what's next">
     <div class="kicker">What we measured &amp; what's next</div>
     <h2>Measured on labeled conversations, honest about the rest.</h2>
@@ -364,19 +407,19 @@
           </table>
           <div class="src">10 role-play group chats (183 labeled messages), written blind from our spec by a separate author that never saw the code · npm run eval · *the map has no Thai near Harvard Sq</div>
         </div>
-        <div class="sim"><b>What is simulated:</b> the call audio in the demo video, and the chat personas in the offline simulator. Restaurants come from a bundled OpenStreetMap snapshot; prices are team estimates.</div>
+        <div class="sim"><b>What is simulated:</b> the call audio and the pledge payments in the demo video, and the chat personas in the offline simulator. Restaurants come from a bundled OpenStreetMap snapshot; prices and trip costs are estimates.</div>
       </div>
       <div class="next">
         <h3>Next</h3>
         <ol>
           <li><div>More channels<span>WhatsApp, RCS and SMS through Photon 2.0.</span></div></li>
           <li><div>Interactive iMessage cards<span>Tap-to-vote cards instead of option bubbles.</span></div></li>
-          <li><div>Open-source release<span>So any group can audit exactly what Otto stores.</span></div></li>
+          <li><div>Open-source release<span>So any group can audit exactly what Homi stores.</span></div></li>
         </ol>
       </div>
     </div>
-    <div class="num">8 / 8</div>
-    <aside class="notes">Here's what we measured on our labeled fixture conversations: 98.5% of date replies read correctly, the right final date in 10 of 10 conversations, 100% food-intent precision (87.9% recall), the noise budget kept in 10 of 10, and zero message text or phone numbers in 502 log lines or the database. To be clear about what's simulated: the call audio in the video and the chat personas. Next, we want more Photon channels, interactive cards in iMessage-style chats, and an open-source release, so any group can audit what Otto stores.</aside>
+    <div class="num">9 / 9</div>
+    <aside class="notes">Here's what we measured on our labeled fixture conversations: 98.5% of date replies read correctly, the right final date in 10 of 10 conversations, 100% food-intent precision (87.9% recall), the noise budget kept in 10 of 10, and zero message text or phone numbers in 502 log lines or the database. To be clear about what's simulated: the call audio and the pledge payments in the video, and the chat personas; trip prices are estimates. Next, we want more Photon channels, interactive cards in iMessage-style chats, and an open-source release, so any group can audit what Homi stores.</aside>
   </section>
 </div>
 
@@ -389,7 +432,7 @@
   var FACE = '<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="24" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/>' +
     '<ellipse cx="40" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/><circle cx="25.5" cy="27" r="1.5" fill="#fff" opacity=".9"/>' +
     '<circle cx="41.5" cy="27" r="1.5" fill="#fff" opacity=".9"/></svg>';
-  document.querySelectorAll('[data-otto-face]').forEach(function (el) { el.innerHTML = FACE; });
+  document.querySelectorAll('[data-homi-face]').forEach(function (el) { el.innerHTML = FACE; });
 
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var stage = document.getElementById('stage');

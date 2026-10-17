@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export function schemaSql(): string {
   return readFileSync(new URL('./schema.sql', import.meta.url), 'utf8');
@@ -25,7 +25,16 @@ export function migrate(db: DatabaseSync): void {
   const row = db.prepare('PRAGMA user_version').get() as { user_version: number } | undefined;
   const current = row?.user_version ?? 0;
   if (current > SCHEMA_VERSION) throw new Error(`database schema v${current} is newer than this build (v${SCHEMA_VERSION})`);
+  // v1 -> v2: the jobs.kind CHECK gains 'ext' (pledge timers). SQLite can't alter a CHECK, so rebuild the table.
+  if (current === 1) {
+    const hasJobs = db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'jobs'").get();
+    if (hasJobs) transaction(db, () => db.exec('ALTER TABLE jobs RENAME TO jobs_v1; DROP INDEX IF EXISTS jobs_by_due; DROP INDEX IF EXISTS jobs_by_plan;'));
+  }
   db.exec(schemaSql());
+  if (current === 1) {
+    const old = db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'jobs_v1'").get();
+    if (old) transaction(db, () => db.exec('INSERT INTO jobs SELECT * FROM jobs_v1; DROP TABLE jobs_v1;'));
+  }
   if (current < SCHEMA_VERSION) db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
 }
 

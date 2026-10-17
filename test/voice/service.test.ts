@@ -8,7 +8,7 @@ const KEY = 'key_service_test';
 const FROM = '+16175550100';
 const TO = '+16175550142';
 const OPTIONS = ['Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm'];
-const SPOKEN = "Hi, this is Otto calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
+const SPOKEN = "Hi, this is Homi calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
 const req = (over: Partial<Parameters<VoiceService['placeCall']>[0]> = {}) => ({
   to: TO,
   question: 'Which works: Fri or Sat?',
@@ -231,7 +231,7 @@ test('webhook: pending call expires after 30 min with ok: false', async () => {
   assert.equal(results.length, 1);
 });
 
-test('webhook: inbound "call Otto to RSVP" then call_analyzed maps back to the plan', async () => {
+test('webhook: inbound "call Homi to RSVP" then call_analyzed maps back to the plan', async () => {
   const { svc, t } = webhookService(noNetwork, [], async (phone) =>
     phone === TO ? { question: SPOKEN, callRef: 'ref_in_777', planId: 'plan_9', member: 'mkey_ana' } : null,
   );

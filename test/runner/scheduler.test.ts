@@ -31,7 +31,7 @@ test('FakeClock fast-forward fires due jobs in order, each at its own due time, 
   const t0 = env.clock.now();
   const s = new Scheduler({ repo: env.repo, runner: env.runner, clock: env.clock });
   s.start();
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto plan'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi plan'));
   await env.clock.advance(150 * M);
   assert.deepEqual(fired.map((f) => [f.job, f.at - t0]), [['availability_nudge', 30 * M], ['availability_deadline', 120 * M]]);
   assert.deepEqual(fired[0].payload, { round: 1 });
@@ -48,7 +48,7 @@ test('FakeClock fast-forward fires due jobs in order, each at its own due time, 
 test('crash between claim and done: the job is failed at restart and never re-sent', async () => {
   const { engine, fired } = schedulingEngine([{ key: 'remind', job: 'remind_hour', inMs: 10 * M }]);
   const env = makeEnv({ engine });
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto plan'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi plan'));
   env.clock.set(env.clock.now() + 10 * M);
   const claimed = env.repo.jobs.claimDue(env.clock.now()); // process 1 claims... and dies
   assert.equal(claimed.length, 1);
@@ -73,7 +73,7 @@ test('a job whose dispatch throws is marked failed, not retried; a job for a mis
   const env = makeEnv({ engine });
   const s = new Scheduler({ repo: env.repo, runner: env.runner, clock: env.clock, logger: env.logger });
   s.start();
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto plan'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi plan'));
   await env.clock.advance(2 * M);
   assert.equal(env.repo.jobs.get('plan-1:n')?.status, 'failed');
   throws = false;
@@ -91,7 +91,7 @@ test('timers for muted spaces are not delivered', async () => {
   const env = makeEnv({ engine });
   const s = new Scheduler({ repo: env.repo, runner: env.runner, clock: env.clock });
   s.start();
-  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'otto plan'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi plan'));
   // mute without deleting the plan row (simulate a race): dispatch must refuse
   env.repo.db.prepare('UPDATE spaces SET muted = 1').run();
   await env.clock.advance(5 * M);

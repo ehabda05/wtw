@@ -32,13 +32,13 @@ test('reply content is unwrapped; mentions of our line set mentionsAgent', () =>
   });
   const msg: MessageLike = {
     id: 'g-2',
-    content: { type: 'reply', content: { type: 'text', text: '@Otto friday works' }, target: { id: 'g-1' } },
+    content: { type: 'reply', content: { type: 'text', text: '@Homi friday works' }, target: { id: 'g-1' } },
     sender: { id: '+16175550134' },
     mentions: [{ address: LINE, start: 0, length: 5 }],
   };
   const n = normalizeImessageCloud(space(), msg);
   assert.equal(n.inbound?.kind, 'text');
-  assert.equal(n.inbound?.text, '@Otto friday works');
+  assert.equal(n.inbound?.text, '@Homi friday works');
   assert.equal(n.inbound?.replyTo, 'g-1');
   assert.equal(n.inbound?.mentionsAgent, true);
   assert.equal(n.inbound?.surface, 'imessage-dedicated');
@@ -80,13 +80,13 @@ test('dedicated binding: first sight fetches the roster as a members inbound (ha
   assert.equal(got.at(-1)?.isGroup, false);
 });
 
-test('local: allowlist drops chats that never had an Otto trigger; known chats pass; replies unwrap', () => {
+test('local: allowlist drops chats that never had a Homi trigger; known chats pass; replies unwrap', () => {
   const known = new Set<string>();
   const opts = { isKnown: (id: string) => known.has(id) };
   const sp = space({ id: 'any;+;chat-local', phone: '' });
   const msg = (text: string, over: Partial<MessageLike> = {}): MessageLike => ({ id: `l-${text}`, content: { type: 'text', text }, sender: { id: '+16175550134' }, ...over });
   assert.equal(normalizeImessageLocal(sp, msg('mom says hi'), opts), null);
-  const trig = normalizeImessageLocal(sp, msg('otto dinner next week?'), opts);
+  const trig = normalizeImessageLocal(sp, msg('homi dinner next week?'), opts);
   assert.equal(trig?.surface, 'imessage-local');
   assert.equal(trig?.isGroup, true);
   known.add(sp.id);

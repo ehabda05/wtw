@@ -1,11 +1,11 @@
 maya: guys we never hang out anymore
-you: @otto dinner next week?
-ana: otto I'm Ana
-ben: otto I'm Ben
-sam: otto I'm Sam
-jo: otto I'm Jo
-maya: otto I'm Maya
-sam: otto you can call me
+you: @homi dinner next week?
+ana: homi I'm Ana
+ben: homi I'm Ben
+sam: homi I'm Sam
+jo: homi I'm Jo
+maya: homi I'm Maya
+sam: homi you can call me
 ana: fri works, i'm busy thu and sat
 ben: sat works. thu and fri i can't
 ana: sat brunch works actually!
@@ -21,11 +21,11 @@ maya: ok I'm starving where are we eating
 ana: ramen sounds amazing
 ben: something cheap pls
 jo: harvard square
-you: otto go
+you: homi go
 /react ana ❤️ 1
 jo: 1
-you: otto add to calendar
+you: homi add to calendar
 /ff 4d
-ana: otto split 142.50 5 ways
-jo: otto what do you know
-ana: otto forget
+ana: homi split 142.50 5 ways
+jo: homi what do you know
+ana: homi forget

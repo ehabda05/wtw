@@ -124,7 +124,7 @@ export function cleanAnswer(v: unknown): string | undefined {
   return s === '' ? undefined : s;
 }
 
-/** Extract only what Otto needs from a Retell call object, then scrub it. */
+/** Extract only what Homi needs from a Retell call object, then scrub it. */
 export function extractCallInfo(call: Record<string, unknown>): CallInfo {
   const status = typeof call['call_status'] === 'string' ? (call['call_status'] as string) : 'unknown';
   const ca = call['call_analysis'];

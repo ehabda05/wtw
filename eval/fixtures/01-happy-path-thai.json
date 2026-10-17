@@ -1,7 +1,7 @@
 {
   "id": "01-happy-path-thai",
   "title": "Happy path: Fri dinner, cheap Thai in Harvard Sq",
-  "notes": "Baseline end-to-end run. Trigger names the days explicitly, so Otto should propose 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm and announce a deadline of Tue Oct 20 ~6:01pm (min(now+24h, first option-6h)). Votes use date refs ('the 23rd or 24th'), a tapback, 'prob' (maybe), a quantifier ('any works'). Two decoys must NOT count as votes: 'wait is thu the night of the orgo midterm' (reference, no cue) and 'yes it is lmaooo rip us' (cue, no reference). Ana's vote is the 5th answer, so the plan locks early on 'everyone answered' (prompted). Then the hungry flow from collecting_details: 3x thai vs 1x pho (no compromise, runner-up < half), budget 'cheap'/'broke' -> $, 'anything but sushi' veto, Harvard Sq. Ben's food answer mentions 'friday' but must not be read as a vote (not in collecting_availability). Place vote closes when 3 of the 5 answerers have voted. Then calendar, a plan note, the reminder ladder (fast-forwarded) and a bill split.",
+  "notes": "Baseline end-to-end run. Trigger names the days explicitly, so Homi should propose 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm and announce a deadline of Tue Oct 20 ~6:01pm (min(now+24h, first option-6h)). Votes use date refs ('the 23rd or 24th'), a tapback, 'prob' (maybe), a quantifier ('any works'). Two decoys must NOT count as votes: 'wait is thu the night of the orgo midterm' (reference, no cue) and 'yes it is lmaooo rip us' (cue, no reference). Ana's vote is the 5th answer, so the plan locks early on 'everyone answered' (prompted). Then the hungry flow from collecting_details: 3x thai vs 1x pho (no compromise, runner-up < half), budget 'cheap'/'broke' -> $, 'anything but sushi' veto, Harvard Sq. Ben's food answer mentions 'friday' but must not be read as a vote (not in collecting_availability). Place vote closes when 3 of the 5 answerers have voted. Then calendar, a plan note, the reminder ladder (fast-forwarded) and a bill split.",
   "tz": "America/New_York",
   "start": "2026-10-19T18:00:00-04:00",
   "surface": "sim",
@@ -14,7 +14,7 @@
   ],
   "steps": [
     {"t": "+0m", "from": "maya", "text": "guys we have not hung out in like 3 weeks 😭", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "ana", "text": "@otto dinner thu, fri or sat?", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "ana", "text": "@homi dinner thu, fri or sat?", "label": {"intent": "plan", "food": false}},
     {"t": "+3m", "from": "ben", "text": "the 23rd or 24th works for me", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "yes"}}},
     {"t": "+1m", "from": "jo", "react": {"emoji": "❤️", "option": 2}},
     {"t": "+2m", "from": "maya", "text": "wait is thu the night of the orgo midterm", "label": {"intent": "chatter", "food": false}},
@@ -22,8 +22,8 @@
     {"t": "+2m", "from": "maya", "text": "thu's bad for me then, fri prob", "label": {"intent": "vote", "food": false, "votes": {"thu": "no", "fri": "maybe", "sat": "unknown"}}},
     {"t": "+6m", "from": "sam", "text": "any works for me 👍", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "yes", "sat": "yes"}}},
     {"t": "+10m", "from": "ana", "text": "fri works for me!", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
-    {"t": "+2m", "from": "maya", "text": "otto yep fri works 👍", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
-    {"t": "+4m", "from": "ben", "text": "ok otto find food 🙏", "label": {"intent": "food", "food": true}},
+    {"t": "+2m", "from": "maya", "text": "homi yep fri works 👍", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "unknown"}}},
+    {"t": "+4m", "from": "ben", "text": "ok homi find food 🙏", "label": {"intent": "food", "food": true}},
     {"t": "+1m", "from": "maya", "text": "THAI. always thai", "label": {"intent": "food_answer", "food": true}},
     {"t": "+1m", "from": "ben", "text": "thai or pho but cheap pls im broke til friday lol", "label": {"intent": "food_answer", "food": true}},
     {"t": "+2m", "from": "sam", "text": "anything but sushi lol. harvard sq is easiest for everyone", "label": {"intent": "food_answer", "food": true}},
@@ -34,13 +34,13 @@
     {"t": "+0m", "from": "jo", "react": {"emoji": "❤️", "option": 1, "set": "place"}},
     {"t": "+2m", "from": "sam", "text": "1 looks good", "label": {"intent": "vote", "food": true, "placeVote": 1}},
     {"t": "+5m", "from": "jo", "text": "also whoever took my charger at lamont text me 617-555-0134 🙏", "label": {"intent": "chatter", "food": false}},
-    {"t": "+1m", "from": "sam", "text": "otto add to calendar", "label": {"intent": "command", "food": false}},
-    {"t": "+16m", "from": "ben", "text": "otto note uber: meet outside quad at 6:40, i'll order it", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "sam", "text": "homi add to calendar", "label": {"intent": "command", "food": false}},
+    {"t": "+16m", "from": "ben", "text": "homi note uber: meet outside quad at 6:40, i'll order it", "label": {"intent": "command", "food": false}},
     {"ff": "74h"},
-    {"t": "+5m", "from": "maya", "text": "otto what did we decide about uber", "label": {"intent": "command", "food": false}},
+    {"t": "+5m", "from": "maya", "text": "homi what did we decide about uber", "label": {"intent": "command", "food": false}},
     {"t": "+2m", "from": "ben", "text": "i ate so much at lunch today i might skip breakfast fri lol", "label": {"intent": "chatter", "food": false}},
     {"ff": "22h"},
-    {"t": "+138m", "from": "ana", "text": "otto split 120 5 ways", "label": {"intent": "command", "food": false}},
+    {"t": "+138m", "from": "ana", "text": "homi split 120 5 ways", "label": {"intent": "command", "food": false}},
     {"t": "+2m", "from": "ben", "text": "ill cover the tip, zelle me at ben.r@example.com", "label": {"intent": "chatter", "food": false}}
   ],
   "expect": {
@@ -59,10 +59,10 @@
       "Recommendation header is at most 2 sentences, says cheap/$ without attributing the budget to Ben, and lists exactly 3 options with no sushi place; all 3 are Thai (pho 1 vs thai 3 is below the compromise threshold).",
       "Opening hours are evaluated for Fri Oct 23 7pm (the plan time), and unknown hours are shown as 'hours unknown'.",
       "The restaurant vote closes after Sam's message (3 of 5 answerers voted), the winner's address is posted exactly once, and the plan card 'Locked: Fri Oct 23, 7pm · <place> · ...' follows.",
-      "'otto add to calendar' returns an .ics with no attendee emails.",
-      "'otto what did we decide about uber' answers from the note only (meet outside quad at 6:40).",
-      "Day-before reminder (Thu) and hour-before reminder (Fri ~6pm) are each sent exactly once; the hour-before one mentions 'otto split'.",
-      "'otto split 120 5 ways' replies '$24.00 each for 5 people (tip not included)' or equivalent.",
+      "'homi add to calendar' returns an .ics with no attendee emails.",
+      "'homi what did we decide about uber' answers from the note only (meet outside quad at 6:40).",
+      "Day-before reminder (Thu) and hour-before reminder (Fri ~6pm) are each sent exactly once; the hour-before one mentions 'homi split'.",
+      "'homi split 120 5 ways' replies '$24.00 each for 5 people (tip not included)' or equivalent.",
       "Neither 617-555-0134 nor ben.r@example.com appears in any log line."
     ]
   }

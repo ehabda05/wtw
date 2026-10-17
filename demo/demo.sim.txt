@@ -1,0 +1,79 @@
+# Whats the Word · Homi — the canonical demo (docs/DEMO.md), played in the offline simulator.
+# Run: npm run demo   (or npm run sim -- --script demo/demo.sim.txt --start 2026-10-17T10:00:00-04:00 --fancy)
+# Everything here is simulated: personas, the clock (/ff), the phone call, pledge payments, sample photos,
+# and travel prices (labeled estimates with example listings).
+
+# ── Act 1 · the plan (Sat Oct 17) ──
+maya: guys we never hang out anymore
+you: @homi dinner next week?
+sam: homi you can call me
+ana: fri works, i'm busy thu and sat
+ben: sat works. thu and fri i can't
+ana: sat brunch works actually!
+/react jo ❤️ 2
+/react jo 😂 1
+maya: anything but thu
+you: fri works
+ben: lol fri was wild
+/answer sam friday works
+/ff 12h
+/ff 1h
+maya: ok I'm starving where are we eating
+ana: ramen sounds amazing
+ben: something cheap pls
+jo: harvard square
+you: homi go
+/react ana ❤️ 1
+jo: 1
+
+# ── Act 2 · show-up pledge ──
+maya: homi let's do a $10 show-up pledge
+ana: 1
+ben: 1
+jo: 1
+maya: 1
+sam: 1
+you: 1
+ana: homi I'm in
+ben: homi I'm in
+jo: homi I'm in
+maya: homi I'm in
+sam: homi I'm in
+you: homi I'm in
+
+# ── Act 3 · the night out (Fri Oct 23) ──
+/ff 5d19h50m
+ana: homi I'm here
+/ff 4m
+ben: homi I'm here
+/ff 3m
+jo: homi I'm here
+/ff 4m
+maya: homi I'm here
+/ff 4m
+you: homi I'm here
+/ff 1h10m
+ben: homi itemize dinner, paid by ben: ana shio ramen 16.50; ben spicy miso ramen 17.50 + gyoza 8; jo toroniku ramen 21; maya veggie ramen 16; you shoyu ramen 16.50; shared edamame 6 + karaage 10; tax 7%; tip 20%
+jo: homi jo paid 23.40 for the uber, split ana jo you
+ana: homi settle up
+/ff 15m
+
+# ── Act 4 · shared memories ──
+you: homi start an album for tonight
+/photo ana homi add
+/photo jo homi add
+/photo jo homi add
+/photo maya homi add
+jo: homi remove my photos
+
+# ── Act 5 · the next trip (Sat Oct 24) ──
+/ff 13h
+ana: homi let's plan Japan for 2030
+ana: boston, late march for cherry blossoms, 10 nights
+ben: 5 of us, ~$3,000 each all in
+maya: food, temples, one onsen night
+ben: comfortable please
+
+# ── Act 6 · privacy ──
+jo: homi what do you know
+ana: homi forget

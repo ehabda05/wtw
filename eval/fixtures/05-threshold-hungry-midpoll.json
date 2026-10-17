@@ -1,7 +1,7 @@
 {
   "id": "05-threshold-hungry-midpoll",
   "title": "Threshold of 3, hungry flow while the date is still open",
-  "notes": "7-person group. Options from the explicit trigger: 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm. The organizer sets threshold mode ('otto lock it when 3 say yes'). While the date poll is open, Theo's unaddressed 'where are we eating??' should start the hungry flow (active plan, strong signal), pushing collecting_place over collecting_availability. No date votes are sent while the food question is open, and restaurant votes use tapbacks with set=place, so the two polls never collide. Taste merge: hana's sushi is removed by Max's 'no sushi'. Indian has 4 votes and Thai 2 (>= half), so the compromise is 2 Indian + 1 Thai. Budget: 'treat ourselves' ($$$) vs 'under 30' ($$), tightest wins, so $$. Max is vegetarian; the area is Allston. Ines's 'under 30' contains a bare number > 3, which must not be read as a date vote. The 4th place tapback is a majority of the 7 answerers, which closes the vote and pops back to collecting_availability. Then Hana says 'i'm out' (all no, no nudges) and Max's '1 2' gives Fri its 3rd yes (Lucas, Ines, Max), so the plan locks by threshold. The place is already set, so it goes straight to confirmed. The final message, 'cannot wait for friday', contains a no-cue next to a day name after confirmation and must NOT be treated as a veto. 'anything but sat' covers the exclusion phrase.",
+  "notes": "7-person group. Options from the explicit trigger: 1 Thu Oct 22 7pm, 2 Fri Oct 23 7pm, 3 Sat Oct 24 7pm. The organizer sets threshold mode ('homi lock it when 3 say yes'). While the date poll is open, Theo's unaddressed 'where are we eating??' should start the hungry flow (active plan, strong signal), pushing collecting_place over collecting_availability. No date votes are sent while the food question is open, and restaurant votes use tapbacks with set=place, so the two polls never collide. Taste merge: hana's sushi is removed by Max's 'no sushi'. Indian has 4 votes and Thai 2 (>= half), so the compromise is 2 Indian + 1 Thai. Budget: 'treat ourselves' ($$$) vs 'under 30' ($$), tightest wins, so $$. Max is vegetarian; the area is Allston. Ines's 'under 30' contains a bare number > 3, which must not be read as a date vote. The 4th place tapback is a majority of the 7 answerers, which closes the vote and pops back to collecting_availability. Then Hana says 'i'm out' (all no, no nudges) and Max's '1 2' gives Fri its 3rd yes (Lucas, Ines, Max), so the plan locks by threshold. The place is already set, so it goes straight to confirmed. The final message, 'cannot wait for friday', contains a no-cue next to a day name after confirmation and must NOT be treated as a veto. 'anything but sat' covers the exclusion phrase.",
   "tz": "America/New_York",
   "start": "2026-10-19T18:30:00-04:00",
   "surface": "sim",
@@ -16,8 +16,8 @@
   ],
   "steps": [
     {"t": "+0m", "from": "zoe", "text": "ok who survived the cs50 pset", "label": {"intent": "chatter", "food": false}},
-    {"t": "+2m", "from": "amara", "text": "@otto dinner thu, fri or sat? whole crew this time", "label": {"intent": "plan", "food": false}},
-    {"t": "+1m", "from": "amara", "text": "otto lock it when 3 say yes", "label": {"intent": "command", "food": false}},
+    {"t": "+2m", "from": "amara", "text": "@homi dinner thu, fri or sat? whole crew this time", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "amara", "text": "homi lock it when 3 say yes", "label": {"intent": "command", "food": false}},
     {"t": "+3m", "from": "lucas", "text": "anything but sat", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "yes", "sat": "no"}}},
     {"t": "+1m", "from": "ines", "react": {"emoji": "❤️", "option": 2}},
     {"t": "+3m", "from": "zoe", "text": "thu? maybe fri", "label": {"intent": "vote", "food": false, "votes": {"thu": "maybe", "fri": "maybe", "sat": "unknown"}}},
@@ -38,8 +38,8 @@
     {"t": "+4m", "from": "max", "text": "1 2", "label": {"intent": "vote", "food": false, "votes": {"thu": "yes", "fri": "yes", "sat": "unknown"}}},
     {"t": "+2m", "from": "theo", "text": "LETS GOOO", "label": {"intent": "chatter", "food": false}},
     {"t": "+2m", "from": "zoe", "text": "i'll call to reserve, use zoe.m@example.com for the confirmation lol", "label": {"intent": "chatter", "food": false}},
-    {"t": "+2m", "from": "amara", "text": "otto why fri", "label": {"intent": "command", "food": false}},
-    {"t": "+2m", "from": "ines", "text": "otto where are we at", "label": {"intent": "command", "food": false}},
+    {"t": "+2m", "from": "amara", "text": "homi why fri", "label": {"intent": "command", "food": false}},
+    {"t": "+2m", "from": "ines", "text": "homi where are we at", "label": {"intent": "command", "food": false}},
     {"ff": "24h"},
     {"t": "+20m", "from": "theo", "text": "this week is eating me alive, cannot wait for friday", "label": {"intent": "chatter", "food": false}}
   ],
@@ -50,7 +50,7 @@
     "hungryTriggered": true,
     "maxUnpromptedPer12h": 1,
     "otherChecks": [
-      "'otto lock it when 3 say yes' is acknowledged and sets the threshold to 3.",
+      "'homi lock it when 3 say yes' is acknowledged and sets the threshold to 3.",
       "Theo's unaddressed message starts the hungry flow (active plan, >= 2 points), and the food question is asked once.",
       "Sushi is not among the 3 options even though Hana asked for it (Max's veto).",
       "The header announces a compromise (two Indian spots and a Thai place, or equivalent wording), stays at or under $$ (est.) without naming who set the budget, and is at most 2 sentences.",
@@ -60,7 +60,7 @@
       "Ines's 'under 30' does not change any date vote.",
       "Hana's 'i'm out' gets a no-guilt reply ('All good, next time 💛' or equivalent); she is counted out and never nudged.",
       "Max's '1 2' gives Fri its 3rd hard yes, so the plan locks immediately on Fri Oct 23 7pm (threshold). It goes straight to confirmed with the already chosen place (no 'Where to?' ask), and Zoe's maybe gets one confirm ping.",
-      "'otto why fri' explains Fri reached the threshold of 3.",
+      "'homi why fri' explains Fri reached the threshold of 3.",
       "Nothing unprompted fires during the 24h fast-forward.",
       "Theo's 'cannot wait for friday' after confirmation is not treated as a veto and the date is not reopened.",
       "zoe.m@example.com never appears in any log line."
