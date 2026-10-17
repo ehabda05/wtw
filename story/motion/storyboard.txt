@@ -1,0 +1,121 @@
+# Otto demo storyboard.
+# Build: node story/motion/build-script.mjs story/motion/storyboard.txt story/motion/script.json
+#
+# Otto copy is taken from docs/STATE_MACHINE.md, docs/HUNGRY_FLOW.md and docs/PRIVACY.md.
+# Restaurants are real entries from src/places/data/harvard-allston.json (OpenStreetMap, ODbL);
+# prices are team estimates, shown as "~$$ (est.)". The snapshot has no Thai places near
+# Harvard Sq, so the hungry beat uses tacos. The phone call is simulated (VOICE_MODE=mock).
+
+@chat the crew
+@fps 30
+@member you You
+@member ana Ana #E0567F
+@member ben Ben #2FA89A
+@member maya Maya #8B6CF0
+@member jay Jay #3D8FE0
+@member sam Sam #6DB35C
+@member otto Otto bot
+@roster ana ben maya jay sam
+
+# ---- 1. Cold open: hearts, no plan ----
+@at 0
+@chapter Plans die here
+@at 200
+@divider *Sun, Oct 11* · 8:14 PM | 8:14
+@caption Everyone loves the idea.
+You: we should hang out!! [#m1]
+@react ❤️ ana
+@react ❤️ ben
+@react ❤️ maya
+@receipt Read by 5
+@wait 250
+@jump 1500 6 days later | Sun Mon Tue Wed Thu Fri Sat
+@caption *Plans die here.*
+@divider 6 days later · *Sat* 6:58 PM | 6:58 | jump
+@typing jay 1100
+@wait -250
+
+# ---- 2. Otto joins, says hi once ----
+@chapter Otto joins the chat
+@caption Add Otto to the chat you *already have*.
+@system Maya added Otto to the conversation +otto
+@wait -300
+Otto: Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "otto stop" makes me delete everything and leave.
+@wait -500
+
+# ---- 3. Propose, don't poll ----
+@chapter Find a date
+@caption No calendars. Otto *proposes*, friends just *react*.
+You: @otto dinner next week?
+Otto: Dinner, next week. Tap ❤️ on every time that works (or reply like "fri or sat"); I'll lock it in tomorrow 9:30pm.
++ 1 · Thu Oct 22 · 7pm [#d1]
++ 2 · Fri Oct 23 · 7pm [#d2]
++ 3 · Sat Oct 24 · 7pm [#d3]
+@wait -1400
+
+# ---- 4. Votes in plain words or hearts ----
+@chapter Votes, any way
+@caption Plain replies and hearts *both count*.
+Ben: fri or sat works
+Jay: not thu, fri works
+@react ❤️ maya #d2
+@react ❤️ ana #d2
+@react ❤️ ben #d3
+@react ❤️ you #d2
+Otto: Fri Oct 23 · 7pm it is: 5 in. Where to? Say "otto find food" for 3 options, or tell me the spot.
+@wait -1000
+
+# ---- 5. The hungry flow ----
+@chapter Where to eat
+@caption Hungry? Otto asks *one question*.
+Maya: ok I'm starving where are we eating
+Otto: What are we feeling? Cuisine, budget, and roughly where?
+@wait -500
+Ben: tacos
+Jay: under $30
+Ana: harvard square
+@caption Real places nearby, open *Friday at 7*.
+Otto: Tacos, under $30, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).
++ 1 · El Jefe's Taqueria · ~$$ (est.) · 2 min walk · open Fri 7pm [#p1]
++ 2 · Felipe's Taqueria · ~$$ (est.) · 3 min walk · open Fri 7pm [#p2]
++ 3 · The Painted Burro · ~$$ (est.) · 3 min walk · open Fri 7pm [#p3]
+@wait -2000
+@react ❤️ ben #p2
+@react ❤️ maya #p2
+@react ❤️ jay #p1
+@react ❤️ you #p2
+Otto: Felipe's Taqueria it is: 21 Brattle Street, Cambridge.
+@wait -400
+
+# ---- 6. The quiet friend gets a (consented) call ----
+@chapter The quiet friend
+@caption Quiet friend? Otto *calls*, only if they opted in.
+@divider *Sun* 7:28 PM | 7:28
+Otto: Still need Sam, so I'm giving them a quick call (they said that's ok).
+@wait 100
+@call {"caller":"otto","number":"(617) 555-01xx","label":"Sam's phone","note":"Simulated call audio","accept":1100}
+> Otto: Hi, this is Otto calling about your group's plan. Does Friday at 7 work for you?
+> Sam: Friday works.
+@endcall
+@caption The answer lands back *in the chat*.
+Otto: Sam's in for Fri (by phone). 6 for 6 🎉
+@react 🎉 ana
+@react ❤️ sam
+@wait 100
+
+# ---- 7. Ask what it knows, then it forgets ----
+@chapter Then it forgets
+@caption Ask it *what it knows*.
+@divider *Sat, Oct 24* · 11:40 AM | 11:40
+Ana: last night was perfect 🥹
+@wait -200
+You: otto what do you know
+Otto: Here's everything I have for this chat: plan "dinner" · options Thu, Fri, Sat 7pm · chosen Fri 7pm · place Felipe's Taqueria (Harvard Sq) · 6 people: 6 yes · names you gave me: Ana, Ben, Sam · 1 call · deletes Sat 7pm. Say "otto forget" to delete it now.
+@wait -1300
+@caption *Then it forgets.*
+You: otto forget
+Otto: Done: I've deleted this plan.
+@wait 450
+
+# ---- 8. End card ----
+@end {"title":"Otto","line":"The friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards.","tagline":"No app to install. Just add it to the group chat.","badge":"Built on Photon","qr":"Text Otto: (number TBA)","duration":4600}

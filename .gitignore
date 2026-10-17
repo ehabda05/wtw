@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+/data/
+*.db
+*.db-*
+story/node_modules/
+story/out/frames/
+eval/logs/
+.DS_Store
+*.zip

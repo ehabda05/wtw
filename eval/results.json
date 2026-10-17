@@ -1,0 +1,505 @@
+{
+  "generatedAt": "2026-10-17T12:11:56.915Z",
+  "totals": {
+    "fixtures": 10,
+    "dateCellAccuracy": "98.5%",
+    "dateCells": 135,
+    "dateMessageExact": "95.6%",
+    "dateMessages": 45,
+    "finalDateCorrect": "10/10",
+    "lockReasonCorrect": "10/10",
+    "foodPrecision": "100.0%",
+    "foodRecall": "87.9%",
+    "foodMessages": 183,
+    "intentAccuracy": "95.6%",
+    "hungryTriggerCorrect": "10/10",
+    "placeMatch": "3/4",
+    "unpromptedMessages": 5,
+    "noiseBudgetRespected": "10/10",
+    "quietHourViolations": 0,
+    "logLinesScanned": 502,
+    "logLeaks": 0,
+    "dbPlaintextLeaks": 0,
+    "harnessErrors": 0
+  },
+  "results": [
+    {
+      "id": "01-happy-path-thai",
+      "title": "Happy path: Fri dinner, cheap Thai in Harvard Sq",
+      "voteCells": 15,
+      "voteCellsCorrect": 15,
+      "voteMessages": 5,
+      "voteMessagesExact": 5,
+      "foodTP": 6,
+      "foodFP": 0,
+      "foodFN": 1,
+      "foodTN": 16,
+      "intentCorrect": 21,
+      "intentTotal": 23,
+      "finalDay": {
+        "expected": "fri",
+        "actual": "fri",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "everyone",
+        "actual": "everyone",
+        "ok": true
+      },
+      "hungry": {
+        "expected": true,
+        "actual": true,
+        "ok": true
+      },
+      "place": {
+        "expected": {
+          "cuisineAnyOf": [
+            "thai"
+          ],
+          "priceMax": 1
+        },
+        "actual": {
+          "name": "Bon Me",
+          "cuisine": "vietnamese",
+          "priceBand": 2
+        },
+        "ok": false
+      },
+      "unprompted": 2,
+      "maxUnpromptedIn12h": 1,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 69,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 19,
+      "errors": []
+    },
+    {
+      "id": "02-food-idioms-forced-lock",
+      "title": "Game night full of food idioms, organizer force-locks Thu",
+      "voteCells": 15,
+      "voteCellsCorrect": 15,
+      "voteMessages": 5,
+      "voteMessagesExact": 5,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 19,
+      "intentCorrect": 18,
+      "intentTotal": 19,
+      "finalDay": {
+        "expected": "thu",
+        "actual": "thu",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "forced",
+        "actual": "forced",
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": {
+          "name": "my apt"
+        },
+        "ok": null
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 44,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 9,
+      "errors": []
+    },
+    {
+      "id": "03-conflict-bridge",
+      "title": "Hard day conflict bridged with a Sat brunch option",
+      "voteCells": 15,
+      "voteCellsCorrect": 15,
+      "voteMessages": 5,
+      "voteMessagesExact": 5,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 14,
+      "intentCorrect": 14,
+      "intentTotal": 14,
+      "finalDay": {
+        "expected": "sat",
+        "actual": "sat",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "everyone",
+        "actual": "everyone",
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": {
+          "name": "ben's apt"
+        },
+        "ok": null
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 41,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 12,
+      "errors": []
+    },
+    {
+      "id": "04-time-shift-ruthless-deadline",
+      "title": "Fri only after 8:30, ruthless tone, deadline lock",
+      "voteCells": 18,
+      "voteCellsCorrect": 17,
+      "voteMessages": 6,
+      "voteMessagesExact": 5,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 20,
+      "intentCorrect": 19,
+      "intentTotal": 20,
+      "finalDay": {
+        "expected": "fri",
+        "actual": "fri",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "deadline",
+        "actual": "deadline",
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": {
+          "name": "the pub on mass ave"
+        },
+        "ok": null
+      },
+      "unprompted": 2,
+      "maxUnpromptedIn12h": 1,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 51,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 12,
+      "errors": []
+    },
+    {
+      "id": "05-threshold-hungry-midpoll",
+      "title": "Threshold of 3, hungry flow while the date is still open",
+      "voteCells": 12,
+      "voteCellsCorrect": 12,
+      "voteMessages": 4,
+      "voteMessagesExact": 4,
+      "foodTP": 8,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 12,
+      "intentCorrect": 20,
+      "intentTotal": 20,
+      "finalDay": {
+        "expected": "fri",
+        "actual": "fri",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "threshold",
+        "actual": "threshold",
+        "ok": true
+      },
+      "hungry": {
+        "expected": true,
+        "actual": true,
+        "ok": true
+      },
+      "place": {
+        "expected": {
+          "cuisineAnyOf": [
+            "indian",
+            "thai"
+          ],
+          "priceMax": 2
+        },
+        "actual": {
+          "name": "Tabla Express",
+          "cuisine": "indian",
+          "priceBand": 2
+        },
+        "ok": true
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 63,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 16,
+      "errors": []
+    },
+    {
+      "id": "06-silent-member-call",
+      "title": "Silent Sam opts in to a call and answers by phone",
+      "voteCells": 12,
+      "voteCellsCorrect": 12,
+      "voteMessages": 4,
+      "voteMessagesExact": 4,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 17,
+      "intentCorrect": 16,
+      "intentTotal": 17,
+      "finalDay": {
+        "expected": "fri",
+        "actual": "fri",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "everyone",
+        "actual": "everyone",
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": {
+          "name": "lily's apartment"
+        },
+        "ok": null
+      },
+      "unprompted": 1,
+      "maxUnpromptedIn12h": 1,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 42,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 13,
+      "errors": []
+    },
+    {
+      "id": "07-veto-after-confirm",
+      "title": "Bday ramen locked for Fri, then 'can't do friday anymore'",
+      "voteCells": 24,
+      "voteCellsCorrect": 24,
+      "voteMessages": 8,
+      "voteMessagesExact": 8,
+      "foodTP": 6,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 14,
+      "intentCorrect": 19,
+      "intentTotal": 20,
+      "finalDay": {
+        "expected": "sat",
+        "actual": "sat",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "everyone",
+        "actual": "everyone",
+        "ok": true
+      },
+      "hungry": {
+        "expected": true,
+        "actual": true,
+        "ok": true
+      },
+      "place": {
+        "expected": {
+          "cuisineAnyOf": [
+            "ramen",
+            "japanese"
+          ],
+          "priceMax": 3
+        },
+        "actual": {
+          "name": "Hokkaido Ramen Santouka",
+          "cuisine": "ramen;japanese;noodle",
+          "priceBand": 2
+        },
+        "ok": true
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 63,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 22,
+      "errors": []
+    },
+    {
+      "id": "08-hackathon-instant-meet-middle",
+      "title": "HackHarvard Saturday night: instant plan, meet in the middle",
+      "voteCells": 0,
+      "voteCellsCorrect": 0,
+      "voteMessages": 0,
+      "voteMessagesExact": 0,
+      "foodTP": 9,
+      "foodFP": 0,
+      "foodFN": 3,
+      "foodTN": 7,
+      "intentCorrect": 18,
+      "intentTotal": 19,
+      "finalDay": {
+        "expected": "sat",
+        "actual": "sat",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": null,
+        "actual": null,
+        "ok": true
+      },
+      "hungry": {
+        "expected": true,
+        "actual": true,
+        "ok": true
+      },
+      "place": {
+        "expected": {
+          "cuisineAnyOf": [
+            "dumplings",
+            "dumpling",
+            "chinese"
+          ],
+          "priceMax": 2
+        },
+        "actual": {
+          "name": "Dolphin Bay",
+          "cuisine": "chinese",
+          "priceBand": 2
+        },
+        "ok": true
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 53,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 11,
+      "errors": []
+    },
+    {
+      "id": "09-privacy-forget-stop",
+      "title": "Privacy check: what do you know, forget, stop",
+      "voteCells": 9,
+      "voteCellsCorrect": 9,
+      "voteMessages": 3,
+      "voteMessagesExact": 3,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 17,
+      "intentCorrect": 17,
+      "intentTotal": 17,
+      "finalDay": {
+        "expected": null,
+        "actual": null,
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": null,
+        "actual": null,
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": null,
+        "ok": null
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 41,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 11,
+      "errors": []
+    },
+    {
+      "id": "10-quiet-hours-late-night",
+      "title": "Late-night library planning across quiet hours",
+      "voteCells": 15,
+      "voteCellsCorrect": 14,
+      "voteMessages": 5,
+      "voteMessagesExact": 4,
+      "foodTP": 0,
+      "foodFP": 0,
+      "foodFN": 0,
+      "foodTN": 14,
+      "intentCorrect": 13,
+      "intentTotal": 14,
+      "finalDay": {
+        "expected": "wed",
+        "actual": "wed",
+        "ok": true
+      },
+      "lockedBy": {
+        "expected": "everyone",
+        "actual": "everyone",
+        "ok": true
+      },
+      "hungry": {
+        "expected": false,
+        "actual": false,
+        "ok": true
+      },
+      "place": {
+        "expected": null,
+        "actual": null,
+        "ok": null
+      },
+      "unprompted": 0,
+      "maxUnpromptedIn12h": 0,
+      "unpromptedOk": true,
+      "quietHourViolations": 0,
+      "logLines": 35,
+      "logLeaks": 0,
+      "dbPlaintextLeaks": 0,
+      "ottoMessages": 11,
+      "errors": []
+    }
+  ]
+}

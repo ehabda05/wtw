@@ -1,0 +1,548 @@
+{
+  "version": 1,
+  "meta": {
+    "chat": "the crew",
+    "fps": 30,
+    "members": [
+      {
+        "id": "you",
+        "name": "You"
+      },
+      {
+        "id": "ana",
+        "name": "Ana",
+        "color": "#E0567F"
+      },
+      {
+        "id": "ben",
+        "name": "Ben",
+        "color": "#2FA89A"
+      },
+      {
+        "id": "maya",
+        "name": "Maya",
+        "color": "#8B6CF0"
+      },
+      {
+        "id": "jay",
+        "name": "Jay",
+        "color": "#3D8FE0"
+      },
+      {
+        "id": "sam",
+        "name": "Sam",
+        "color": "#6DB35C"
+      },
+      {
+        "id": "otto",
+        "name": "Otto",
+        "bot": true
+      }
+    ],
+    "roster": [
+      "ana",
+      "ben",
+      "maya",
+      "jay",
+      "sam"
+    ],
+    "duration": 59200
+  },
+  "events": [
+    {
+      "t": 0,
+      "type": "chapter",
+      "text": "Plans die here"
+    },
+    {
+      "t": 200,
+      "type": "divider",
+      "text": "*Sun, Oct 11* · 8:14 PM",
+      "clock": "8:14"
+    },
+    {
+      "t": 900,
+      "type": "caption",
+      "text": "Everyone loves the idea.",
+      "until": 5250
+    },
+    {
+      "t": 1880,
+      "type": "message",
+      "id": "m1",
+      "from": "you",
+      "text": "we should hang out!!",
+      "typing": 980
+    },
+    {
+      "t": 2680,
+      "type": "reaction",
+      "target": "m1",
+      "emoji": "❤️",
+      "from": "ana"
+    },
+    {
+      "t": 2940,
+      "type": "reaction",
+      "target": "m1",
+      "emoji": "❤️",
+      "from": "ben"
+    },
+    {
+      "t": 3200,
+      "type": "reaction",
+      "target": "m1",
+      "emoji": "❤️",
+      "from": "maya"
+    },
+    {
+      "t": 3400,
+      "type": "receipt",
+      "target": "m1",
+      "text": "Read by 5"
+    },
+    {
+      "t": 3750,
+      "type": "jump",
+      "duration": 1500,
+      "text": "6 days later",
+      "ticker": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ]
+    },
+    {
+      "t": 5250,
+      "type": "caption",
+      "text": "*Plans die here.*",
+      "until": 7100
+    },
+    {
+      "t": 5250,
+      "type": "divider",
+      "text": "6 days later · *Sat* 6:58 PM",
+      "clock": "6:58",
+      "style": "jump"
+    },
+    {
+      "t": 5950,
+      "type": "typing",
+      "from": "jay",
+      "duration": 1100
+    },
+    {
+      "t": 7100,
+      "type": "chapter",
+      "text": "Otto joins the chat"
+    },
+    {
+      "t": 7100,
+      "type": "caption",
+      "text": "Add Otto to the chat you *already have*.",
+      "until": 11600
+    },
+    {
+      "t": 7100,
+      "type": "system",
+      "text": "Maya added Otto to the conversation",
+      "addMember": "otto"
+    },
+    {
+      "t": 8700,
+      "type": "message",
+      "id": "m1",
+      "from": "otto",
+      "text": "Hi, I'm Otto 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and \"otto stop\" makes me delete everything and leave.",
+      "typing": 1000
+    },
+    {
+      "t": 11600,
+      "type": "chapter",
+      "text": "Find a date"
+    },
+    {
+      "t": 11600,
+      "type": "caption",
+      "text": "No calendars. Otto *proposes*, friends just *react*.",
+      "until": 15588
+    },
+    {
+      "t": 12688,
+      "type": "message",
+      "id": "m2",
+      "from": "you",
+      "text": "@otto dinner next week?",
+      "typing": 1088
+    },
+    {
+      "t": 14202,
+      "type": "message",
+      "id": "m3",
+      "from": "otto",
+      "text": "Dinner, next week. Tap ❤️ on every time that works (or reply like \"fri or sat\"); I'll lock it in tomorrow 9:30pm.",
+      "typing": 932
+    },
+    {
+      "t": 14622,
+      "type": "message",
+      "id": "d1",
+      "from": "otto",
+      "text": "1 · Thu Oct 22 · 7pm"
+    },
+    {
+      "t": 15042,
+      "type": "message",
+      "id": "d2",
+      "from": "otto",
+      "text": "2 · Fri Oct 23 · 7pm"
+    },
+    {
+      "t": 15462,
+      "type": "message",
+      "id": "d3",
+      "from": "otto",
+      "text": "3 · Sat Oct 24 · 7pm"
+    },
+    {
+      "t": 15588,
+      "type": "chapter",
+      "text": "Votes, any way"
+    },
+    {
+      "t": 15588,
+      "type": "caption",
+      "text": "Plain replies and hearts *both count*.",
+      "until": 21344
+    },
+    {
+      "t": 16284,
+      "type": "message",
+      "id": "m4",
+      "from": "ben",
+      "text": "fri or sat works",
+      "typing": 696
+    },
+    {
+      "t": 17516,
+      "type": "message",
+      "id": "m5",
+      "from": "jay",
+      "text": "not thu, fri works",
+      "typing": 748
+    },
+    {
+      "t": 18288,
+      "type": "reaction",
+      "target": "d2",
+      "emoji": "❤️",
+      "from": "maya"
+    },
+    {
+      "t": 18548,
+      "type": "reaction",
+      "target": "d2",
+      "emoji": "❤️",
+      "from": "ana"
+    },
+    {
+      "t": 18808,
+      "type": "reaction",
+      "target": "d3",
+      "emoji": "❤️",
+      "from": "ben"
+    },
+    {
+      "t": 19068,
+      "type": "reaction",
+      "target": "d2",
+      "emoji": "❤️",
+      "from": "you"
+    },
+    {
+      "t": 19932,
+      "type": "message",
+      "id": "m6",
+      "from": "otto",
+      "text": "Fri Oct 23 · 7pm it is: 5 in. Where to? Say \"otto find food\" for 3 options, or tell me the spot.",
+      "typing": 864
+    },
+    {
+      "t": 21344,
+      "type": "chapter",
+      "text": "Where to eat"
+    },
+    {
+      "t": 21344,
+      "type": "caption",
+      "text": "Hungry? Otto asks *one question*.",
+      "until": 27520
+    },
+    {
+      "t": 22244,
+      "type": "message",
+      "id": "m7",
+      "from": "maya",
+      "text": "ok I'm starving where are we eating",
+      "typing": 900
+    },
+    {
+      "t": 23698,
+      "type": "message",
+      "id": "m8",
+      "from": "otto",
+      "text": "What are we feeling? Cuisine, budget, and roughly where?",
+      "typing": 704
+    },
+    {
+      "t": 25140,
+      "type": "message",
+      "id": "m9",
+      "from": "ben",
+      "text": "tacos",
+      "typing": 410
+    },
+    {
+      "t": 26034,
+      "type": "message",
+      "id": "m10",
+      "from": "jay",
+      "text": "under $30",
+      "typing": 514
+    },
+    {
+      "t": 27064,
+      "type": "message",
+      "id": "m11",
+      "from": "ana",
+      "text": "harvard square",
+      "typing": 644
+    },
+    {
+      "t": 27520,
+      "type": "caption",
+      "text": "Real places nearby, open *Friday at 7*.",
+      "until": 32080
+    },
+    {
+      "t": 28332,
+      "type": "message",
+      "id": "m12",
+      "from": "otto",
+      "text": "Tacos, under $30, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).",
+      "typing": 812
+    },
+    {
+      "t": 28752,
+      "type": "message",
+      "id": "p1",
+      "from": "otto",
+      "text": "1 · El Jefe's Taqueria · ~$$ (est.) · 2 min walk · open Fri 7pm"
+    },
+    {
+      "t": 29172,
+      "type": "message",
+      "id": "p2",
+      "from": "otto",
+      "text": "2 · Felipe's Taqueria · ~$$ (est.) · 3 min walk · open Fri 7pm"
+    },
+    {
+      "t": 29592,
+      "type": "message",
+      "id": "p3",
+      "from": "otto",
+      "text": "3 · The Painted Burro · ~$$ (est.) · 3 min walk · open Fri 7pm"
+    },
+    {
+      "t": 29516,
+      "type": "reaction",
+      "target": "p2",
+      "emoji": "❤️",
+      "from": "ben"
+    },
+    {
+      "t": 29776,
+      "type": "reaction",
+      "target": "p2",
+      "emoji": "❤️",
+      "from": "maya"
+    },
+    {
+      "t": 30036,
+      "type": "reaction",
+      "target": "p1",
+      "emoji": "❤️",
+      "from": "jay"
+    },
+    {
+      "t": 30296,
+      "type": "reaction",
+      "target": "p2",
+      "emoji": "❤️",
+      "from": "you"
+    },
+    {
+      "t": 30992,
+      "type": "message",
+      "id": "m13",
+      "from": "otto",
+      "text": "Felipe's Taqueria it is: 21 Brattle Street, Cambridge.",
+      "typing": 696
+    },
+    {
+      "t": 32080,
+      "type": "chapter",
+      "text": "The quiet friend"
+    },
+    {
+      "t": 32080,
+      "type": "caption",
+      "text": "Quiet friend? Otto *calls*, only if they opted in.",
+      "until": 42420
+    },
+    {
+      "t": 32080,
+      "type": "divider",
+      "text": "*Sun* 7:28 PM",
+      "clock": "7:28"
+    },
+    {
+      "t": 33540,
+      "type": "message",
+      "id": "m14",
+      "from": "otto",
+      "text": "Still need Sam, so I'm giving them a quick call (they said that's ok).",
+      "typing": 760
+    },
+    {
+      "type": "call",
+      "lines": [
+        {
+          "from": "Otto",
+          "text": "Hi, this is Otto calling about your group's plan. Does Friday at 7 work for you?",
+          "t": 1480,
+          "duration": 2880
+        },
+        {
+          "from": "Sam",
+          "text": "Friday works.",
+          "t": 4740,
+          "duration": 700
+        }
+      ],
+      "caller": "otto",
+      "number": "(617) 555-01xx",
+      "label": "Sam's phone",
+      "note": "Simulated call audio",
+      "accept": 1100,
+      "endAt": 5990,
+      "duration": 6940,
+      "t": 35480
+    },
+    {
+      "t": 42420,
+      "type": "caption",
+      "text": "The answer lands back *in the chat*.",
+      "until": 44826
+    },
+    {
+      "t": 43070,
+      "type": "message",
+      "id": "m15",
+      "from": "otto",
+      "text": "Sam's in for Fri (by phone). 6 for 6 🎉",
+      "typing": 650
+    },
+    {
+      "t": 44466,
+      "type": "reaction",
+      "target": "m15",
+      "emoji": "🎉",
+      "from": "ana"
+    },
+    {
+      "t": 44726,
+      "type": "reaction",
+      "target": "m15",
+      "emoji": "❤️",
+      "from": "sam"
+    },
+    {
+      "t": 44826,
+      "type": "chapter",
+      "text": "Then it forgets"
+    },
+    {
+      "t": 44826,
+      "type": "caption",
+      "text": "Ask it *what it knows*.",
+      "until": 51492
+    },
+    {
+      "t": 44826,
+      "type": "divider",
+      "text": "*Sat, Oct 24* · 11:40 AM",
+      "clock": "11:40"
+    },
+    {
+      "t": 46426,
+      "type": "message",
+      "id": "m16",
+      "from": "ana",
+      "text": "last night was perfect 🥹",
+      "typing": 900
+    },
+    {
+      "t": 47838,
+      "type": "message",
+      "id": "m17",
+      "from": "you",
+      "text": "otto what do you know",
+      "typing": 1016
+    },
+    {
+      "t": 49392,
+      "type": "message",
+      "id": "m18",
+      "from": "otto",
+      "text": "Here's everything I have for this chat: plan \"dinner\" · options Thu, Fri, Sat 7pm · chosen Fri 7pm · place Felipe's Taqueria (Harvard Sq) · 6 people: 6 yes · names you gave me: Ana, Ben, Sam · 1 call · deletes Sat 7pm. Say \"otto forget\" to delete it now.",
+      "typing": 1000
+    },
+    {
+      "t": 51492,
+      "type": "caption",
+      "text": "*Then it forgets.*",
+      "until": 54600
+    },
+    {
+      "t": 52148,
+      "type": "message",
+      "id": "m19",
+      "from": "you",
+      "text": "otto forget",
+      "typing": 656
+    },
+    {
+      "t": 53212,
+      "type": "message",
+      "id": "m20",
+      "from": "otto",
+      "text": "Done: I've deleted this plan.",
+      "typing": 650
+    },
+    {
+      "t": 54600,
+      "type": "end",
+      "duration": 4600,
+      "title": "Otto",
+      "line": "The friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards.",
+      "tagline": "No app to install. Just add it to the group chat.",
+      "badge": "Built on Photon",
+      "qr": "Text Otto: (number TBA)"
+    }
+  ]
+}

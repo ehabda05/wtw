@@ -1,0 +1,2816 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-17T01:26:16Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 562619361,
+  "lat": 42.3537493,
+  "lon": -71.1375944,
+  "tags": {
+    "addr:housenumber": "5",
+    "addr:postcode": "02134",
+    "addr:street": "North Beacon Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-17",
+    "contact:facebook": "yomaboston",
+    "contact:twitter": "yomaboston",
+    "cuisine": "burmese",
+    "name": "Yoma",
+    "opening_hours": "Mo-Su 12:00-21:00",
+    "phone": "+1 617-783-1372",
+    "website": "https://yomaboston.com/",
+    "website:menu": "http://yomaboston.com/menu"
+  }
+},
+{
+  "type": "node",
+  "id": 815763078,
+  "lat": 42.3500982,
+  "lon": -71.1306257,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:country": "US",
+    "addr:housenumber": "1222",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "fast_food",
+    "brand": "Taco Bell",
+    "brand:wikidata": "Q752941",
+    "check_date": "2025-08-02",
+    "cuisine": "tex-mex",
+    "delivery": "yes",
+    "drive_through": "no",
+    "name": "Taco Bell",
+    "opening_hours": "Su-Th 07:00-27:00, Fr-Sa 07:00-27:30",
+    "phone": "+1-857-341-0980",
+    "takeaway": "yes",
+    "website": "https://locations.tacobell.com/ma/allston/1222-commonwealth-ave.html"
+  }
+},
+{
+  "type": "node",
+  "id": 1456771945,
+  "lat": 42.3515752,
+  "lon": -71.1217868,
+  "tags": {
+    "addr:housenumber": "1022",
+    "addr:postcode": "02215",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "cuisine": "vietnamese",
+    "diet:vegetarian": "no",
+    "name": "Pho Viet",
+    "opening_hours": "Su-Mo, We-Th 11:00-20:00; Fr-Sa 11:00-20:30",
+    "phone": "+1-617-562-8828",
+    "website": "https://www.phoviets.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 1978700317,
+  "lat": 42.3516280,
+  "lon": -71.1220258,
+  "tags": {
+    "addr:housename": "Angora",
+    "addr:housenumber": "1024",
+    "addr:postcode": "02215",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant"
+  }
+},
+{
+  "type": "node",
+  "id": 1978954092,
+  "lat": 42.3516327,
+  "lon": -71.1221007,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2024-10-25",
+    "cuisine": "japanese",
+    "name": "Kayuga"
+  }
+},
+{
+  "type": "node",
+  "id": 1978954424,
+  "lat": 42.3515487,
+  "lon": -71.1214079,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1016",
+    "addr:postcode": "02215",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "fast_food",
+    "atm": "yes",
+    "cuisine": "pizza",
+    "diet:vegetarian": "yes",
+    "name": "T. Anthony's",
+    "opening_hours": "11:00-01:00,11:00-02:00",
+    "phone": "+1 617-734-7708",
+    "seats": "70",
+    "website": "https://www.tanthonypizzeria.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 3015800139,
+  "lat": 42.3457015,
+  "lon": -71.1272962,
+  "tags": {
+    "addr:city": "Brookline",
+    "addr:housenumber": "423",
+    "addr:postcode": "02446",
+    "addr:street": "Harvard Street",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "diet:kosher": "yes",
+    "name": "The Kosher Wok"
+  }
+},
+{
+  "type": "node",
+  "id": 3267743938,
+  "lat": 42.3526094,
+  "lon": -71.1213609,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "270",
+    "addr:postcode": "02215",
+    "addr:state": "MA",
+    "addr:street": "Babcock Street",
+    "amenity": "fast_food",
+    "name": "Ki Bistro",
+    "opening_hours": "Mo-Th 05:00-22:00;Fr 05:00-23:00;Sa 11:30-23:00;Su 12:00-21:00",
+    "phone": "+1 617-208-6922;+1 617-208-6928"
+  }
+},
+{
+  "type": "node",
+  "id": 3445710837,
+  "lat": 42.3461504,
+  "lon": -71.1280928,
+  "tags": {
+    "addr:city": "Brookline",
+    "addr:housenumber": "446",
+    "addr:postcode": "02446",
+    "addr:state": "MA",
+    "addr:street": "Harvard Street",
+    "amenity": "restaurant",
+    "cuisine": "mexican",
+    "name": "Anna's Taqueria",
+    "opening_hours": "09:00-17:00"
+  }
+},
+{
+  "type": "node",
+  "id": 3445730526,
+  "lat": 42.3521499,
+  "lon": -71.1219581,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1033",
+    "addr:postcode": "02215",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-07-17",
+    "cuisine": "thai",
+    "delivery": "yes",
+    "name": "Brown Sugar Cafe",
+    "opening_hours": "11:00-15:00;16:00-22:00"
+  }
+},
+{
+  "type": "node",
+  "id": 3900847075,
+  "lat": 42.3523408,
+  "lon": -71.1404708,
+  "tags": {
+    "addr:housenumber": "568",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-19",
+    "contact:facebook": "RockCityPizzeria",
+    "contact:instagram": "rockcitypizzza",
+    "cuisine": "pizza",
+    "delivery": "yes",
+    "internet_access": "wlan",
+    "name": "Rock City Pizza",
+    "opening_hours": "Su-Th 11:00-23:00; Fr-Sa 11:00-03:00",
+    "phone": "+1-617-782-7625",
+    "website": "https://www.rockcitypizzeria.com"
+  }
+},
+{
+  "type": "node",
+  "id": 3900854366,
+  "lat": 42.3533093,
+  "lon": -71.1366560,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "254",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "https://facebook.com/pages/Taqueria-Carrizal/105940475075",
+    "contact:twitter": "el_carrizal",
+    "cuisine": "mexican",
+    "name": "Taqueria El Carrizal",
+    "opening_hours": "Su-Th 11:00-21:00; Fr-Sa 11:00-22:00",
+    "phone": "+1 617-779-0022",
+    "website": "https://taqueriacarrizal.com",
+    "website:menu": "https://taqueriacarrizal.com/menu/"
+  }
+},
+{
+  "type": "node",
+  "id": 4406334871,
+  "lat": 42.3484862,
+  "lon": -71.1340933,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1304",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "branch": "1304 Commonwealth Avenue",
+    "brand": "Starbucks",
+    "brand:wikidata": "Q37158",
+    "check_date": "2026-04-15",
+    "cuisine": "coffee_shop",
+    "internet_access": "yes",
+    "name": "Starbucks",
+    "official_name": "Starbucks Coffee",
+    "opening_hours": "Mo-Fr 05:30-21:00; Sa-Su 06:00-21:00",
+    "outdoor_seating": "no",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "phone": "+1 617-566-1074",
+    "takeaway": "yes",
+    "website": "https://www.starbucks.com/store-locator/store/1007718/1304-commonwealth-ave-1304-commonwealth-avenue-boston-ma-021343747-us"
+  }
+},
+{
+  "type": "node",
+  "id": 4432010460,
+  "lat": 42.3506919,
+  "lon": -71.1309963,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "1223",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "fast_food",
+    "brand": "McDonald's",
+    "brand:website": "https://www.mcdonalds.com/",
+    "brand:wikidata": "Q38076",
+    "check_date": "2025-08-02",
+    "cuisine": "burger",
+    "internet_access": "wlan",
+    "name": "McDonald's",
+    "opening_hours": "Mo-Su 06:30-02:00",
+    "phone": "+1 617-562-1313",
+    "takeaway": "yes",
+    "website": "https://www.mcdonalds.com/us/en-us/location/26788.html"
+  }
+},
+{
+  "type": "node",
+  "id": 4650794605,
+  "lat": 42.3530579,
+  "lon": -71.1337480,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "184",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "thai",
+    "name": "Thai Place",
+    "phone": "+1 617 782 5782",
+    "website": "https://www.thaiplaceboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727366614,
+  "lat": 42.3502544,
+  "lon": -71.1318982,
+  "tags": {
+    "addr:housenumber": "1245",
+    "addr:postcode": "02134",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2025-08-02",
+    "cuisine": "korean",
+    "name": "Seoul Soulongtang",
+    "opening_hours": "Mo-Su 11:30-21:30",
+    "phone": "+1 617 505 6771",
+    "strapline": "Beef Soup for the Soul",
+    "website": "http://seoulbeefsoup.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727366615,
+  "lat": 42.3502937,
+  "lon": -71.1317983,
+  "tags": {
+    "addr:housenumber": "1243",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "check_date": "2026-04-15",
+    "cuisine": "coffee_shop",
+    "name": "Pavement Coffeehouse",
+    "opening_hours": "Mo-Su 07:00-16:00",
+    "takeaway": "yes",
+    "toilets": "no",
+    "website": "https://pavementcoffeehouse.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727366616,
+  "lat": 42.3506856,
+  "lon": -71.1313550,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1223",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "fast_food",
+    "branch": "Allston",
+    "brand": "Five Guys",
+    "brand:website": "http://www.fiveguys.com/",
+    "brand:wikidata": "Q1131810",
+    "cuisine": "burger",
+    "drive_through": "no",
+    "name": "Five Guys",
+    "official_name": "Five Guys Burgers and Fries",
+    "opening_hours": "Su-Th 11:00-22:00",
+    "phone": "+1 617-487-5495",
+    "takeaway": "yes",
+    "website": "https://restaurants.fiveguys.com/1223-commonwealth-ave"
+  }
+},
+{
+  "type": "node",
+  "id": 4727380451,
+  "lat": 42.3471367,
+  "lon": -71.1284589,
+  "tags": {
+    "amenity": "cafe",
+    "brand": "Starbucks",
+    "brand:wikidata": "Q37158",
+    "cuisine": "coffee_shop",
+    "name": "Starbucks",
+    "official_name": "Starbucks Coffee",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4727380453,
+  "lat": 42.3461287,
+  "lon": -71.1277186,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "italian;seafood",
+    "name": "The Daily Catch"
+  }
+},
+{
+  "type": "node",
+  "id": 4727380456,
+  "lat": 42.3529636,
+  "lon": -71.1329577,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "170",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "name": "Fish Market",
+    "website": "https://fishmarketsushibar.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727413216,
+  "lat": 42.3518417,
+  "lon": -71.1243464,
+  "tags": {
+    "addr:housenumber": "1098",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "cuisine": "cajun;seafood",
+    "name": "Holly Crab",
+    "website": "http://hollycrab.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727545882,
+  "lat": 42.3533754,
+  "lon": -71.1335290,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "179",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "alt_name": "Dunkin' Donuts",
+    "amenity": "fast_food",
+    "brand": "Dunkin'",
+    "brand:website": "https://www.dunkindonuts.com/",
+    "brand:wikidata": "Q847743",
+    "cuisine": "donut;coffee_shop",
+    "drive_through": "no",
+    "name": "Dunkin'",
+    "opening_hours": "Mo-Su 05:00-21:00",
+    "phone": "+16177873462",
+    "ref": "304560",
+    "takeaway": "yes",
+    "website": "https://locations.dunkindonuts.com/en/ma/allston/179-brighton-ave/304560"
+  }
+},
+{
+  "type": "node",
+  "id": 4727545887,
+  "lat": 42.3531809,
+  "lon": -71.1319532,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "155",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "Mala Kung Fu",
+    "website": "https://www.malakungfu.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567589,
+  "lat": 42.3529801,
+  "lon": -71.1305076,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "109",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "PunjabPalaceBoston",
+    "cuisine": "indian",
+    "name": "Punjab Palace",
+    "opening_hours": "Mo-Fr 11:15-14:45, 17:00-22:30; Sa-Su 11:15-17:30",
+    "phone": "+1-617-254-1500",
+    "website": "https://www.punjabpalacema.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567590,
+  "lat": 42.3530308,
+  "lon": -71.1309186,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "123",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "brand": "Bonchon Chicken",
+    "brand:website": "https://bonchon.com/",
+    "brand:wikidata": "Q4941248",
+    "check_date": "2026-07-19",
+    "cuisine": "chicken;korean;sushi",
+    "name": "Bonchon Chicken"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567591,
+  "lat": 42.3530850,
+  "lon": -71.1313186,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "137",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "brand": "Da Long Yi Hot Pot",
+    "brand:website": "https://www.dalongyi.com/",
+    "check_date": "2026-07-17",
+    "cuisine": "hotpot",
+    "name": "Da Long Yi Hot Pot",
+    "source": "https://bostonrestaurants.blogspot.com/2021/07/dalongyi-hot-pot-plans-replace-les-in.html"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567592,
+  "lat": 42.3530664,
+  "lon": -71.1311648,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "131",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "https://facebook.com/pages/Carlos-Cucina-Italiana/110611344509",
+    "contact:instagram": "carlos_cucina_italiana",
+    "cuisine": "italian",
+    "name": "Carlo's Cucina Italiana",
+    "phone": "+1-617-254-9759",
+    "short_name": "Carlo's",
+    "website": "https://carloscucinaitaliana.com/",
+    "website:menu": "https://carloscucinaitaliana.com/dinner-menu/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567593,
+  "lat": 42.3531286,
+  "lon": -71.1316808,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "145",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "cafe",
+    "brand": "OneZo Tapioca",
+    "brand:en": "OneZo Tapioca",
+    "brand:website": "https://www.onezo.us/",
+    "brand:wikidata": "Q111537052",
+    "brand:zh": "丸作",
+    "cuisine": "bubble_tea",
+    "name": "OneZo Tapioca",
+    "name:en": "OneZo Tapioca",
+    "name:zh": "丸作",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567595,
+  "lat": 42.3533596,
+  "lon": -71.1320051,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "90",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "Myung Dong 1st Ave",
+    "opening_hours": "Mo-Su 17:00-01:00",
+    "phone": "+1 617 206 3229"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567596,
+  "lat": 42.3543378,
+  "lon": -71.1322774,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "56-58",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "Kaju Tofu House"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567599,
+  "lat": 42.3535775,
+  "lon": -71.1323708,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "81",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "kimchipapi kitchen",
+    "website": "https://www.kimchipapi.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567601,
+  "lat": 42.3544993,
+  "lon": -71.1323319,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "48",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "StreetFood Revolution"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567602,
+  "lat": 42.3550891,
+  "lon": -71.1340758,
+  "tags": {
+    "addr:housenumber": "421",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "contact:facebook": "lulusallstonbos",
+    "contact:instagram": "lulusallston",
+    "contact:twitter": "lulusallston",
+    "cuisine": "american",
+    "email": "LULUSALLSTON@GMAIL.COM",
+    "name": "LuLu's Allston",
+    "opening_hours": "Mo-Th 11:30-22:00; Fr 11:30-23:00; Sa 09:00-23:00; Su 09:00-22:00",
+    "phone": "+1-617-787-1117",
+    "website": "https://lulusallston.com/",
+    "website:menu": "http://lulusallston.com/menu.html"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567606,
+  "lat": 42.3523797,
+  "lon": -71.1317386,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "Korean Garden",
+    "opening_hours": "Su-Th 11:30-21:30; Fr-Sa 11:30-22:30",
+    "phone": "+1 617 562 8989",
+    "website": "https://www.koreangardenma.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567607,
+  "lat": 42.3514224,
+  "lon": -71.1314079,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "168",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "hanmaruboston",
+    "contact:instagram": "hanmaru_restaurant",
+    "cuisine": "korean",
+    "email": "hanmarucorp@gmail.com",
+    "name": "Hanmaru",
+    "opening_hours": "Su-Th 11:30-20:00; Fr-Sa 11:30-21:00",
+    "phone": "+1-617-779-7907",
+    "website": "https://www.hanmaruboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567608,
+  "lat": 42.3518811,
+  "lon": -71.1319287,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "145",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese;dessert",
+    "name": "Sweet Kingdom"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567609,
+  "lat": 42.3521378,
+  "lon": -71.1320064,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "133",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "mediterranean",
+    "name": "Garlic and Lemon",
+    "website": "https://www.garliclemons.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567610,
+  "lat": 42.3507149,
+  "lon": -71.1309101,
+  "tags": {
+    "addr:housenumber": "1217A",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "cuisine": "hookah",
+    "name": "Habibi's Lounge",
+    "opening_hours": "Su-Th 14:00-01:00, Fr,Sa 14:00-02:00"
+  }
+},
+{
+  "type": "node",
+  "id": 4727567611,
+  "lat": 42.3499384,
+  "lon": -71.1305270,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "204",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "check_date": "2025-08-02",
+    "contact:facebook": "https://www.facebook.com/people/BOS-SiChuan-Taste%E4%B8%80%E7%A2%9F%E5%B7%9D%E8%8F%9C%E9%A6%86/100093255336980/",
+    "cuisine": "chinese",
+    "name": "BOS' Sichuan Taste",
+    "opening_hours": "Mo-Th 11:00-21:30; Fr-Su 11:00-22:00",
+    "phone": "+1-617-566-7344",
+    "website": "https://bosyidie.com/",
+    "website:menu": "https://bosyidie.com/menu"
+  }
+},
+{
+  "type": "node",
+  "id": 4728935493,
+  "lat": 42.3522064,
+  "lon": -71.1320271,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "131",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "cafe",
+    "brand": "Kung Fu Tea",
+    "brand:website": "https://www.kungfutea.com/",
+    "brand:wikidata": "Q66023886",
+    "cuisine": "bubble_tea",
+    "name": "Kung Fu Tea",
+    "opening_hours": "Su-We 11:00-21:00; Th-Sa 11:00-23:00",
+    "phone": "+16177833388",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4728935494,
+  "lat": 42.3526393,
+  "lon": -71.1303506,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "108",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "vietnamese",
+    "name": "Banh Mi K",
+    "website": "https://www.banhmik.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4728935784,
+  "lat": 42.3524524,
+  "lon": -71.1288043,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "76",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "OliTokiRestaurant",
+    "contact:instagram": "olitoki",
+    "contact:twitter": "OliToki",
+    "cuisine": "korean",
+    "indoor_seating": "yes",
+    "name": "Olitoki",
+    "opening_hours": "Su-Th 11:00-22:30; Fr-Sa 11:00-23:00",
+    "outdoor_seating": "no",
+    "website": "https://olitoki.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 4916828862,
+  "lat": 42.3513534,
+  "lon": -71.1313680,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "174",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-04-15",
+    "contact:facebook": "unionallston",
+    "contact:instagram": "unioncafeallston",
+    "cuisine": "diner",
+    "level": "0",
+    "name": "@Union",
+    "opening_hours": "Mo-Th 07:00-16:00; Fr-Sa 07:00-17:00; Su 08:00-17:00",
+    "outdoor_seating": "no",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "phone": "+1-617-779-0077",
+    "takeaway": "yes",
+    "toilets": "yes",
+    "website": "https://www.unioncafeboston.com",
+    "website:menu": "https://www.unioncafeboston.com/menu"
+  }
+},
+{
+  "type": "node",
+  "id": 4938783522,
+  "lat": 42.3537930,
+  "lon": -71.1372699,
+  "tags": {
+    "addr:housenumber": "487",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "cuisine": "turkish",
+    "name": "Lazuri Chicken 'N' Pizza"
+  }
+},
+{
+  "type": "node",
+  "id": 6206737785,
+  "lat": 42.3524614,
+  "lon": -71.1317615,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "120",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "diner",
+    "name": "Cafe Weekend",
+    "old_name": "Steve's Kitchen"
+  }
+},
+{
+  "type": "node",
+  "id": 6347873501,
+  "lat": 42.3549918,
+  "lon": -71.1343062,
+  "tags": {
+    "addr:housenumber": "431",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "brand": "Ten Seconds Yunnan Rice Noodle",
+    "brand:en": "Ten Seconds Yunnan Rice Noodle",
+    "brand:wikidata": "Q119118794",
+    "brand:zh": "十秒到云南过桥米线",
+    "cuisine": "chinese;noodle",
+    "name": "Ten Seconds Yunnan Rice Noodle",
+    "name:en": "Ten Seconds Yunnan Rice Noodle",
+    "name:zh": "十秒到云南过桥米线"
+  }
+},
+{
+  "type": "node",
+  "id": 6347880914,
+  "lat": 42.3530456,
+  "lon": -71.1336434,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "180",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "fast_food",
+    "cuisine": "greek",
+    "name": "Saloniki"
+  }
+},
+{
+  "type": "node",
+  "id": 7185571085,
+  "lat": 42.3522328,
+  "lon": -71.1226813,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "1047",
+    "addr:postcode": "02215",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "brand": "Caffè Nero",
+    "brand:wikidata": "Q675808",
+    "check_date": "2026-07-17",
+    "cuisine": "coffee_shop",
+    "internet_access": "wlan",
+    "internet_access:fee": "no",
+    "name": "Caffè Nero",
+    "opening_hours": "Mo-Fr 06:30-19:00, Sa-Su 07:00-19:00",
+    "phone": "+1-617-941-7510",
+    "takeaway": "yes",
+    "website": "https://www.caffenero.com/us/stores"
+  }
+},
+{
+  "type": "node",
+  "id": 7690362223,
+  "lat": 42.3533777,
+  "lon": -71.1385047,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "509",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Cambridge Street",
+    "alt_name": "Dunkin' Donuts",
+    "amenity": "fast_food",
+    "brand": "Dunkin'",
+    "brand:wikidata": "Q847743",
+    "contact:website": "https://locations.dunkindonuts.com/en/ma/allston/509-cambridge-st/341871",
+    "cuisine": "donut;coffee_shop",
+    "drive_through": "no",
+    "internet_access": "wlan",
+    "name": "Dunkin'",
+    "opening_hours": "24/7",
+    "phone": "+16172540798",
+    "ref": "341871",
+    "takeaway": "yes",
+    "website": "https://locations.dunkindonuts.com/en/ma/allston/509-cambridge-st/341871"
+  }
+},
+{
+  "type": "node",
+  "id": 8291744018,
+  "lat": 42.3538186,
+  "lon": -71.1382106,
+  "tags": {
+    "addr:postcode": "02134",
+    "amenity": "restaurant",
+    "cuisine": "pizza",
+    "name": "La Befana Pizzeria",
+    "opening_hours": "Tu-Fr 11:00-21:45; Sa-Su 12:00-21:45",
+    "phone": "+1 617-987-0086",
+    "strapline": "Our passion is in the pizza",
+    "website:menu": "https://www.labefanamenu.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 8984917797,
+  "lat": 42.3518625,
+  "lon": -71.1242769,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1096",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2024-10-25",
+    "cuisine": "american;sandwich",
+    "diet:vegetarian": "yes",
+    "name": "Rhythm 'N Wraps",
+    "opening_hours": "Tu-Sa 11:00-20:00; Su 11:00-19:00",
+    "phone": "+1-617-556-4144",
+    "website": "https://www.rhythmnwraps.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9155719495,
+  "lat": 42.3520386,
+  "lon": -71.1319810,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "137",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "Dumpling Kingdom",
+    "website": "https://dumplingkingdomallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9155719497,
+  "lat": 42.3530053,
+  "lon": -71.1307007,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "113",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "contact:instagram": "https://www.instagram.com/bostonsoupdumplings/",
+    "cuisine": "chinese",
+    "name": "Boston Soup Dumplings",
+    "name:zh": "烹小鲜",
+    "opening_hours": "Su-Th 11:30-15:00,16:00-21:00; Fr-Sa 11:30-15:00,16:00-21:00",
+    "phone": "+1-617-202-3867",
+    "source": "esri/Boston_MA_Addresses",
+    "website": "https://www.bostonsoupdumplings.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9307450537,
+  "lat": 42.3584562,
+  "lon": -71.1263614,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "219",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Cambridge Street",
+    "alt_name": "Dunkin' Donuts",
+    "amenity": "fast_food",
+    "brand": "Dunkin'",
+    "brand:wikidata": "Q847743",
+    "contact:website": "https://locations.dunkindonuts.com/en/ma/allston/219-cambridge-st/347512",
+    "cuisine": "donut;coffee_shop",
+    "drive_through": "no",
+    "name": "Dunkin'",
+    "opening_hours": "Mo-Fr 05:00-21:00; Sa,Su 06:00-21:00",
+    "phone": "+1 617 787 1608",
+    "ref": "347512",
+    "takeaway": "yes",
+    "website": "https://locations.dunkindonuts.com/en/ma/allston/219-cambridge-st/347512"
+  }
+},
+{
+  "type": "node",
+  "id": 9349874899,
+  "lat": 42.3518752,
+  "lon": -71.1241231,
+  "tags": {
+    "addr:housenumber": "1092",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "check_date": "2024-10-25",
+    "cuisine": "bubble_tea",
+    "name": "LimeRed Teahouse",
+    "website": "https://www.limeredteahouse.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9349881098,
+  "lat": 42.3544008,
+  "lon": -71.1323030,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "54",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "egyptian",
+    "name": "Azama Grill",
+    "website": "https://azamagrillboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9349890554,
+  "lat": 42.3526964,
+  "lon": -71.1255045,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "1",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "16",
+    "amenity": "restaurant",
+    "cuisine": "ramen",
+    "name": "Isshindo Ramen",
+    "opening_hours": "Su-Th 11:00-21:30; Fr-Sa 11:00-22:00",
+    "phone": "+1-617-987-0201",
+    "strapline": "One Heart One Ramen",
+    "website": "https://www.isshindoramen.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9349901499,
+  "lat": 42.3523015,
+  "lon": -71.1216801,
+  "tags": {
+    "amenity": "cafe",
+    "check_date": "2025-08-02",
+    "name": "Brown Sugar Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 9349903200,
+  "lat": 42.3526682,
+  "lon": -71.1212724,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "thai",
+    "name": "Thai Dish"
+  }
+},
+{
+  "type": "node",
+  "id": 9349906927,
+  "lat": 42.3514795,
+  "lon": -71.1314261,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "166",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "Seoul Topokki"
+  }
+},
+{
+  "type": "node",
+  "id": 9349909552,
+  "lat": 42.3525926,
+  "lon": -71.1237969,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1065",
+    "addr:postcode": "02215",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "cafe",
+    "branch": "Star Market Boston 3588",
+    "brand": "Starbucks",
+    "brand:wikidata": "Q37158",
+    "cuisine": "coffee_shop",
+    "name": "Starbucks",
+    "official_name": "Starbucks Coffee",
+    "phone": "+1 617-783-5878",
+    "ref": "1018482",
+    "takeaway": "yes",
+    "website": "https://www.starbucks.com/store-locator/store/1018482/star-market-boston-3588-1065-commonwealth-avenue-boston-ma-02215-us"
+  }
+},
+{
+  "type": "node",
+  "id": 9349922468,
+  "lat": 42.3516917,
+  "lon": -71.1315268,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "154",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "cafe",
+    "brand": "Gong Cha",
+    "brand:website": "https://gongchausa.com/",
+    "brand:wikidata": "Q5581670",
+    "brand:zh": "貢茶",
+    "cuisine": "bubble_tea",
+    "int_name": "Gong Cha",
+    "name": "Gong Cha",
+    "name:zh": "貢茶",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9349924866,
+  "lat": 42.3508313,
+  "lon": -71.1310762,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "194",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "taiwanese",
+    "name": "Tasty Pot",
+    "opening_hours": "Su-Th 11:00-22:00; Fr,Sa 11:00-22:15",
+    "website": "https://www.tastypotboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9349935224,
+  "lat": 42.3538796,
+  "lon": -71.1370253,
+  "tags": {
+    "addr:housenumber": "479",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "contact:facebook": "LoneStarTacoBar",
+    "contact:instagram": "lonestarallston",
+    "cuisine": "mexican",
+    "name": "Lone Star Taco Bar",
+    "opening_hours": "Mo-Su 11:00-01:00",
+    "phone": "+1 617-782-8226",
+    "website": "https://lonestar-boston.com",
+    "website:menu": "https://lonestar-boston.com/wp-content/uploads/2024/08/Lone-Star-food-8.7.24.pdf"
+  }
+},
+{
+  "type": "node",
+  "id": 9349936229,
+  "lat": 42.3510495,
+  "lon": -71.1311770,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "182",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "brand": "bb.q Chicken",
+    "brand:website": "https://www.bbqchickeneats.com/",
+    "brand:wikidata": "Q87716489",
+    "cuisine": "korean;chicken",
+    "name": "bb.q Chicken",
+    "opening_hours": "Su-Th 11:00-23:00; Fr-Sa 11:00-02:00",
+    "phone": "+1 617 903 3359",
+    "website": "https://www.bbqchickenallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9349942370,
+  "lat": 42.3558251,
+  "lon": -71.1423135,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "German Performance"
+  }
+},
+{
+  "type": "node",
+  "id": 9349946387,
+  "lat": 42.3545753,
+  "lon": -71.1323552,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "44",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "Asia Wok",
+    "website": "https://www.asiawokma.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968729,
+  "lat": 42.3531447,
+  "lon": -71.1317928,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "151",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "name": "Seoul Jangteo"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968733,
+  "lat": 42.3530592,
+  "lon": -71.1310938,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "129",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese;szechuan",
+    "name": "Mala Restaurant",
+    "website": "http://www.allstonmala.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968737,
+  "lat": 42.3529953,
+  "lon": -71.1306217,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "111",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "fast_food",
+    "brand:website": "https://pizzadays.us/",
+    "contact:facebook": "https://www.facebook.com/people/NY-Bagel-and-Coffee-Co/61578394417542/#",
+    "contact:instagram": "https://www.instagram.com/nybageldinerofficial/",
+    "cuisine": "bagel",
+    "email": "info@nybagelandcoffeeco.com",
+    "name": "NY Bagel and Diner",
+    "phone": "+1-617-870-7937",
+    "website": "https://nybagelandcoffeeco.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968742,
+  "lat": 42.3529624,
+  "lon": -71.1303578,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "103",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese;barbecue",
+    "name": "Friendship BBQ",
+    "source": "https://bostonrestaurants.blogspot.com/2020/11/friendship-bbq-replaces-jo-jo-taipei-in.html"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968747,
+  "lat": 42.3529584,
+  "lon": -71.1299917,
+  "tags": {
+    "amenity": "restaurant"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968749,
+  "lat": 42.3529237,
+  "lon": -71.1297624,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Bubbakoo's Burritos",
+    "brand:website": "https://www.bubbakoos.com/",
+    "brand:wikidata": "Q114619751",
+    "cuisine": "mexican",
+    "name": "Bubbakoo's Burritos",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968793,
+  "lat": 42.3524663,
+  "lon": -71.1253086,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese;sichuan",
+    "name": "B.D. Chilipa",
+    "name:zh": "霸道麻辣香锅",
+    "phone": "+1-617-987-0118"
+  }
+},
+{
+  "type": "node",
+  "id": 9611968799,
+  "lat": 42.3525436,
+  "lon": -71.1254776,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "1",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "disused:amenity": "restaurant",
+    "name": "Kwa Food Deep Fried Skewer",
+    "name:zh": "夸父炸串",
+    "opening_hours": "Mo-Su 11:00-21:00",
+    "phone": "+1-857-423-4427",
+    "website": "https://www.kwafoodma.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9612255224,
+  "lat": 42.3536066,
+  "lon": -71.1356927,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "Alfredo's Italian Restaurant",
+    "website": "http://alfredosonline.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9612255253,
+  "lat": 42.3532817,
+  "lon": -71.1329998,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "171",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "name": "B2J Tasty Pot"
+  }
+},
+{
+  "type": "node",
+  "id": 9615103302,
+  "lat": 42.3531696,
+  "lon": -71.1319409,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "155",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "cafe",
+    "name": "Madame Tea",
+    "website": "http://www.madametea.net/"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947146,
+  "lat": 42.3529222,
+  "lon": -71.1326659,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "160",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chicken",
+    "name": "Underdog Hot Chicken",
+    "website": "https://www.underdoghotchicken.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947151,
+  "lat": 42.3529482,
+  "lon": -71.1328255,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "166",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-07-17",
+    "cuisine": "mexican",
+    "name": "Habanero Mexican Grill",
+    "website": "https://habaneromexican.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947153,
+  "lat": 42.3529586,
+  "lon": -71.1329136,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "168",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "A",
+    "amenity": "cafe",
+    "check_date": "2026-07-19",
+    "name": "Laughing Monk Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947154,
+  "lat": 42.3529710,
+  "lon": -71.1330152,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "172",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-07-19",
+    "cuisine": "korean;fusion",
+    "name": "Coreanos",
+    "website": "https://www.coreanosallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947155,
+  "lat": 42.3529745,
+  "lon": -71.1330612,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "174",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-07-19",
+    "contact:facebook": "https://www.facebook.com/SabordoBrasilAllston",
+    "cuisine": "brazilian",
+    "name": "Sabor do Brasil",
+    "note": "There is also a Sabor Do Brasil at 139 Brighton Avenue in Long Branch, New Jersey. I don't think they are related. And the street name being the same is a coincidence."
+  }
+},
+{
+  "type": "node",
+  "id": 9619947166,
+  "lat": 42.3530503,
+  "lon": -71.1336938,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "182",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "IFresh Noodle",
+    "opening_hours": "Mo-Su 11:30-21:30",
+    "phone": "+1 617 787 8888",
+    "website": "https://www.ifreshnoodle.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9619947170,
+  "lat": 42.3530773,
+  "lon": -71.1339396,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "190",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "A",
+    "amenity": "restaurant",
+    "check_date": "2026-07-17",
+    "cuisine": "italian",
+    "name": "La Mamma",
+    "website": "https://www.lamammapizzaandmore.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9622393311,
+  "lat": 42.3520617,
+  "lon": -71.1255255,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "2",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-07-19",
+    "cuisine": "mediterranean",
+    "name": "Tarboosh Pizza and Grill",
+    "website": "https://www.tarbooshboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9622402219,
+  "lat": 42.3524217,
+  "lon": -71.1285473,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "66",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "sushi",
+    "indoor_seating": "yes",
+    "name": "Kyoaji",
+    "outdoor_seating": "no",
+    "phone": "+1 617-208-8747",
+    "website": "https://kyoajiallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9622402220,
+  "lat": 42.3524306,
+  "lon": -71.1286338,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "70",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "indoor_seating": "yes",
+    "name": "Clay Pot Cafe",
+    "outdoor_seating": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 9622402221,
+  "lat": 42.3524425,
+  "lon": -71.1287270,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "72",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "air_conditioning": "yes",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "yes",
+    "indoor_seating": "yes",
+    "name": "Dolphin Bay",
+    "opening_hours": "Mo-Su 11:00-22:00",
+    "outdoor_seating": "no",
+    "phone": "+16175621668"
+  }
+},
+{
+  "type": "node",
+  "id": 9622402241,
+  "lat": 42.3528003,
+  "lon": -71.1316912,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "138",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "brand": "Happy Lamb Hot Pot",
+    "brand:en": "Happy Lamb Hot Pot",
+    "brand:wikidata": "Q123091978",
+    "brand:zh": "快乐小羊",
+    "contact:facebook": "HappyLambHotPotBoston",
+    "cuisine": "mongolian;hotpot",
+    "name": "Happy Lamb Hot Pot",
+    "name:en": "Happy Lamb Hot Pot",
+    "name:zh": "快乐小羊",
+    "note": "Most sources say Happy Lamb is at 130 Brighton Ave, but the door says 138.",
+    "opening_hours": "Su-Fr 16:00-22:00; Sa 00:00-16:00",
+    "phone": "+16179034032"
+  }
+},
+{
+  "type": "node",
+  "id": 9622402242,
+  "lat": 42.3528174,
+  "lon": -71.1318763,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "140",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "brand": "Meet Fresh",
+    "brand:website": "https://meetfresh.us/",
+    "brand:wikidata": "Q11172707",
+    "brand:zh": "鮮芋仙",
+    "contact:facebook": "MeetFreshUSA",
+    "contact:instagram": "meetfreshusa",
+    "cuisine": "taiwanese",
+    "name": "Meet Fresh",
+    "name:zh": "鮮芋仙",
+    "opening_hours": "Mo-Su 13:00-21:45",
+    "phone": "+1-617-254-7000",
+    "website": "https://meetfresh.us/"
+  }
+},
+{
+  "type": "node",
+  "id": 9625552630,
+  "lat": 42.3517136,
+  "lon": -71.1315387,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "154",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "fast_food",
+    "brand": "Mochinut",
+    "brand:website": "https://www.mochinut.com/",
+    "brand:wikidata": "Q112757409",
+    "cuisine": "donut;bubble_tea",
+    "name": "Mochinut",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9625552635,
+  "lat": 42.3512928,
+  "lon": -71.1313402,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "176",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "cafe",
+    "brand": "machi machi",
+    "brand:en": "machi machi",
+    "brand:wikidata": "Q114828290",
+    "brand:zh": "麥吉",
+    "cuisine": "bubble_tea",
+    "name": "Machi machi",
+    "opening_hours": "Mo-Su 12:00-22:00",
+    "outdoor_seating": "no",
+    "takeaway": "yes",
+    "website": "https://pos.chowbus.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9627847822,
+  "lat": 42.3535045,
+  "lon": -71.1323534,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "85",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "Kao BBQ",
+    "website": "https://www.kaobbqma.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9627847824,
+  "lat": 42.3536571,
+  "lon": -71.1323856,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "77",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "cafe",
+    "contact:instagram": "https://www.instagram.com/fruity_greentea/",
+    "cuisine": "bubble_tea",
+    "name": "Fruity"
+  }
+},
+{
+  "type": "node",
+  "id": 9647708056,
+  "lat": 42.3508919,
+  "lon": -71.1314683,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "185",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "amenity": "restaurant",
+    "contact:facebook": "Oppasushigogo",
+    "cuisine": "sushi",
+    "name": "Oppa Sushi",
+    "opening_hours": "Mo-Su 12:00-15:00, 16:30-21:45",
+    "phone": "+16172023808"
+  }
+},
+{
+  "type": "node",
+  "id": 9654955449,
+  "lat": 42.3507344,
+  "lon": -71.1308501,
+  "tags": {
+    "addr:housenumber": "1219",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "cuisine": "mediterranean",
+    "name": "Ajeen",
+    "opening_hours": "Su-Th 10:00-01:00, Fr,Sa 10:00-03:00",
+    "website": "https://www.ajeenallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9654955450,
+  "lat": 42.3507540,
+  "lon": -71.1307900,
+  "tags": {
+    "addr:housenumber": "1217",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "cuisine": "mediterranean",
+    "name": "House of Shawarma",
+    "opening_hours": "Mo-Su 11:00-24:00"
+  }
+},
+{
+  "type": "node",
+  "id": 9654955493,
+  "lat": 42.3508369,
+  "lon": -71.1276300,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "1153",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2025-08-02",
+    "contact:instagram": "https://www.instagram.com/littletaoboston/",
+    "contact:xiaohongshu": "https://www.xiaohongshu.com/user/profile/62eac6fa000000001e01f179",
+    "cuisine": "sichuan",
+    "email": "mylittletao@gmail.com",
+    "name": "Little Tao",
+    "name:zh-Hans": "涛小宴",
+    "name:zh-Latn-pinyin": "Tāo Xiǎoyàn",
+    "note": "Adding Wing It as old name because the Wing It awning and decorations are still visible",
+    "old_name": "Wing It",
+    "opening_hours": "Mo-Su 11:30-21:30",
+    "phone": "+1-617-207-2781",
+    "website": "https://mylittletao.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9654955495,
+  "lat": 42.3508855,
+  "lon": -71.1273927,
+  "tags": {
+    "addr:housenumber": "1147",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2025-08-02",
+    "cuisine": "mediterranean",
+    "name": "Zaaki",
+    "website": "https://zaakifoodtruck.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9717314224,
+  "lat": 42.3498988,
+  "lon": -71.1311454,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2025-08-02",
+    "cuisine": "pizza",
+    "name": "Inbound Pizza & Restaurant",
+    "opening_hours": "Su-Th 11:00-12:00, Fr,Sa 11:00-02:00",
+    "website": "https://www.myinboundpizza.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9723942216,
+  "lat": 42.3488155,
+  "lon": -71.1403863,
+  "tags": {
+    "addr:housenumber": "1443",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-06-18",
+    "cuisine": "pizza",
+    "name": "Sammy's Pizza & Fried Chicken",
+    "website": "https://sammyspizzabrighton.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9821576302,
+  "lat": 42.3537384,
+  "lon": -71.1396597,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "bubble_tea",
+    "name": "Yomie's Rice X Yogurt",
+    "website": "https://www.yomiesricexyogurt.us/"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872438,
+  "lat": 42.3546685,
+  "lon": -71.1340147,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "416",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Cambridge Street",
+    "amenity": "fast_food",
+    "brand": "Domino's",
+    "brand:website": "https://www.dominos.com/",
+    "brand:wikidata": "Q839466",
+    "cuisine": "pizza",
+    "name": "Domino's",
+    "opening_hours": "Mo-Sa 10:30-02:00; Su 10:30-01:00",
+    "phone": "+1 617-254-4800",
+    "ref": "3742",
+    "takeaway": "yes",
+    "website": "https://pizza.dominos.com/massachusetts/allston/416-cambridge-st"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872467,
+  "lat": 42.3539257,
+  "lon": -71.1357196,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "indian",
+    "name": "Indian Kitchen",
+    "website": "https://www.indiankitchenallston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872488,
+  "lat": 42.3549584,
+  "lon": -71.1343842,
+  "tags": {
+    "addr:housenumber": "433",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "cuisine": "thai",
+    "name": "9 Thai Express"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872523,
+  "lat": 42.3538268,
+  "lon": -71.1371492,
+  "tags": {
+    "addr:housenumber": "483",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "air_conditioning": "yes",
+    "amenity": "cafe",
+    "contact:instagram": "coffee.turco",
+    "cuisine": "coffee_shop",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "yes",
+    "indoor_seating": "yes",
+    "internet_access": "yes",
+    "internet_access:fee": "no",
+    "name": "Coffee Turco",
+    "opening_hours": "Mo-Su 09:00-18:00",
+    "phone": "+1 857-498-1301",
+    "smoking": "no",
+    "takeaway": "yes",
+    "toilets": "yes",
+    "toilets:access": "customers",
+    "website": "https://coffeeturcos.com"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872524,
+  "lat": 42.3538102,
+  "lon": -71.1372072,
+  "tags": {
+    "addr:housenumber": "485",
+    "addr:postcode": "02134",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "check_date": "2026-07-19",
+    "name": "Fries B4 Guys"
+  }
+},
+{
+  "type": "node",
+  "id": 9826872526,
+  "lat": 42.3537641,
+  "lon": -71.1374181,
+  "tags": {
+    "amenity": "cafe",
+    "check_date": "2026-07-17",
+    "name": "Lazuri Cafe"
+  }
+},
+{
+  "type": "node",
+  "id": 10175990479,
+  "lat": 42.3482973,
+  "lon": -71.1398681,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2022-11-11",
+    "cuisine": "american",
+    "name": "Harry's bar & grill",
+    "sport": "billiards"
+  }
+},
+{
+  "type": "node",
+  "id": 11011208190,
+  "lat": 42.3591936,
+  "lon": -71.1376758,
+  "tags": {
+    "addr:city": "Brighton",
+    "addr:housenumber": "100",
+    "addr:postcode": "02135",
+    "addr:state": "MA",
+    "addr:street": "Holton Street",
+    "amenity": "cafe",
+    "contact:facebook": "blackbirddoughnuts",
+    "contact:instagram": "blackbirddoughnuts",
+    "contact:twitter": "bbdoughnuts",
+    "cuisine": "coffee_shop;donut",
+    "name": "Blackbird Doughnuts Brighton",
+    "opening_hours": "Sa-Su 08:00-13:00; Mo-Fr 08:00-11:00",
+    "website": "https://www.blackbirddoughnuts.com",
+    "website:menu": "https://www.blackbirddoughnuts.com/doughnuts"
+  }
+},
+{
+  "type": "node",
+  "id": 12111711801,
+  "lat": 42.3532737,
+  "lon": -71.1329086,
+  "tags": {
+    "addr:housenumber": "169",
+    "addr:postcode": "02134",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "branch": "Allston",
+    "brand": "Hokkaido Ramen Santouka",
+    "brand:en": "Hokkaido Ramen Santouka",
+    "brand:ja": "らーめん山頭火",
+    "brand:wikidata": "Q17210103",
+    "contact:facebook": "BellevueRamen",
+    "contact:instagram": "santouka_restaurant.usa",
+    "cuisine": "ramen",
+    "email": "info@santouka-usa.com",
+    "name": "Hokkaido Ramen Santouka",
+    "name:en": "Hokkaido Ramen Santouka",
+    "name:ja": "らーめん山頭火",
+    "opening_hours": "Mo-Sa 11:00-22:00; Su 11:00-21:30",
+    "phone": "+1 617-903-3159",
+    "website": "https://www.santouka-usa.com/",
+    "website:menu": "https://www.santouka-usa.com/menu"
+  }
+},
+{
+  "type": "node",
+  "id": 12211850356,
+  "lat": 42.3471891,
+  "lon": -71.1284854,
+  "tags": {
+    "addr:city": "Brookline",
+    "addr:housenumber": "477",
+    "addr:postcode": "02446",
+    "addr:state": "MA",
+    "addr:street": "Harvard Street",
+    "amenity": "restaurant",
+    "cuisine": "indian",
+    "name": "Mirchi Nation-Indian Kitchen",
+    "phone": "+1 617-383-5934; +1 617-383-5943",
+    "website": "https://www.mirchination.com/brookline/"
+  }
+},
+{
+  "type": "node",
+  "id": 12211865707,
+  "lat": 42.3472246,
+  "lon": -71.1285048,
+  "tags": {
+    "addr:city": "Brookline",
+    "addr:housenumber": "479",
+    "addr:postcode": "02446",
+    "addr:state": "MA",
+    "addr:street": "Harvard Street",
+    "amenity": "restaurant",
+    "cuisine": "asian",
+    "name": "Basil Rice",
+    "phone": "+1 617-608-3563",
+    "website": "https://www.basilrice.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 12626686601,
+  "lat": 42.3547368,
+  "lon": -71.1350496,
+  "tags": {
+    "addr:postcode": "02141",
+    "amenity": "cafe",
+    "contact:instagram": "curiocoffee",
+    "cuisine": "coffee_shop",
+    "name": "Curio Coffee",
+    "opening_hours": "Mo-Fr 07:00-14:00; Sa-Su 08:00-14:00",
+    "website": "https://www.curiocoffee.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 12752701870,
+  "lat": 42.3466049,
+  "lon": -71.1279993,
+  "tags": {
+    "addr:housenumber": "455",
+    "addr:street": "Harvard Street",
+    "amenity": "cafe",
+    "brand": "Blank Street Coffee",
+    "brand:wikidata": "Q114792509",
+    "check_date": "2025-04-13",
+    "cuisine": "coffee_shop",
+    "internet_access": "wlan",
+    "internet_access:fee": "customers",
+    "name": "Blank Street Coffee",
+    "opening_hours": "Mo-Fr 06:30-05:00; Sa-Su 07:00-05:00",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12812294701,
+  "lat": 42.3515601,
+  "lon": -71.1314775,
+  "tags": {
+    "addr:housenumber": "162",
+    "addr:postcode": "02134",
+    "addr:street": "Harvard Avenue",
+    "amenity": "cafe",
+    "brand": "Heytea",
+    "brand:en": "Heytea",
+    "brand:wikidata": "Q60875376",
+    "brand:zh": "喜茶",
+    "check_date": "2026-04-15",
+    "cuisine": "bubble_tea",
+    "highchair": "no",
+    "internet_access": "no",
+    "name": "Heytea",
+    "name:en": "Heytea",
+    "name:zh": "喜茶",
+    "outdoor_seating": "no",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "takeaway": "only",
+    "toilets": "no",
+    "website": "http://heytea.com",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13307263301,
+  "lat": 42.3526133,
+  "lon": -71.1252902,
+  "tags": {
+    "addr:housenumber": "1",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "name": "Grasshopper Vegan"
+  }
+},
+{
+  "type": "node",
+  "id": 13412812858,
+  "lat": 42.3525766,
+  "lon": -71.1303578,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "chicken",
+    "name": "24 hour wings",
+    "opening_hours": "24/7",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13734965827,
+  "lat": 42.3484100,
+  "lon": -71.1342671,
+  "tags": {
+    "addr:housenumber": "1312",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "check_date": "2026-04-16",
+    "cuisine": "pizza",
+    "name": "Proof Pizzaria",
+    "outdoor_seating": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13738942137,
+  "lat": 42.3500730,
+  "lon": -71.1260657,
+  "tags": {
+    "addr:housenumber": "180",
+    "addr:street": "Thorndike Street",
+    "amenity": "cafe",
+    "check_date": "2026-04-17",
+    "cuisine": "coffee_shop",
+    "name": "Clear Flour Coffee Bar",
+    "opening_hours": "08:00-03:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "toilets": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13962953290,
+  "lat": 42.3521282,
+  "lon": -71.1310882,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "diet:halal": "yes",
+    "name": "Noodle Lab",
+    "phone": "+1-571-385-6111"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752605,
+  "lat": 42.3527149,
+  "lon": -71.1310774,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "1",
+    "amenity": "cafe",
+    "brand": "Cotti Coffee 库迪咖啡",
+    "brand:en": "Cotti Coffee",
+    "brand:wikidata": "Q123370986",
+    "brand:zh": "库迪咖啡",
+    "cuisine": "coffee_shop",
+    "name": "Cotti Coffee 库迪咖啡",
+    "name:en": "Cotti Coffee",
+    "name:zh": "库迪咖啡",
+    "phone": "+1-617-847-6262",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752606,
+  "lat": 42.3527067,
+  "lon": -71.1309454,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "cafe",
+    "cuisine": "tea",
+    "name": "Molly Tea",
+    "phone": "+1-857-225-5911"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752607,
+  "lat": 42.3525948,
+  "lon": -71.1311003,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "fast_food",
+    "name": "ZhengXin Chicken Steak",
+    "phone": "+1-857-395-8592"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752608,
+  "lat": 42.3526256,
+  "lon": -71.1309557,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "cafe",
+    "name": "Fluffy Fluffy",
+    "phone": "+1-617-870-7241"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752609,
+  "lat": 42.3525319,
+  "lon": -71.1309744,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "6",
+    "amenity": "restaurant",
+    "email": "Livinallston@gmail.com",
+    "name": "Liv",
+    "opening_hours": "Mo-Su 10:00-22:00",
+    "website": "https://www.livinhappiness.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752610,
+  "lat": 42.3524872,
+  "lon": -71.1311250,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "vietnamese;coffee_shop",
+    "name": "Lumi Roll and Bowl"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752611,
+  "lat": 42.3523822,
+  "lon": -71.1311531,
+  "tags": {
+    "addr:city": "Boston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:suburb": "Allston Village",
+    "amenity": "restaurant",
+    "check_date:currency:XBT": "2026-07-22",
+    "contact:email": "minorihandroll@gmail.com",
+    "contact:instagram": "https://www.instagram.com/mi_nori_2025",
+    "cuisine": "sushi",
+    "currency:XBT": "yes",
+    "name": "Mi-Nori",
+    "opening_hours": "Mo-Fr 11:00-21:00; Sa-Su 11:00-22:00",
+    "payment:lightning": "yes",
+    "payment:lightning:operator": "square",
+    "payment:lightning_contactless": "no",
+    "payment:onchain": "no",
+    "phone": "+1-833-960-8188",
+    "takeaway": "yes",
+    "website": "https://mi-nori.square.site/"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752612,
+  "lat": 42.3523753,
+  "lon": -71.1309906,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "indian",
+    "email": "tablaboston@tablafranchise.com",
+    "name": "Tabla Express",
+    "opening_hours": "Mo-Su 11:00-22:00",
+    "phone": "+1-617-780-4461",
+    "website": "https://www.tablacuisine.com/locations/boston/"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752613,
+  "lat": 42.3522960,
+  "lon": -71.1311318,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "8",
+    "amenity": "restaurant",
+    "cuisine": "chinese",
+    "name": "Baby Cafe Express"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752614,
+  "lat": 42.3521753,
+  "lon": -71.1309437,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "10",
+    "amenity": "restaurant",
+    "cuisine": "korean",
+    "email": "parkskitchenboston@gmail.com",
+    "name": "Park's Kitchen",
+    "name:ko": "박식당",
+    "opening_hours": "Tu-Su 12:00-21:00",
+    "phone": "+1-617-618-8099",
+    "website": "https://www.parksikdangboston.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752615,
+  "lat": 42.3522690,
+  "lon": -71.1308876,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "addr:unit": "13",
+    "amenity": "restaurant",
+    "name": "Hangover Buns & Bowls",
+    "website": "https://www.hangoverbnb.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 13972752616,
+  "lat": 42.3522488,
+  "lon": -71.1307344,
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "122",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "cuisine": "indonesian",
+    "name": "Tasya's Kitchen",
+    "phone": "+1-617-777-1051"
+  }
+},
+{
+  "type": "node",
+  "id": 14023097958,
+  "lat": 42.3515249,
+  "lon": -71.1216389,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Jimmy John's",
+    "brand:wikidata": "Q1689380",
+    "cuisine": "sandwich",
+    "name": "Jimmy John's",
+    "official_name": "Jimmy John's Gourmet Sandwiches",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 14023097959,
+  "lat": 42.3515003,
+  "lon": -71.1214976,
+  "tags": {
+    "amenity": "fast_food",
+    "check_date": "2026-07-17",
+    "cuisine": "pizza",
+    "name": "Anthony's Pizza"
+  }
+},
+{
+  "type": "node",
+  "id": 14023097960,
+  "lat": 42.3515156,
+  "lon": -71.1215955,
+  "tags": {
+    "alt_name": "Dunkin' Donuts",
+    "amenity": "fast_food",
+    "brand": "Dunkin'",
+    "brand:wikidata": "Q847743",
+    "cuisine": "donut;coffee_shop",
+    "name": "Dunkin'",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 29634031,
+  "center": {
+    "lat": 42.3535320,
+    "lon": -71.1379957
+  },
+  "tags": {
+    "addr:housenumber": "501",
+    "addr:street": "Cambridge Street",
+    "amenity": "cafe",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "donut",
+    "internet_access": "wlan",
+    "name": "Twin Donuts",
+    "opening_hours": "Mo-Su 06:00-15:00",
+    "phone": "+1 617-254-9421"
+  }
+},
+{
+  "type": "way",
+  "id": 29680687,
+  "center": {
+    "lat": 42.3530307,
+    "lon": -71.1349879
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "210",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "fast_food",
+    "brand": "Burger King",
+    "brand:website": "https://www.bk.com/",
+    "brand:wikidata": "Q177054",
+    "building": "yes",
+    "building:levels": "1",
+    "check_date": "2026-07-17",
+    "cuisine": "burger",
+    "drive_through": "yes",
+    "internet_access": "wlan",
+    "name": "Burger King",
+    "opening_hours": "06:00-22:00",
+    "phone": "+1 617-783-0106",
+    "ref": "140",
+    "takeaway": "yes",
+    "website": "https://www.bk.com/store-locator/store/restaurant_93"
+  }
+},
+{
+  "type": "way",
+  "id": 29787995,
+  "center": {
+    "lat": 42.3525598,
+    "lon": -71.1313193
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "128",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "chicken",
+    "name": "Crave Allston",
+    "website": "https://www.craveallston.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 29791149,
+  "center": {
+    "lat": 42.3477672,
+    "lon": -71.1383039
+  },
+  "tags": {
+    "addr:housenumber": "177",
+    "addr:street": "Allston Street",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "check_date": "2026-06-18",
+    "cuisine": "pizza",
+    "internet_access": "wlan",
+    "name": "Charlie's Pizza & Cafe",
+    "opening_hours": "Su-We 11:00-12:00; Th-Sa 11:00-02:00",
+    "phone": "+1 617 277 3737",
+    "website": "https://www.charliespizzacafe.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 29791442,
+  "center": {
+    "lat": 42.3561378,
+    "lon": -71.1324250
+  },
+  "tags": {
+    "addr:housenumber": "353",
+    "addr:street": "Cambridge Street",
+    "amenity": "restaurant",
+    "building": "retail",
+    "historic": "railway_station",
+    "name": "Hobson's Bar & Kitchen",
+    "source": "https://www.universalhub.com/2022/great-scott-wont-be-moving-old-allston-train"
+  }
+},
+{
+  "type": "way",
+  "id": 29926170,
+  "center": {
+    "lat": 42.3535928,
+    "lon": -71.1389267
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "30",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "North Beacon Street",
+    "alt_name": "Kentucky Fried Chicken",
+    "amenity": "fast_food",
+    "brand": "KFC",
+    "brand:wikidata": "Q524757",
+    "building": "yes",
+    "building:levels": "1",
+    "contact:facebook": "kfc",
+    "contact:instagram": "kfc",
+    "contact:twitter": "kfc",
+    "cuisine": "chicken",
+    "internet_access": "wlan",
+    "name": "KFC",
+    "opening_hours": "Mo-Su 10:00-23:00",
+    "phone": "+1 617-254-2481",
+    "takeaway": "yes",
+    "website": "https://locations.kfc.com/ma/allston/30-n-beacon-street",
+    "website:menu": "https://www.kfc.com/menu"
+  }
+},
+{
+  "type": "way",
+  "id": 29932243,
+  "center": {
+    "lat": 42.3523719,
+    "lon": -71.1290823
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "80",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "asian",
+    "name": "Shabu-Zen",
+    "opening_hours": "Mo-Th 10:30-23:00; Fr-Sa 11:30-12:00; Su 11:30-23:00",
+    "phone": "+16177828888",
+    "website": "https://www.shabuzen.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 29934289,
+  "center": {
+    "lat": 42.3498971,
+    "lon": -71.1302954
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "210",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Harvard Avenue",
+    "alt_name": "Dunkin' Donuts",
+    "amenity": "fast_food",
+    "brand": "Dunkin'",
+    "brand:website": "https://www.dunkindonuts.com/",
+    "brand:wikidata": "Q847743",
+    "building": "yes",
+    "building:levels": "1",
+    "check_date": "2025-08-02",
+    "cuisine": "donut;coffee_shop",
+    "drive_through": "no",
+    "name": "Dunkin'",
+    "opening_hours": "Mo-Su 05:00-21:00",
+    "payment:cash": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "phone": "+16172323402",
+    "ref": "302195",
+    "smoking": "no",
+    "takeaway": "yes",
+    "website": "https://locations.dunkindonuts.com/en/ma/allston/210-harvard-ave/302195",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 29940987,
+  "center": {
+    "lat": 42.3485417,
+    "lon": -71.1391081
+  },
+  "tags": {
+    "addr:housenumber": "1414",
+    "addr:street": "Commonwealth Avenue",
+    "amenity": "restaurant",
+    "building": "yes",
+    "building:levels": "1",
+    "cuisine": "korean",
+    "name": "NakSan BBQ"
+  }
+},
+{
+  "type": "way",
+  "id": 1044654110,
+  "center": {
+    "lat": 42.3533065,
+    "lon": -71.1326478
+  },
+  "tags": {
+    "addr:city": "Allston",
+    "addr:housenumber": "161",
+    "addr:postcode": "02134",
+    "addr:state": "MA",
+    "addr:street": "Brighton Avenue",
+    "amenity": "restaurant",
+    "building": "retail",
+    "building:levels": "1"
+  }
+}
+
+  ]
+}

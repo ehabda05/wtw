@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Otto Pitch Deck</title>
+<!--
+  Otto pitch deck. Single offline file: system fonts, inline SVG, no CDN.
+  Keys: Right / Space / PageDown = next, Left / PageUp = back, Home / End, N = speaker notes, P = print mode.
+  URL: index.html#3 opens slide 3; index.html?print=1 opens print mode (used for deck.pdf).
+  Placeholder still to fill: {{TEAM}}.
+-->
+<style>
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial,
+      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    --bg: #09090c; --panel: #131318; --line: rgba(255,255,255,0.10);
+    --ink: #f5f5f7; --ink-2: #b4b4bd; --ink-3: #7c7c86;
+    --amber: #ffb547; --amber-2: #f08c1a; --blue: #2f7cf6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+  body { overflow: hidden; }
+
+  /* ---------- stage + slides (designed at 1280 x 720) ---------- */
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; }
+  .slide { position: absolute; inset: 0; width: 1280px; height: 720px; overflow: hidden; display: none;
+    background: radial-gradient(70% 60% at 85% 10%, rgba(255,181,71,0.07), transparent 60%), var(--bg); padding: 64px 80px; }
+  .slide.active { display: block; }
+  .slide .num { position: absolute; right: 44px; bottom: 30px; font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .slide .foot { position: absolute; left: 80px; bottom: 30px; right: 160px; font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+  .kicker { font-size: 16px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; color: var(--amber); margin-bottom: 22px; }
+  h1 { font-size: 64px; line-height: 1.05; font-weight: 750; letter-spacing: -2px; }
+  h2 { font-size: 52px; line-height: 1.08; font-weight: 720; letter-spacing: -1.6px; text-wrap: balance; }
+  em { font-style: normal; color: var(--amber); }
+  .notes { display: none; }
+
+  /* Otto mark */
+  .mark { border-radius: 50%; background: radial-gradient(circle at 36% 30%, #ffdb8f, #ffb547 52%, #f08c1a 100%); position: relative; flex: none; }
+  .mark svg { width: 100%; height: 100%; display: block; }
+
+  /* ---------- slide 1 ---------- */
+  .center { position: absolute; left: 80px; right: 80px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
+  .s-title .row { display: flex; align-items: center; gap: 34px; }
+  .s-title .mark { width: 132px; height: 132px; box-shadow: 0 20px 70px rgba(255,160,40,0.28); }
+  .s-title .name { font-size: 132px; font-weight: 780; letter-spacing: -5px; line-height: 1; }
+  .s-title .line { font-size: 36px; line-height: 1.3; font-weight: 600; letter-spacing: -0.8px; color: #efe9e0; margin-top: 44px; max-width: 980px; text-wrap: balance; }
+  .s-title .meta { display: flex; gap: 16px; margin-top: 46px; align-items: center; flex-wrap: wrap; }
+  .chip { padding: 10px 18px; border-radius: 24px; border: 1.5px solid var(--line); font-size: 18px; font-weight: 600; color: var(--ink-2); }
+  .chip.amber { border-color: rgba(255,181,71,0.5); color: var(--amber); }
+  .s-title .event { position: absolute; left: 80px; top: 56px; font-size: 15px; color: var(--ink-3); letter-spacing: .3px; }
+
+  /* ---------- chat mock (slide 2) ---------- */
+  .phone-mock { position: absolute; width: 340px; height: 540px; border-radius: 44px; padding: 10px; background: linear-gradient(145deg,#3a3a40,#111114 45%,#2a2a2f);
+    box-shadow: 0 0 0 1px #000, 0 30px 70px rgba(0,0,0,.6); }
+  .phone-mock .scr { width: 100%; height: 100%; border-radius: 35px; background: #000; overflow: hidden; position: relative; }
+  .phone-mock .hdr { height: 74px; padding: 30px 18px 0; display: flex; gap: 10px; align-items: center; border-bottom: 0.5px solid var(--line); background: #121214; }
+  .phone-mock .hdr .t { font-size: 15px; font-weight: 650; }
+  .phone-mock .hdr .s { font-size: 11px; color: var(--ink-2); }
+  .avs { display: flex; }
+  .avs i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #121214; margin-left: -9px; font-style: normal; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .avs i:first-child { margin-left: 0; }
+  .msgs { padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .div { text-align: center; font-size: 11px; color: var(--ink-2); margin: 6px 0 4px; }
+  .div b { color: #d5d5da; }
+  .bub { align-self: flex-end; background: linear-gradient(180deg,#3b8cff,#1f6fe8); color: #fff; padding: 8px 12px; border-radius: 18px; border-bottom-right-radius: 6px; font-size: 15px; position: relative; margin-top: 14px; }
+  .bub .pill { position: absolute; left: -14px; top: -16px; background: #34343a; border-radius: 13px; padding: 3px 8px 3px 6px; font-size: 13px; box-shadow: 0 0 0 2.5px #000; display: flex; gap: 3px; align-items: center; }
+  .bub .pill b { font-size: 11px; color: #ddd; }
+  .rr { align-self: flex-end; font-size: 10.5px; color: var(--ink-3); margin-top: -4px; }
+  .later { align-self: center; margin-top: 18px; padding: 4px 12px; border-radius: 12px; background: rgba(255,181,71,0.13); color: var(--amber); font-size: 12px; font-weight: 650; }
+  .crickets { align-self: center; margin-top: 120px; font-size: 13px; color: #3d3d44; letter-spacing: .3px; }
+  .s-problem .stat { position: absolute; left: 520px; top: 150px; right: 80px; }
+  .s-problem .big { display: flex; align-items: baseline; gap: 26px; font-weight: 780; letter-spacing: -4px; line-height: 1; }
+  .s-problem .big .a { font-size: 120px; color: #8f8f98; }
+  .s-problem .big .arrow { font-size: 64px; color: var(--ink-3); letter-spacing: 0; }
+  .s-problem .big .b { font-size: 156px; color: var(--amber); }
+  .s-problem .unit { font-size: 22px; color: var(--ink-2); margin-top: 14px; font-weight: 600; letter-spacing: -0.2px; }
+  .s-problem .says { font-size: 30px; line-height: 1.32; font-weight: 600; letter-spacing: -0.6px; margin-top: 40px; max-width: 640px; text-wrap: balance; }
+
+  /* ---------- slide 3 ---------- */
+  .reasons { margin-top: 64px; display: flex; flex-direction: column; gap: 30px; }
+  .reason { display: flex; gap: 30px; align-items: baseline; }
+  .reason .n { font-size: 22px; font-weight: 750; color: var(--amber); width: 34px; font-variant-numeric: tabular-nums; }
+  .reason .h { font-size: 50px; font-weight: 720; letter-spacing: -1.6px; line-height: 1.05; }
+  .reason .d { font-size: 20px; color: var(--ink-2); margin-top: 8px; letter-spacing: -0.2px; }
+  .cite-box { position: absolute; right: 80px; top: 214px; width: 300px; padding: 22px 24px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); }
+  .cite-box .bars { display: flex; gap: 22px; align-items: flex-end; height: 150px; margin: 6px 0 14px; }
+  .cite-box .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 8px; }
+  .cite-box .bar i { display: block; width: 100%; border-radius: 10px 10px 4px 4px; background: var(--amber); }
+  .cite-box .bar.many i { background: #4a4a52; }
+  .cite-box .bar b { font-size: 30px; font-weight: 760; letter-spacing: -1px; }
+  .cite-box .bar span { font-size: 13px; color: var(--ink-2); text-align: center; }
+  .cite-box p { font-size: 13px; line-height: 1.45; color: var(--ink-3); }
+
+  /* ---------- slide 4 ---------- */
+    .s-insight h2 { font-size: 60px; max-width: 1080px; letter-spacing: -2px; }
+  .s-insight .sub { margin-top: 48px; font-size: 30px; line-height: 1.35; color: var(--ink-2); font-weight: 600; letter-spacing: -0.5px; max-width: 900px; padding-left: 26px; border-left: 4px solid var(--amber); }
+  .s-insight .sub b { color: var(--ink); font-weight: 650; }
+
+  /* ---------- slide 5 ---------- */
+  .s-demo .vid { position: absolute; left: 92px; top: 40px; width: 360px; height: 640px; border-radius: 26px; overflow: hidden; background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px var(--line); }
+  .s-demo .vid video, .s-demo .vid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .s-demo .vid img.print-only { display: none; }
+  .s-demo .side { position: absolute; left: 540px; right: 80px; top: 110px; }
+  .s-demo h2 { font-size: 56px; }
+  .watch { margin-top: 44px; display: flex; flex-direction: column; gap: 28px; list-style: none; }
+  .watch li { display: flex; gap: 20px; align-items: baseline; font-size: 27px; line-height: 1.3; font-weight: 600; letter-spacing: -0.5px; }
+  .watch li .k { flex: none; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,181,71,0.15); color: var(--amber); font-size: 16px; font-weight: 750; display: flex; align-items: center; justify-content: center; transform: translateY(-3px); }
+  .s-demo .label { margin-top: 44px; font-size: 15px; color: var(--ink-3); }
+
+  /* ---------- slide 6 ---------- */
+  .s-privacy h2 { font-size: 66px; letter-spacing: -2.4px; }
+  .plist { margin-top: 54px; list-style: none; display: flex; flex-direction: column; gap: 24px; }
+  .plist li { display: flex; gap: 20px; align-items: baseline; font-size: 28px; line-height: 1.3; color: #e8e8ec; letter-spacing: -0.4px; }
+  .plist li::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); transform: translateY(-4px); }
+  .plist code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 25px; color: var(--amber); }
+
+  /* ---------- slide 7 ---------- */
+  .s-arch h2 { font-size: 46px; }
+  .s-arch svg { position: absolute; left: 50px; top: 168px; width: 1180px; height: 480px; }
+  .s-arch svg text { font-family: var(--font); }
+
+  /* ---------- slide 8 ---------- */
+  .s-next h2 { font-size: 46px; }
+  .s-next .cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 44px; margin-top: 34px; }
+  .evalbox { border: 2px dashed rgba(255,181,71,0.45); border-radius: 20px; padding: 18px 22px 16px; background: rgba(255,181,71,0.04); }
+  .evalbox .ph { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 15px; color: var(--amber); margin-bottom: 10px; }
+  .evalbox table { width: 100%; border-collapse: collapse; font-size: 18px; }
+  .evalbox td { padding: 9px 4px; border-top: 1px solid var(--line); color: #e6e6ea; white-space: nowrap; }
+  .evalbox td.v { text-align: right; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 14px; color: var(--amber); }
+  .evalbox .src { font-size: 13px; color: var(--ink-3); margin-top: 10px; }
+  .sim { margin-top: 22px; font-size: 17px; line-height: 1.45; color: var(--ink-2); }
+  .sim b { color: var(--ink); }
+  .next h3 { font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px; }
+  .next ol { list-style: none; display: flex; flex-direction: column; gap: 22px; counter-reset: n; }
+  .next li { counter-increment: n; display: flex; gap: 18px; font-size: 26px; font-weight: 650; letter-spacing: -0.5px; line-height: 1.25; }
+  .next li::before { content: counter(n); flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--amber); color: #2b1a06; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .next li span { display: block; font-size: 17px; font-weight: 500; color: var(--ink-2); margin-top: 5px; letter-spacing: -0.1px; }
+
+  /* ---------- chrome ---------- */
+  #hud { position: fixed; right: 14px; top: 10px; font-size: 12px; color: #777; z-index: 10; transition: opacity .6s; }
+  #hud.gone { opacity: 0; }
+  #notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 34vh; overflow: auto; background: rgba(16,16,20,0.97); border-top: 1px solid #333;
+    padding: 18px 28px 22px; display: none; z-index: 20; }
+  #notes.open { display: block; }
+  #notes .h { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; font-weight: 700; }
+  #notes .b { font-size: 19px; line-height: 1.5; color: #e6e6ea; max-width: 1100px; }
+  #notes .k { font-size: 12px; color: #777; margin-top: 10px; }
+
+  /* ---------- print mode (P key, ?print=1, and real printing) ---------- */
+  body.print { overflow: auto; background: #333; }
+  body.print #stage { position: static; transform: none !important; width: auto; height: auto; }
+  body.print .slide { position: relative; display: block; margin: 0 auto 24px; }
+  body.print #hud, body.print #notes { display: none !important; }
+  @page { size: 13.333in 7.5in; margin: 0; }
+  @media print {
+    html, body { background: var(--bg) !important; overflow: visible !important; }
+    #stage { position: static !important; transform: none !important; width: auto !important; height: auto !important; }
+    .slide { position: relative !important; display: block !important; margin: 0 !important; break-after: page; page-break-after: always;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    #hud, #notes { display: none !important; }
+    .s-demo .vid video { display: none !important; }
+    .s-demo .vid img.print-only { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1. Title -->
+  <section class="slide s-title" data-title="Title">
+    <div class="event">HackHarvard 2026 · Photon “Build a Messaging Agent” track</div>
+    <div class="center">
+    <div class="row">
+      <div class="mark" data-otto-face></div>
+      <div class="name">Otto</div>
+    </div>
+    <div class="line">Otto is the friend who always makes the plan happen. It never gets tired, and it forgets everything afterwards.</div>
+    <div class="meta">
+      <span class="chip">Team: {{TEAM}}</span>
+      <span class="chip amber">Built on Photon</span>
+    </div>
+    </div>
+    <div class="num">1 / 8</div>
+    <aside class="notes">Hi, we're {{TEAM}}. This is Otto, a friend that lives in your group chat and has one job: making the plan actually happen. It finds a date without anyone opening a calendar, picks a place to eat, checks in on the quiet friend, even by phone, and then forgets everything. It runs on Photon.</aside>
+  </section>
+
+  <!-- 2. Problem -->
+  <section class="slide s-problem" data-title="The problem">
+    <div class="phone-mock" style="left:96px; top:84px">
+      <div class="scr">
+        <div class="hdr">
+          <div class="avs"><i style="background:#E0567F">A</i><i style="background:#2FA89A">B</i><i style="background:#8B6CF0">M</i></div>
+          <div><div class="t">the crew</div><div class="s">6 people</div></div>
+        </div>
+        <div class="msgs">
+          <div class="div"><b>Sun, Oct 11</b> · 8:14 PM</div>
+          <div class="bub">we should hang out!!<span class="pill">❤️<b>3</b></span></div>
+          <div class="rr">Read by 5</div>
+          <div class="later">6 days later</div>
+          <div class="crickets">no new messages</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="kicker">The problem</div>
+      <div class="big"><span class="a">153</span><span class="arrow">→</span><span class="b">67</span></div>
+      <div class="unit">minutes a day with friends, in person · ages 15-24 · 2003 → 2019</div>
+      <div class="says">Americans aged 15-24 spent 153 minutes a day with friends in person in 2003 — and 67 in 2019.</div>
+    </div>
+    <div class="foot">Source: Kannan &amp; Veazie, SSM-Population Health 2023 (ATUS 2003-2020)</div>
+    <div class="num">2 / 8</div>
+    <aside class="notes">This is a story about friendship. Friendship runs on time together, and that time is collapsing: Americans aged 15 to 24 spent 153 minutes a day with friends in person in 2003, and 67 in 2019, before COVID. You've lived the reason. Everyone hearts the idea, and six days later, nothing.</aside>
+  </section>
+
+  <!-- 3. Why -->
+  <section class="slide s-why" data-title="Why it keeps happening">
+    <div class="kicker">Why it keeps happening</div>
+    <div class="reasons">
+      <div class="reason"><div class="n">01</div><div><div class="h">The organizer burns out.</div><div class="d">It's always the same person nudging, and they get tired of it.</div></div></div>
+      <div class="reason"><div class="n">02</div><div><div class="h">Silence reads as rejection.</div><div class="d">Nobody wants to be the one chasing the quiet friend.</div></div></div>
+      <div class="reason"><div class="n">03</div><div><div class="h">Tools leave the chat.</div><div class="d">Polls, calendar links and planning apps all send friends somewhere else.</div></div></div>
+    </div>
+    <div class="cite-box">
+      <div class="bars">
+        <div class="bar"><b>36%</b><i style="height:86px"></i><span>asked alone</span></div>
+        <div class="bar many"><b>14%</b><i style="height:34px"></i><span>asked with many</span></div>
+      </div>
+      <p>36% vs 14% reply when one vs many are asked (Blair et al. 2005).</p>
+    </div>
+    <div class="foot">Blair, Thompson &amp; Wuensch, Basic &amp; Applied Social Psychology 27(2), 2005: email field experiment, 400 participants. Shown as a mechanism, not a group-chat statistic.</div>
+    <div class="num">3 / 8</div>
+    <aside class="notes">Why does it keep happening? One person always organizes: a study of students' phone logs found one side is almost twice as likely to reach out. Silence feels like rejection, so nobody chases. Ask everyone at once and fewer answer: 36 percent alone versus 14 in a crowd. And every planning tool pulls you out of the chat.</aside>
+  </section>
+
+  <!-- 4. Insight -->
+  <section class="slide s-insight" data-title="The insight">
+    <div class="center">
+    <div class="kicker">The insight</div>
+    <h2>The fix has to live in <em>the chat you already have</em>, and carry the social cost so no human has to.</h2>
+    <div class="sub"><b>Nobody keeps their social life in a calendar.</b> Otto never asks for one.</div>
+    </div>
+    <div class="num">4 / 8</div>
+    <aside class="notes">So here's our insight. The fix has to live in the chat you already have, and Otto carries the social cost, the nudging and the chasing, so no friend has to. And since nobody keeps their social life in a calendar, Otto never asks for one. It proposes three times, and people just react.</aside>
+  </section>
+
+  <!-- 5. Demo -->
+  <section class="slide s-demo" data-title="Live demo">
+    <div class="vid">
+      <video src="../out/otto-phone-1080x1920.mp4" poster="../out/otto-poster-1080x1920.png" autoplay loop muted playsinline></video>
+      <img class="print-only" src="../out/otto-poster-1080x1920.png" alt="Otto demo: the group chat with three date options and hearts">
+    </div>
+    <div class="side">
+      <div class="kicker">Live demo</div>
+      <h2>Watch for three things.</h2>
+      <ul class="watch">
+        <li><span class="k">1</span><span>Hearts and plain replies like “fri or sat works” both count as votes.</span></li>
+        <li><span class="k">2</span><span>The quiet friend gets a short call, only because they opted in, and the group hears first.</span></li>
+        <li><span class="k">3</span><span>Ask what it knows. Tell it to forget.</span></li>
+      </ul>
+      <div class="label">Video: phone mock-up of the flow. Call audio is simulated.</div>
+    </div>
+    <div class="num">5 / 8</div>
+    <aside class="notes">Here's the flow in a phone mock-up; the call audio is simulated. Watch three things. Hearts and plain-word replies both count as votes. The quiet friend gets a short call only because they opted in, and the group is told first. And at the end we ask what it knows, then tell it to forget.</aside>
+  </section>
+
+  <!-- 6. Privacy -->
+  <section class="slide s-privacy" data-title="Privacy by design">
+    <div class="kicker">Privacy by design</div>
+    <h2>Ask it what it knows. <em>Tell it to forget.</em></h2>
+    <ul class="plist">
+      <li><span>It stores the plan, never the conversation: no table can hold message text.</span></li>
+      <li><span>Everything personal is encrypted at rest, and logs scrub names and numbers.</span></li>
+      <li><span>It never asks where you are: one typed neighborhood, kept with the plan.</span></li>
+      <li><span>It deletes everything 24 hours after the event, or now with <code>otto forget</code>.</span></li>
+      <li><span>DMs and calls only reach people who opted in, and the group is always told.</span></li>
+    </ul>
+    <div class="num">6 / 8</div>
+    <aside class="notes">Privacy is the product, not a footnote. Otto stores the plan, never the conversation, and it's encrypted. It never asks where you are. It deletes everything a day after the event. Anyone can ask what it knows and get the full dump, or say forget and it's gone. Private DMs and calls only happen for people who opted in.</aside>
+  </section>
+
+  <!-- 7. Architecture -->
+  <section class="slide s-arch" data-title="How it works">
+    <div class="kicker">How it works</div>
+    <h2>Thin adapters, a pure engine, and a store that forgets.</h2>
+    <svg viewBox="0 0 1180 480" role="img" aria-label="Architecture: Photon channels to adapters to a pure engine, which drives places, voice and an encrypted store with a retention sweep">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#8a8a94"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#ffb547"/></marker>
+      </defs>
+      <!-- column 1: Photon channels -->
+      <rect x="2" y="20" width="246" height="356" rx="20" fill="#121217" stroke="rgba(255,255,255,.12)"/>
+      <text x="24" y="54" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">PHOTON CHANNELS</text>
+      <g font-size="17" fill="#f2f2f5" font-weight="600">
+        <rect x="20" y="74" width="210" height="62" rx="12" fill="#1c1c22"/><text x="36" y="101">Group chats</text><text x="36" y="123" font-size="13" font-weight="500" fill="#a6a6b0">iMessage line · Telegram</text>
+        <rect x="20" y="148" width="210" height="62" rx="12" fill="#1c1c22"/><text x="36" y="175">Opt-in DMs</text><text x="36" y="197" font-size="13" font-weight="500" fill="#a6a6b0">private check-ins</text>
+        <rect x="20" y="222" width="210" height="62" rx="12" fill="#1c1c22"/><text x="36" y="249">Phone calls</text><text x="36" y="271" font-size="13" font-weight="500" fill="#a6a6b0">Photon 2.0 SMS number</text>
+        <rect x="20" y="296" width="210" height="62" rx="12" fill="#1c1c22"/><text x="36" y="323">Offline sim</text><text x="36" y="345" font-size="13" font-weight="500" fill="#a6a6b0">personas, no network</text>
+      </g>
+      <!-- column 2: adapters -->
+      <rect x="306" y="110" width="216" height="176" rx="20" fill="#121217" stroke="rgba(255,255,255,.12)"/>
+      <text x="326" y="146" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">ADAPTERS</text>
+      <text x="326" y="180" font-size="18" font-weight="650" fill="#f2f2f5">message → typed event</text>
+      <text x="326" y="210" font-size="14" fill="#a6a6b0">vote · mention · food signal</text>
+      <text x="326" y="238" font-size="14" fill="#a6a6b0">raw text stays in memory,</text>
+      <text x="326" y="258" font-size="14" fill="#a6a6b0">never reaches disk</text>
+      <!-- column 3: engine -->
+      <rect x="580" y="92" width="258" height="212" rx="22" fill="#1f1910" stroke="#ffb547" stroke-opacity=".55" stroke-width="1.5"/>
+      <text x="602" y="130" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">PURE ENGINE</text>
+      <text x="602" y="166" font-size="17" font-weight="650" fill="#f7efe2" font-family="ui-monospace, Cascadia Mono, Consolas, monospace">applyEvent(state, event)</text>
+      <text x="602" y="192" font-size="17" font-weight="650" fill="#f7efe2" font-family="ui-monospace, Cascadia Mono, Consolas, monospace">→ { state, actions }</text>
+      <text x="602" y="230" font-size="14" fill="#cdbfa8">no I/O · no clock · no chat text</text>
+      <text x="602" y="254" font-size="14" fill="#cdbfa8">dates · votes · nudges · food</text>
+      <text x="602" y="278" font-size="14" fill="#cdbfa8">every rule unit-tested</text>
+      <!-- column 4: effects -->
+      <rect x="902" y="20" width="276" height="112" rx="18" fill="#121217" stroke="rgba(255,255,255,.12)"/>
+      <text x="922" y="52" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">PLACES</text>
+      <text x="922" y="80" font-size="15" fill="#f2f2f5">cuisine + price band + a coordinate</text>
+      <text x="922" y="102" font-size="15" fill="#f2f2f5">we derive from the neighborhood</text>
+      <text x="922" y="122" font-size="13" fill="#a6a6b0">offline OSM snapshot by default</text>
+      <rect x="902" y="148" width="276" height="112" rx="18" fill="#121217" stroke="rgba(255,255,255,.12)"/>
+      <text x="922" y="180" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">SIP VOICE</text>
+      <text x="922" y="208" font-size="15" fill="#f2f2f5">Retell over SIP via Photon</text>
+      <text x="922" y="230" font-size="15" fill="#f2f2f5">gets only the question + options</text>
+      <text x="922" y="250" font-size="13" fill="#a6a6b0">answer returns as an event</text>
+      <rect x="902" y="276" width="276" height="100" rx="18" fill="#121217" stroke="rgba(255,255,255,.12)"/>
+      <text x="922" y="308" font-size="15" font-weight="700" fill="#ffb547" letter-spacing="1.6">SQLITE, ENCRYPTED</text>
+      <text x="922" y="334" font-size="15" fill="#f2f2f5">AES-256-GCM sealed plan blob</text>
+      <text x="922" y="356" font-size="13" fill="#a6a6b0">retention sweep every 10 min + VACUUM</text>
+      <!-- arrows -->
+      <g stroke="#8a8a94" stroke-width="2" fill="none">
+        <path d="M250 198 H300" marker-end="url(#ah)" marker-start="url(#ah)"/>
+        <path d="M524 198 H574" marker-end="url(#ah)" marker-start="url(#ah)"/>
+        <path d="M840 160 C870 160 868 76 896 76" marker-end="url(#ah)"/>
+        <path d="M840 198 C870 198 868 204 896 204" marker-end="url(#ah)"/>
+        <path d="M840 236 C870 236 868 326 896 326" marker-end="url(#ah)"/>
+      </g>
+      <!-- retention / forget strip -->
+      <rect x="306" y="400" width="872" height="62" rx="16" fill="rgba(255,181,71,0.07)" stroke="rgba(255,181,71,0.35)" stroke-dasharray="5 5"/>
+      <text x="330" y="438" font-size="17" font-weight="650" fill="#ffb547">Forget path:</text>
+      <text x="440" y="438" font-size="17" fill="#f2f2f5">event + 24h, or “otto forget” → rows, delivery lookup, jobs deleted → VACUUM</text>
+      <path d="M1040 378 V396" stroke="#ffb547" stroke-width="2" fill="none" marker-end="url(#aha)"/>
+      <text x="306" y="384" font-size="13" fill="#7c7c86">runner: dedupe · load · apply · persist · execute (one Node 22 process)</text>
+    </svg>
+    <div class="num">7 / 8</div>
+    <aside class="notes">Under the hood: friends talk in their existing chats through Photon. Thin adapters turn each message into a typed event, so raw text never leaves memory. A pure state machine decides what happens, which makes every rule testable. Places get only a derived coordinate, the call gets only the question, and storage is encrypted and swept.</aside>
+  </section>
+
+  <!-- 8. Measured + next -->
+  <section class="slide s-next" data-title="What we measured and what's next">
+    <div class="kicker">What we measured &amp; what's next</div>
+    <h2>Measured on labeled conversations, honest about the rest.</h2>
+    <div class="cols">
+      <div>
+        <div class="evalbox" data-placeholder="EVAL_TABLE">
+          <table>
+            <tr><td>Date replies read correctly</td><td class="v">98.5%</td></tr>
+            <tr><td>Right final date</td><td class="v">10 / 10</td></tr>
+            <tr><td>Food-intent precision / recall</td><td class="v">100% / 87.9%</td></tr>
+            <tr><td>Noise budget + quiet hours kept</td><td class="v">10 / 10</td></tr>
+            <tr><td>Message text or numbers in logs / DB</td><td class="v">0 / 0</td></tr>
+            <tr><td>Place matched cuisine + budget</td><td class="v">3 / 4*</td></tr>
+          </table>
+          <div class="src">10 role-play group chats (183 labeled messages), written blind from our spec by a separate author that never saw the code · npm run eval · *the map has no Thai near Harvard Sq</div>
+        </div>
+        <div class="sim"><b>What is simulated:</b> the call audio in the demo video, and the chat personas in the offline simulator. Restaurants come from a bundled OpenStreetMap snapshot; prices are team estimates.</div>
+      </div>
+      <div class="next">
+        <h3>Next</h3>
+        <ol>
+          <li><div>More channels<span>WhatsApp, RCS and SMS through Photon 2.0.</span></div></li>
+          <li><div>Interactive iMessage cards<span>Tap-to-vote cards instead of option bubbles.</span></div></li>
+          <li><div>Open-source release<span>So any group can audit exactly what Otto stores.</span></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="num">8 / 8</div>
+    <aside class="notes">Here's what we measured on our labeled fixture conversations: 98.5% of date replies read correctly, the right final date in 10 of 10 conversations, 100% food-intent precision (87.9% recall), the noise budget kept in 10 of 10, and zero message text or phone numbers in 502 log lines or the database. To be clear about what's simulated: the call audio in the video and the chat personas. Next, we want more Photon channels, interactive cards in iMessage-style chats, and an open-source release, so any group can audit what Otto stores.</aside>
+  </section>
+</div>
+
+<div id="hud"></div>
+<div id="notes"><div class="h" id="notesH"></div><div class="b" id="notesB"></div><div class="k">N hides notes · P print mode · ←/→ navigate</div></div>
+
+<script>
+(function () {
+  'use strict';
+  var FACE = '<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="24" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/>' +
+    '<ellipse cx="40" cy="29.5" rx="4.6" ry="6.1" fill="#2b1a06"/><circle cx="25.5" cy="27" r="1.5" fill="#fff" opacity=".9"/>' +
+    '<circle cx="41.5" cy="27" r="1.5" fill="#fff" opacity=".9"/></svg>';
+  document.querySelectorAll('[data-otto-face]').forEach(function (el) { el.innerHTML = FACE; });
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var stage = document.getElementById('stage');
+  var hud = document.getElementById('hud');
+  var notes = document.getElementById('notes');
+  var params = new URLSearchParams(location.search);
+  var cur = 0;
+
+  function fit() {
+    if (document.body.classList.contains('print')) return;
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'scale(' + s + ')';
+    stage.style.left = ((window.innerWidth - 1280 * s) / 2) + 'px';
+    stage.style.top = ((window.innerHeight - 720 * s) / 2) + 'px';
+  }
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    hud.textContent = '←/→ navigate  ·  N notes  ·  P print';
+    var n = slides[cur].querySelector('.notes');
+    document.getElementById('notesH').textContent = 'Speaker notes · ' + (cur + 1) + ' · ' + (slides[cur].getAttribute('data-title') || '');
+    document.getElementById('notesB').textContent = n ? n.textContent.trim() : '';
+    if (location.hash !== '#' + (cur + 1)) history.replaceState(null, '', '#' + (cur + 1));
+    var v = slides[cur].querySelector('video');
+    if (v) { try { v.play(); } catch (e) {} }
+  }
+  function togglePrint(on) {
+    document.body.classList.toggle('print', on);
+    if (on) { stage.style.transform = 'none'; stage.style.left = '0'; stage.style.top = '0'; }
+    else fit();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { show(cur + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key === 'n' || e.key === 'N') notes.classList.toggle('open');
+    else if (e.key === 'p' || e.key === 'P') togglePrint(!document.body.classList.contains('print'));
+  });
+  window.addEventListener('resize', fit);
+  var start = parseInt((location.hash || '#1').slice(1), 10) - 1;
+  show(isNaN(start) ? 0 : start);
+  fit();
+  setTimeout(function () { hud.classList.add('gone'); }, 4000);
+  if (params.has('print')) togglePrint(true);
+  // signal for the PDF exporter once images are decoded
+  var imgs = Array.prototype.slice.call(document.images);
+  Promise.all(imgs.map(function (im) { return im.complete ? Promise.resolve() : new Promise(function (r) { im.onload = im.onerror = r; }); }))
+    .then(function () { window.__deckReady = true; });
+})();
+</script>
+</body>
+</html>

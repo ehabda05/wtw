@@ -1,0 +1,63 @@
+{
+  "id": "08-hackathon-instant-meet-middle",
+  "title": "HackHarvard Saturday night: instant plan, meet in the middle",
+  "notes": "The HUNGRY_FLOW.md opening scenario, on HackHarvard Saturday (Oct 17 2026, 6:30pm, no dinner served). Aiden's unaddressed 'where are we eating' arrives with no plan and notice mode off, so Otto must stay silent apart from the one-time intro. The food label is still true: the intent is real, but Otto isn't invited. Bea's '@otto where should we eat' starts an instant plan (today, around now) directly in collecting_place, with no date options, so no message has a votes map. Chidi's 'somewhere near here' is vague, so Otto asks once 'Which neighborhood? I never use your location.' Devi names Harvard Sq and Emre names Allston, so Otto searches around the midpoint and the header says it's halfway between them. Fatima: vegetarian plus a pizza veto. Cuisines: dumplings 3, ramen 1, tacos 1, so no compromise. Budget '$$'. Bea's 'otto go' closes collection early (before every member has given a cuisine). Votes close when a majority of the answerers has voted for #2 (Aiden's text vote may arrive after the close; it is still labeled). Instant plans have no reminder offer and no date lock, so lockedBy is null and finalDay is today (sat). The bill is split after dinner, then a fast-forward past event+24h purges silently.",
+  "tz": "America/New_York",
+  "start": "2026-10-17T18:30:00-04:00",
+  "surface": "sim",
+  "members": [
+    {"id": "aiden", "name": "Aiden"},
+    {"id": "bea", "name": "Bea"},
+    {"id": "chidi", "name": "Chidi"},
+    {"id": "devi", "name": "Devi"},
+    {"id": "emre", "name": "Emre"},
+    {"id": "fatima", "name": "Fatima"}
+  ],
+  "steps": [
+    {"t": "+0m", "from": "aiden", "text": "ok i'm actually starving, where are we eating", "label": {"intent": "chatter", "food": true}},
+    {"t": "+1m", "from": "devi", "text": "same, my brain is running on red bull and vibes", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "bea", "text": "@otto where should we eat", "label": {"intent": "food", "food": true}},
+    {"t": "+1m", "from": "chidi", "text": "somewhere near here, $$ is fine", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "devi", "text": "we're in harvard sq rn", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "emre", "text": "fatima and i are in allston tho 😭", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "fatima", "text": "meet in the middle? vegetarian pls, and no pizza we had it for lunch", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "emre", "text": "dumplings or ramen", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "aiden", "text": "dumplings 🥟🥟🥟", "label": {"intent": "food_answer", "food": true}},
+    {"t": "+1m", "from": "chidi", "text": "dumplings or tacos", "label": {"intent": "food_answer", "food": true}},
+    {"places": "default"},
+    {"t": "+1m", "from": "bea", "text": "ok otto go we're dying", "label": {"intent": "command", "food": true}},
+    {"t": "+1m", "from": "devi", "react": {"emoji": "❤️", "option": 2, "set": "place"}},
+    {"t": "+0m", "from": "emre", "text": "2", "label": {"intent": "vote", "food": true, "placeVote": 2}},
+    {"t": "+1m", "from": "fatima", "react": {"emoji": "❤️", "option": 2, "set": "place"}},
+    {"t": "+0m", "from": "aiden", "text": "2 lets gooo", "label": {"intent": "vote", "food": true, "placeVote": 2}},
+    {"t": "+3m", "from": "emre", "text": "whoever gets there first grab a table, text me 617 555 0163", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "chidi", "text": "otto where are we at", "label": {"intent": "command", "food": false}},
+    {"ff": "2h"},
+    {"t": "+0m", "from": "devi", "text": "ok that food coma is real. back to debugging 🫠", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "aiden", "text": "otto split 87.60 6 ways", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "bea", "text": "zelle me at bea.l@example.com, no rush", "label": {"intent": "chatter", "food": false}},
+    {"ff": "26h"},
+    {"t": "+2m", "from": "fatima", "text": "otto what do you know", "label": {"intent": "command", "food": false}}
+  ],
+  "expect": {
+    "finalDay": "sat",
+    "lockedBy": null,
+    "place": {"cuisineAnyOf": ["dumplings", "dumpling", "chinese"], "priceMax": 2},
+    "hungryTriggered": true,
+    "maxUnpromptedPer12h": 1,
+    "otherChecks": [
+      "Aiden's first message gets only the one-time intro; Otto does not start a flow from it (no plan, not addressed, notice mode off).",
+      "Bea's mention starts an instant plan dated today (Sat Oct 17) and asks 'What are we feeling? Cuisine, budget, and roughly where?' with no date options.",
+      "Chidi's 'near here' triggers exactly one 'Which neighborhood? I never use your location.' (or equivalent); Otto never asks for device location.",
+      "Harvard Sq + Allston produce a midpoint search, and the recommendation header says 'halfway between Harvard Sq and Allston'.",
+      "No pizza place among the 3 options; vegetarian is applied as a filter or a 'check: vegetarian' note; all 3 options are dumpling/Chinese spots at or under $$ (est.).",
+      "Opening hours are evaluated for now (Sat ~6:40pm) because this is an instant plan; unknown hours are shown as 'hours unknown'.",
+      "Walking time is labeled '... min walk' and computed locally (no routing API call).",
+      "The places lookup egress contains only cuisine tags, a price band and a derived coordinate: no 'harvard sq'/'allston' text, no names, no phone numbers.",
+      "Option #2 wins. The closing message posts its address once, with no reminder offer (instant plan), and the plan is confirmed.",
+      "'otto split 87.60 6 ways' replies '$14.60 each for 6 people (tip not included)' or equivalent.",
+      "After event + 24h the plan is purged silently; 'otto what do you know' then shows no plan data.",
+      "Neither 617 555 0163 nor bea.l@example.com appears in any log line."
+    ]
+  }
+}

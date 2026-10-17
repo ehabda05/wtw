@@ -1,0 +1,54 @@
+{
+  "id": "09-privacy-forget-stop",
+  "title": "Privacy check: what do you know, forget, stop",
+  "notes": "Privacy fixture (PRIVACY §1, §2, §5, §8). 'otto privacy' is the very first message, so Otto must answer it even though no plan exists (plus the one-time intro). Movie night defaults to 7:30pm: options 1 Thu Oct 22 7:30pm, 2 Fri Oct 23 7:30pm, 3 Sat Oct 24 7:30pm, deadline Tue Oct 20 ~7:03pm. Jules gives a name. Mei's vote contains a phone number in the second clause; its digits must not be read as option indexes or dates. Nico drops an email. 'otto what do you know' must dump only decrypted plan fields (options, answer counts/statuses, names given, nudges sent, deletion time) and offer 'otto forget'. It never prints message text, phone numbers or emails, which Otto never stored. 'otto forget' deletes the plan before any lock, so nothing should lock: finalDay and lockedBy are null. The scheduled Nudge A (~Tue 09:00 after the quiet-hours shift) and the deadline lock must never fire; the 36h fast-forward checks this. A second dump shows no plan data. Finally 'otto stop' deletes everything (including the group settings row) and leaves.",
+  "tz": "America/New_York",
+  "start": "2026-10-19T19:00:00-04:00",
+  "surface": "sim",
+  "members": [
+    {"id": "jules", "name": "Jules"},
+    {"id": "kofi", "name": "Kofi"},
+    {"id": "mei", "name": "Mei"},
+    {"id": "nico", "name": "Nico"}
+  ],
+  "steps": [
+    {"t": "+0m", "from": "kofi", "text": "otto privacy", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "mei", "text": "lol kofi actually reading the terms and conditions", "label": {"intent": "chatter", "food": false}},
+    {"t": "+2m", "from": "jules", "text": "@otto movie night thu, fri or sat?", "label": {"intent": "plan", "food": false}},
+    {"t": "+1m", "from": "jules", "text": "otto i'm jules", "label": {"intent": "command", "food": false}},
+    {"t": "+2m", "from": "nico", "text": "sat works, fri maybe", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "maybe", "sat": "yes"}}},
+    {"t": "+2m", "from": "mei", "text": "fri or sat, if anyone wants to carpool my number is 617-555-0101", "label": {"intent": "vote", "food": false, "votes": {"thu": "unknown", "fri": "yes", "sat": "yes"}}},
+    {"t": "+2m", "from": "kofi", "text": "thu? idk my sister might visit", "label": {"intent": "vote", "food": false, "votes": {"thu": "maybe", "fri": "unknown", "sat": "unknown"}}},
+    {"t": "+2m", "from": "nico", "text": "send me the movie list btw, nico.p@example.com", "label": {"intent": "chatter", "food": false}},
+    {"t": "+3m", "from": "jules", "text": "wait otto what do you know", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "nico", "text": "lmao it knows basically nothing about us, love that", "label": {"intent": "chatter", "food": false}},
+    {"t": "+4m", "from": "jules", "text": "ok change of plans lol, my parents are visiting so lets redo this later", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "jules", "text": "otto forget", "label": {"intent": "command", "food": false}},
+    {"t": "+1m", "from": "kofi", "text": "rip movie night 🪦", "label": {"intent": "chatter", "food": false}},
+    {"t": "+2m", "from": "mei", "text": "wait so it actually deleted everything? 👀", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "kofi", "text": "otto what do you know", "label": {"intent": "command", "food": false}},
+    {"ff": "36h"},
+    {"t": "+125m", "from": "mei", "text": "this week is eating me alive lol", "label": {"intent": "chatter", "food": false}},
+    {"t": "+1m", "from": "nico", "text": "otto stop", "label": {"intent": "command", "food": false}}
+  ],
+  "expect": {
+    "finalDay": null,
+    "lockedBy": null,
+    "place": null,
+    "hungryTriggered": false,
+    "maxUnpromptedPer12h": 1,
+    "otherChecks": [
+      "The first message produces the one-time intro and the 'otto privacy' answer (two sentences plus a link to PRIVACY.md); no other action happens before the plan trigger.",
+      "Options: Thu Oct 22 7:30pm, Fri Oct 23 7:30pm, Sat Oct 24 7:30pm.",
+      "Mei's phone number digits are not read as an option index or a date; her vote is Fri yes, Sat yes only.",
+      "The first 'otto what do you know' dump lists: plan 'movie night', the 3 options, answer statuses/counts (3 answered, 1 pending), names given (Jules), nudges sent (0), and when it will be deleted; it offers 'otto forget'.",
+      "Neither dump contains message text, 617-555-0101, nico.p@example.com, ciphertext or internal IDs.",
+      "'otto forget' replies exactly 'Done: I've deleted this plan.' (or equivalent single confirmation) and the state returns to idle.",
+      "After forget the plan rows, jobs, delivery lookups and member hashes are gone (0 rows for the plan); the second dump shows no plan data.",
+      "During the 36h fast-forward nothing fires: no nudge and no deadline lock.",
+      "Unaddressed messages after forget are ignored; 'eating me alive' starts nothing.",
+      "'otto stop' replies 'Deleted everything for this chat. Bye 👋', deletes the group settings row too, and Otto leaves the sim chat.",
+      "617-555-0101 and nico.p@example.com never appear in any log line."
+    ]
+  }
+}
