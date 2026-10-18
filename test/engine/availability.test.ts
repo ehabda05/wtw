@@ -14,10 +14,10 @@ test('plan start: header + 3 tagged bubbles right away, deterministic job keys',
   const h = new Harness({ start: START });
   const out = h.say('ana', '@homi dinner next week?');
   const sends = ofType(out, 'send');
-  assert.equal(sends[1].text, 'Dinner, next week. Tap ❤️ on every time that works (or reply like "fri or sat"); I\'ll lock it in tomorrow 10am.');
+  assert.equal(sends[1].text, 'Dinner, next week. React to every time that works (or reply like "fri or sat"); I\'ll lock it in tomorrow 10am.');
   assert.equal(sends[1].tag, 'header');
   assert.deepEqual(sends.slice(2).map((s) => [s.tag, s.text]), [
-    ['option:1', '1 · Thu Oct 22 · 7pm'], ['option:2', '2 · Fri Oct 23 · 7pm'], ['option:3', '3 · Sat Oct 24 · 7pm'],
+    ['option:1', '1. Thu Oct 22, 7pm'], ['option:2', '2. Fri Oct 23, 7pm'], ['option:3', '3. Sat Oct 24, 7pm'],
   ]);
   const id = h.plan!.id;
   const keys = ofType(out, 'schedule').map((s) => s.key).sort();
@@ -31,7 +31,7 @@ test('no window -> "Roughly when..." then options once a window is named', () =>
   const h = new Harness({ start: START });
   assert.match(joined(h.say('ana', 'homi lets plan dinner')), /I'm in\. Roughly when: this week, this weekend, or next week\?/);
   assert.equal(h.plan!.state, 'collecting_dates');
-  assert.match(joined(h.say('ben', 'next week')), /1 · Thu Oct 22 · 7pm/);
+  assert.match(joined(h.say('ben', 'next week')), /1. Thu Oct 22, 7pm/);
 });
 
 test('abandonment: collecting_dates nudges once at 12h, purges silently at 36h; no votes by deadline + 24h purges', () => {
@@ -56,9 +56,9 @@ test('abandonment: collecting_dates nudges once at 12h, purges silently at 36h; 
 test('capabilities: polls where available; "reply with numbers" when reactions do not arrive', () => {
   const p = started({ polls: true });
   const poll = ofType(p.log.map((l) => l.a), 'poll')[0];
-  assert.deepEqual(poll.options, ['1 · Thu Oct 22 · 7pm', '2 · Fri Oct 23 · 7pm', '3 · Sat Oct 24 · 7pm']);
+  assert.deepEqual(poll.options, ['1. Thu Oct 22, 7pm', '2. Fri Oct 23, 7pm', '3. Sat Oct 24, 7pm']);
   const r = started({ reactionsIn: false });
-  assert.match(texts(r.log.map((l) => l.a)).join('\n'), /Reply with the numbers that work \(like "1 3"\)/);
+  assert.match(texts(r.log.map((l) => l.a)).join('\n'), /Reply with the numbers that work \(like 1 or 3\)/);
 });
 
 test('reactions on option bubbles: ❤️ yes, 👎 no, ❓ maybe, 😂 ignored, removal ignored; living tally edits', () => {
@@ -84,6 +84,39 @@ test('inline reply to a bubble is a yes; later messages override only what they 
   assert.equal(h.plan!.members['k-ben'].dayPrefs['2026-10-23'].vote, 'yes');
 });
 
+test('a proposed time gets a fresh option id and cannot carry a vote over from the old time', () => {
+  const h = started();
+  h.react('ana', '❤️', 'option:1');
+  const before = h.plan!.members['k-ana'].optionVotes[1];
+
+  const out = h.say('ben', 'Could we do 8 pm Friday?');
+  const proposed = h.plan!.options.find((o) => o.id === 4)!;
+  assert.equal(proposed.day, '2026-10-23');
+  assert.equal(proposed.time, '20:00');
+  assert.equal(proposed.label, 'Fri Oct 23, 8pm');
+  assert.equal(h.plan!.members['k-ana'].optionVotes[1], before, 'unchanged option votes survive');
+  assert.equal(h.plan!.members['k-ben'].optionVotes[4], undefined, 'a suggestion is not an approval');
+  assert.equal(h.plan!.pendingProposal?.optionId, 4);
+  assert.ok(!joined(out).includes('it is:'), 'the old tally does not lock during agreement');
+
+  h.react('jo', '❤️', 'option:4');
+  assert.equal(h.plan!.pendingProposal, undefined);
+  assert.equal(h.plan!.members['k-jo'].optionVotes[4], 'yes');
+});
+
+test('an unqualified proposed clock time asks for clarification before adding an option', () => {
+  const h = started();
+  const prompt = h.say('ben', 'Could we do Friday at 8?');
+  assert.match(joined(prompt), /did you mean 8am or 8pm/);
+  assert.equal(h.plan!.options.length, 3);
+  assert.equal(h.plan!.pendingProposal?.needsClarification, true);
+
+  const added = h.say('ben', '8 pm');
+  assert.match(joined(added), /Added it as a new option/);
+  assert.ok(h.plan!.options.some((o) => o.day === '2026-10-23' && o.time === '20:00'));
+  assert.equal(h.plan!.pendingProposal?.needsClarification, undefined);
+});
+
 test('unaddressed "lol fri was wild" is ignored; unparseable addressed reply asks once which ones', () => {
   const h = started();
   assert.deepEqual(h.say('ben', 'lol fri was wild'), []);
@@ -103,7 +136,7 @@ test('early lock: everyone known answered (>= 2) -> date_chosen -> collecting_de
   h.say('ben', 'fri or sat works');
   const out = h.say('ana', 'fri works');
   const lock = ofType(out, 'send').find((s) => /it is/.test(s.text))!;
-  assert.equal(lock.text, 'Fri Oct 23 · 7pm it is: 2 in. Where to: say "homi find food" for 3 options, or tell me the spot ("homi we\'re going to …").');
+  assert.equal(lock.text, 'Fri Oct 23, 7pm it is: 2 in. Where to: say "homi find food" for 3 options, or tell me the spot ("homi we\'re going to …").');
   assert.equal(lock.prompting, 'prompted');
   assert.equal(h.plan!.state, 'collecting_details');
   assert.equal(h.plan!.lockedBy, 'everyone');
@@ -118,7 +151,7 @@ test('threshold mode and the maybe confirm-ping folded into the lock message', (
   h.say('jo', 'fri maybe');
   h.say('ben', 'fri works');
   const out = h.say('maya', 'fri works');
-  assert.match(joined(out), /^Fri Oct 23 · 7pm it is: 2 in, 1 maybe \(if you said maybe, still good\?\)\. Where to/);
+  assert.match(joined(out), /^Fri Oct 23, 7pm it is: 2 in, 1 maybe \(if you said maybe, still good\?\)\. Where to/);
   assert.equal(h.plan!.lockedBy, 'threshold');
 });
 
@@ -128,7 +161,7 @@ test('"homi lock fri" force-locks against the tally and notes who asked', () => 
   h.say('jo', 'sat works');
   h.say('ana', "homi I'm Ana");
   const out = h.say('ana', 'homi lock fri');
-  assert.match(joined(out), /^Fri Oct 23 · 7pm it is: 0 in/);
+  assert.match(joined(out), /^Fri Oct 23, 7pm it is: 0 in/);
   assert.equal(h.plan!.lockedBy, 'forced');
   assert.match(joined(h.say('ben', 'homi why')), /Ana asked me to lock Fri/);
 });
@@ -142,7 +175,7 @@ test('deadline: chooses by quorum (organizer veto) with the tone template, unpro
   h.say('ana', 'homi tone gentle');
   const out = h.advance(25 * HOUR);
   const lock = ofType(out, 'send').find((s) => /Going with/.test(s.text))!;
-  assert.match(lock.text, /^Going with Sat Oct 24 · 7pm, 2 can make it 💛/);
+  assert.match(lock.text, /^Going with Sat Oct 24, 7pm, 2 can make it 💛/);
   assert.equal(lock.prompting, 'unprompted');
   assert.equal(h.plan!.lockedBy, 'deadline');
 });

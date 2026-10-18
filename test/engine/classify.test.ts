@@ -29,6 +29,7 @@ test('classify in context: votes, food answers, place votes, veto', () => {
   const pv = classify('1 looks good', h.plan, h.now, TZ);
   assert.deepEqual([pv.intent, pv.food, pv.placeVote], ['vote', true, 1]);
   h.say('ana', '1');
+  h.say('ben', '1');
   assert.equal(h.plan!.state, 'confirmed');
   assert.equal(classify("can't do friday anymore", h.plan, h.now, TZ, { from: 'k-ben' }).intent, 'veto');
   assert.equal(classify('cannot wait for friday', h.plan, h.now, TZ, { from: 'k-ben' }).intent, 'chatter');

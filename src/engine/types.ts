@@ -15,6 +15,8 @@ export interface MemberRef {
   key: MemberKey;
   /** Display name the platform itself provides (e.g. Telegram first name/handle). Never a phone number. */
   platformName?: string;
+  /** Platforms that expose service accounts mark them so they are not included in human head counts. */
+  isBot?: boolean;
 }
 
 // ───────────────────────── capabilities ─────────────────────────
@@ -59,7 +61,7 @@ export interface Option {
   startsAt: number;        // epoch ms
   day: string;             // ISO date in group tz, e.g. "2026-10-23"
   time: string;            // "19:00" in group tz
-  label: string;           // "Fri Oct 23 · 7pm"
+  label: string;           // "Fri Oct 23, 7pm"
   removed?: boolean;       // vetoed after confirmation (veto-and-swap)
 }
 
@@ -121,6 +123,7 @@ export interface HungryState {
   priceMax?: PriceBand;                   // tightest stated budget wins
   diet: string[];                         // "vegetarian", "halal", "gluten_free", "nut_allergy" ...
   neighborhoods: Record<string, number>;  // normalized neighborhood -> mentions
+  category?: 'cafe' | 'bowling' | 'museum' | 'park' | 'activity';
   answeredBy: MemberKey[];
   requestId?: string;
   options: PlaceOption[];
@@ -216,6 +219,8 @@ export interface Ctx {
   caps: Capabilities;
   retentionHours: number;     // default 24
   quietHours: [number, number]; // [23, 9]
+  /** Explicit server-configured area used when members do not share a search location. */
+  defaultSearchLocation?: string;
   newId: () => string;        // injected so the engine stays deterministic in tests
   /** Public base URL for member-only links (shared album). Unset in tests; the sim uses a labeled demo URL. */
   publicBaseUrl?: string;
@@ -294,6 +299,7 @@ export type Prompting = 'prompted' | 'unprompted';
 
 export interface PlacesQuery {
   cuisines: string[];        // ordered by votes, already minus vetoes
+  category?: 'cafe' | 'bowling' | 'museum' | 'park' | 'activity';
   priceMax?: PriceBand;
   diet: string[];
   near: string;              // neighborhood string; runner geocodes it with the local gazetteer

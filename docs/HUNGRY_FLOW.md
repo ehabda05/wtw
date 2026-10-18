@@ -3,10 +3,10 @@
 HackHarvard serves no dinner. Its FAQ tells hackers to explore the restaurants of Harvard Square and Allston (hhuh.io FAQ, 2026-10-16), so every hacker and judge in the room has this problem tonight.
 
 Homi's job here:
-1. ask one question,
-2. merge everyone's answers fairly,
+1. ask one optional-preferences question,
+2. search as soon as it receives an actionable answer,
 3. return exactly three good options,
-4. lock the winner into the plan.
+4. let the group choose the winner.
 
 The engine logic is in `src/engine/hungry.ts` (pure). Lookups are in `src/places/`.
 
@@ -36,16 +36,11 @@ False positives are worse than misses. A bot that jumps in on "food for thought"
 
 ## 2. Ask, don't assume
 
-One question:
+One optional-preferences question:
 
-> "What are we feeling? Cuisine, budget, and roughly where?"
+> "Any preferences for cuisine or activity, budget, or area? All are optional; say 'surprise us' and I'll choose."
 
-If the plan already has a neighborhood, the question drops "and roughly where".
-
-**Collect answers** until the first of these happens:
-- every known active member has answered ("known" is the group roster where the platform reports one, such as a dedicated iMessage line; on Telegram the member count from `getChatMemberCount`; else everyone who has spoken since the plan started, and the first speaker alone is never "everyone" when a count is known);
-- someone says "just pick", "homi go" or "whatever you think";
-- 10 minutes pass (job `hungry_deadline`). Food is urgent, so there are no nudges here.
+If the plan already has a neighborhood, Homi searches there; otherwise it uses `DEFAULT_SEARCH_LOCATION` (Boston by default) when no area is supplied. Homi never infers a member's device location. A reply with any subset of cuisine, activity, budget, diet, or area starts a search right away; "surprise us" searches without preferences. If nobody supplies a preference before the 10-minute deadline, Homi searches for general recommendations in the configured default area.
 
 ## 3. Resolve taste fairly
 
@@ -55,9 +50,10 @@ If the plan already has a neighborhood, the question drops "and roughly where".
 | Veto | "no sushi", "not thai", "anything but pizza" | Removed from the candidate cuisines, whatever its votes |
 | Budget | "cheap", "broke", "$", "under 15" → **$** · "normal", "$$", "under 30" → **$$** · "treat ourselves", "fancy", "splurge" → **$$$** | **The tightest stated budget wins.** Nobody has to admit they're broke out loud. Homi says "keeping it cheap", never "because Ben said so". |
 | Diet | vegetarian, vegan, halal, kosher, gluten-free, nut allergy, dairy-free, pescatarian, shellfish allergy | A hard filter where the data has the tag (OSM `diet:*`). Otherwise a soft preference, and the option line gets a short "check: nut allergy" note. |
-| Where | "Harvard Square", "harvard sq", "Allston", "Central", "near Porter" | Matched against the bundled gazetteer (`src/places/geo.ts`). |
+| Where | "Harvard Square", "harvard sq", "Allston", "Central", "near Porter", a city, neighborhood, or address | Local gazetteer first; live geocoding for free-form locations when Google Places is configured. |
+| Activity | café, bowling alley, museum, park, or "things to do" | Google Places category search; offline café results are used only where the snapshot has coverage. |
 | Where (two places) | "Harvard Square" and "Allston" | **Meet in the middle:** search around the midpoint of the two centroids. The option header says "halfway between Harvard Sq and Allston". |
-| Where (vague) | "near me", "here" | Homi asks once: "Which neighborhood? I never use your location." |
+| Where (vague) | "near me", "here" | Homi asks for a city/neighborhood/address and never reads device location. |
 | Wildcard | "anything", "idc", "whatever" | Counts as answered and adds no cuisine weight |
 
 **Split groups get a compromise, not a winner-take-all.**
@@ -97,7 +93,7 @@ Thai, cheap, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3
 - "1", "2", "3", or a name;
 - a Telegram poll answer.
 
-**When the vote ends:** after 10 minutes, or as soon as a majority of members who answered have voted.
+**When the vote ends:** after 10 minutes, or as soon as a majority of the known active group has voted. The roster or explicit platform headcount is used when available; preference answers do not reduce the number of votes needed.
 
 **Winner:** the most votes; ties go to rank order. With no votes at all, Homi says "Going with #1 since nobody objected 🍜".
 
@@ -113,12 +109,9 @@ Thai, cheap, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3
 
 ## 6. Data that leaves the server
 
-Per PRIVACY.md §9, the places lookup receives only:
-- the **cuisine tags**,
-- a **price band**,
-- a **coordinate we derive locally** from the neighborhood string, using a gazetteer bundled in the repo.
+Offline search makes no provider request. When Google Places is enabled, the search receives cuisine/category, a price band, and a rounded coordinate. A free-form city/neighborhood/address is sent to Google Geocoding only when the local gazetteer cannot resolve it; the raw location is not included in the following Places query.
 
-It never receives member names, phone numbers, device location, or the neighborhood text itself.
+Neither provider receives member names, phone numbers, or device location.
 
 ## 7. Offline fallback
 
@@ -129,13 +122,13 @@ It never receives member names, phone numbers, device location, or the neighborh
 | Need | Choice | Why |
 |---|---|---|
 | Venue data (default) | **Bundled OpenStreetMap snapshot** for Harvard Square and Allston, plus any other areas we pre-build | No runtime third-party call at all. ODbL allows bundling with attribution. Measured coverage: 87 places near Harvard Sq and 148 near Allston, with cuisine tagged on 75% and 89% |
-| Live lookup (optional) | Google Places (New) Text Search, `PLACES_PROVIDER=google` | Only if a teammate attaches billing and sets a daily cap. Price and open-now are Enterprise fields (1,000 free calls a month). Google results may **not** be cached, so they never feed the offline file. |
+| Live lookup (optional) | Google Places (New) Text Search and Geocoding, `PLACES_PROVIDER=google` | Needs a billing-enabled key; raw free-form locations are sent to Google Geocoding only when needed. Configurable timeout and process-local daily request cap; Google responses are not cached. Price and hours are provider-verified when present. Google results never feed the offline file. |
 | Rejected | Yelp | Its API terms ban putting Yelp content into generative AI, and it has no free tier |
 | Rejected | Foursquare | Price and hours are Premium-only, with no free allowance |
 | Price band | Team estimate shown as **"~$ (est.)"** | OSM has no price data (0% coverage). Fast food and cafés default to $; others use a hand-checked override list, or `$$ (est.)`. |
 | Opening hours | `opening_hours` npm package, evaluated locally at plan time | 70% of Harvard Sq places and 43% of Allston places have hours; the rest show "hours unknown" |
 | Weather | US National Weather Service `api.weather.gov` | No key, free. Receives only a rounded coordinate. |
-| Geocoding | Bundled gazetteer of ~20 Boston/Cambridge/Somerville neighborhoods | The neighborhood string never leaves the server |
+| Geocoding | Bundled gazetteer, then Google Geocoding when live Places is enabled | Offline input stays local; live fallback sends only the location explicitly shared by a member |
 | Walking time | Haversine × 1.3 ÷ 78 m/min (1.3 m/s) | No routing API |
 
 Attribution "© OpenStreetMap contributors (ODbL)" appears in the README, in the data file header, and in `homi why`.

@@ -19,7 +19,7 @@ import {
 const ON = { disableHostedLlm: false, apiKey: 'k' };
 const CTX: RepairContext = {
   planState: 'collecting_availability',
-  options: ['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm'],
+  options: ['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm'],
   members: 6,
   openFlows: [],
 };
@@ -55,7 +55,7 @@ test('the request carries only a redacted snippet and a context line without per
   assert.match(payload, /\b84\b/);
   assert.match(payload, /23\.40/);
   assert.match(payload, /\[name1\]/);
-  assert.match(payload, /plan state: collecting_availability; open options: Thu Oct 22 · 7pm \| Fri Oct 23 · 7pm \| Sat Oct 24 · 7pm; members: 6; open flows: none/);
+  assert.match(payload, /plan state: collecting_availability; open options: Thu Oct 22, 7pm \| Fri Oct 23, 7pm \| Sat Oct 24, 7pm; members: 6; open flows: none/);
   assert.equal(body.model, 'claude-haiku-5-5');
   assert.equal(body.betas, undefined);
   assert.equal(body.fallbacks, undefined);

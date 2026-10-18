@@ -13,7 +13,7 @@ function telegramGroupOfThree() {
   const h = new Harness({ start: START, surface: 'telegram', quorum: Q });
   h.apply({ kind: 'headcount', n: 3 });
   const out = h.say('riad', 'homi dinner friday 7pm');
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Fri Oct 23 · 7pm']);
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Fri Oct 23, 7pm']);
   assert.ok(ofType(out, 'remember_handle').some((a) => a.member === 'k-riad'), 'the speaker becomes reachable privately');
   assert.ok(ofType(out, 'schedule').some((s) => s.job === 'quorum_dm' && s.at === h.now + 30_000));
   return h;
@@ -28,7 +28,7 @@ test('quorum: silent members are DMed at 30 s, counted out at 45 s; one yes canc
   const dms = ofType(ping, 'dm');
   assert.equal(dms.length, 1);
   assert.equal(dms[0].member, 'k-charlie');
-  assert.match(dms[0].text, /does 1 · Fri Oct 23 · 7pm work for you for dinner\? Reply yes, no, or a number\./);
+  assert.match(dms[0].text, /does 1\. Fri Oct 23, 7pm work for you for dinner\? Reply yes, no, or a number\./);
   assert.match(joined(ping), /Still need .*; I've asked them privately\. No word by .* counts as not coming\./);
   assert.ok(ofType(ping, 'schedule').some((s) => s.job === 'quorum_close' && s.at === h.now + 15_000));
   const close = h.advance(15_000);
@@ -50,7 +50,7 @@ test('quorum: a routed DM reply ("yes") counts, and two yes votes lock once the 
   assert.equal(h.plan!.state, 'collecting_availability', 'the third (silent) person is still expected');
   const close = h.advance(15_000);
   assert.match(joined(close), /No word from 1 person, so I'm counting them as not coming\./);
-  assert.match(joined(close), /Fri Oct 23 · 7pm it is: 2 in\./);
+  assert.match(joined(close), /Fri Oct 23, 7pm it is: 2 in\./);
   assert.equal(h.plan!.state, 'collecting_details');
 });
 
@@ -76,13 +76,13 @@ test('intake: "plan something" asks what first, then when; a window named early 
   assert.match(joined(h.say('riad', 'homi plan something next week')), /What are we doing: dinner, drinks, brunch, or something else\?/);
   assert.equal(h.plan!.state, 'collecting_dates');
   const out = h.say('ana', 'dinner');
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Thu Oct 22 · 7pm', '2 · Fri Oct 23 · 7pm', '3 · Sat Oct 24 · 7pm']);
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Thu Oct 22, 7pm', '2. Fri Oct 23, 7pm', '3. Sat Oct 24, 7pm']);
   assert.equal(h.plan!.activity, 'dinner');
 
   const g = new Harness({ start: START });
   g.say('riad', 'homi plan something');
   assert.match(joined(g.say('riad', 'homi drinks')), /Roughly when/);
-  assert.match(joined(g.say('ana', 'friday')), /2 · Fri Oct 23 · 8pm/);
+  assert.match(joined(g.say('ana', 'friday')), /2. Fri Oct 23, 8pm/);
 });
 
 test('quorum: a lone voter in a one-person chat is cancelled cleanly (no crash after the purge)', () => {

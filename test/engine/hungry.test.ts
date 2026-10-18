@@ -44,6 +44,10 @@ test('§3 taste: synonyms -> OSM tags, vetoes, tightest budget, diet, neighborho
   assert.equal(parseTaste('idc honestly').wildcard, true);
   assert.equal(parseTaste('somewhere near here').vague, true);
   assert.deepEqual(parseTaste('dumplings 🥟').cuisines, ['dumpling']);
+  assert.deepEqual(parseTaste('Affordable Italian in Malden, Massachusetts').neighborhoods, ['Malden, Massachusetts']);
+  assert.equal(parseTaste('Affordable Italian in Malden, Massachusetts').price, 1);
+  assert.deepEqual(parseTaste('bowling alley in Malden, Massachusetts').neighborhoods, ['Malden, Massachusetts']);
+  assert.equal(parseTaste('bowling alley in Malden, Massachusetts').category, 'bowling');
 });
 
 test('§3 merge: +1 per member per cuisine, vetoes win, tightest budget wins, midpoint near', () => {
@@ -60,6 +64,15 @@ test('§3 merge: +1 per member per cuisine, vetoes win, tightest budget wins, mi
   assert.equal(nearOf(h), 'Harvard Square + Allston');
   const q = placesQuery(h, nearOf(h), 123);
   assert.deepEqual(q, { cuisines: ['thai'], diet: [], near: 'Harvard Square + Allston', at: 123, priceMax: 1 });
+  const malden = newHungry(0, false);
+  mergeTaste(malden, 'member', parseTaste('Affordable Italian in Malden, Massachusetts'));
+  assert.deepEqual(placesQuery(malden, nearOf(malden), 123), {
+    cuisines: ['italian'],
+    diet: [],
+    near: 'Malden, Massachusetts',
+    at: 123,
+    priceMax: 1,
+  });
 });
 
 test('§4 ranking: exactly three, ids 1..3, closed and vetoed excluded, unknown hours allowed', () => {

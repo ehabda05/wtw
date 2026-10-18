@@ -1,7 +1,7 @@
 // What Homi says on a call. PRIVACY.md §10: a call carries ONLY the open question and its
 // options. No member names, no place, no group name, nothing said in the chat.
 //
-// Option labels come from the engine (Option.label, e.g. "Fri Oct 23 · 7pm") and are turned
+// Option labels come from the engine (Option.label, e.g. "Fri Oct 23, 7pm") and are turned
 // into natural spoken forms ("Friday at 7"). The result is passed to Retell as the single
 // dynamic variable {{question}} (docs.retellai.com/build/dynamic-variables).
 
@@ -158,7 +158,7 @@ export type Greeting = 'outbound' | 'inbound' | 'none';
 
 /**
  * Build the one open question Homi asks on a call.
- * buildQuestion(["Thu Oct 22 · 7pm", "Fri Oct 23 · 7pm", "Sat Oct 24 · 7pm"]) →
+ * buildQuestion(["Thu Oct 22, 7pm", "Fri Oct 23, 7pm", "Sat Oct 24, 7pm"]) →
  * "Hi, this is Homi calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?"
  * `activity` is spoken only if it is a generic word from SAFE_ACTIVITIES ("dinner"); free text is dropped.
  */

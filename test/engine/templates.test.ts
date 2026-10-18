@@ -59,6 +59,11 @@ test('tone dial: nudges and deadline lock change with tone; privacy copy does no
 test('intro matches PRIVACY.md §1', () => {
   assert.equal(
     TEMPLATES.intro({ hours: 24 }),
-    `Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "homi stop" makes me delete everything and leave.`,
+    `Hi, I'm Homi 👋 When a plan is active, I look for plan-related messages, so you don't have to mention me each time. If hosted AI or live place search is enabled, configured providers may process relevant text or a location you share; I keep plan details, not chat history, delete the plan 24h after the event, and remove everything on "homi stop".`,
   );
+});
+
+test('date options use the agreed numbered date and time format', () => {
+  assert.equal(TEMPLATES.optionBubble({ id: 1, label: 'Fri Oct 23, 7pm' }), '1. Fri Oct 23, 7pm');
+  assert.equal(TEMPLATES.optionBubble({ id: 2, label: 'Sat Oct 24, 7pm' }), '2. Sat Oct 24, 7pm');
 });

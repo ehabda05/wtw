@@ -24,7 +24,7 @@ export interface PlaceCallRequest {
   /** Raw E.164 number from the sealed delivery lookup. Used once, never stored or logged. */
   to: string;
   question: string;
-  /** Option labels, e.g. "Fri Oct 23 · 7pm". When present, the spoken question is rebuilt from them. */
+  /** Option labels, e.g. "Fri Oct 23, 7pm". When present, the spoken question is rebuilt from them. */
   options: string[];
   callRef: string;
   planId: string;

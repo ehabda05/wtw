@@ -59,9 +59,9 @@ test('the full scripted demo plays end to end on the real engine (docs/DEMO.md n
   const homi = entries.filter((e: { from: string }) => e.from === 'homi').map((e: { text: string }) => e.text).join('\n');
   const all = entries.map((e: { text: string }) => e.text).join('\n');
   assert.match(all, /\(simulated call\) answered: "friday works"/);
-  assert.match(homi, /Fri Oct 23 · 7pm it is: 5 in/);
+  assert.match(homi, /Fri Oct 23, 7pm it is: 5 in/);
   assert.match(homi, /Hokkaido Ramen Santouka it is: 1 Bow Street, Cambridge/);
-  assert.match(homi, /Show-up pledge for Fri Oct 23 · 7pm: \$10 each, back when you check in\. First, where should no-show money go \(everyone who pledges has to agree\)\?/);
+  assert.match(homi, /Show-up pledge for Fri Oct 23, 7pm: \$10 each, back when you check in\. First, where should no-show money go \(everyone who pledges has to agree\)\?/);
   assert.match(homi, /6 of 6 pledged: \$60 held \(SIMULATED\)/);
   assert.match(homi, /Dinner \$141\.61 \(tax \$7\.81 \+ 20% tip \$22\.30\), paid by Ben/);
   assert.match(homi, /Ana \$25\.02 · Ben \$36\.45 · Jo \$30\.74 · Maya \$24\.38 · You \$25\.02/);

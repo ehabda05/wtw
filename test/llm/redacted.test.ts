@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { classifyAvailability, redactForLlm, type MessagesClient } from '../../src/llm/redacted.js';
 
-const LABELS = ['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm'];
+const LABELS = ['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm'];
 
 test('redaction strips identifiers but keeps day and time words', () => {
   const out = redactForLlm(

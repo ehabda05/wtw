@@ -50,7 +50,7 @@ test('simple: the lock asks one question, no "Where to"; when everyone has answe
   const h = group();
   const lock = locked(h);
   const texts = ofType(lock, 'send').map((s) => s.text);
-  assert.ok(texts.some((t) => /Fri Oct 23 · 7pm it is: 2 in\.$/.test(t)), texts.join(' | '));
+  assert.ok(texts.some((t) => /Fri Oct 23, 7pm it is: 2 in\.$/.test(t)), texts.join(' | '));
   assert.ok(!texts.some((t) => /Where to/.test(t)));
   assert.ok(texts.includes('What are we feeling? Tacos, sushi, pizza, Thai, anything; or say "surprise us".'));
   assert.equal(h.plan!.state, 'collecting_place');

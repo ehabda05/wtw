@@ -92,8 +92,8 @@ export function onMessage(st: Step, ev: MessageEvent): void {
         if (!tryTextVote(st, ev, body, voteAddressed)) maybeEarlyLock(st, 'prompted');
         return;
       }
-      if (tryTextVote(st, ev, body, voteAddressed)) return;
       if (proposeDay(st, ev, body, addressed)) return;
+      if (tryTextVote(st, ev, body, voteAddressed)) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, planOrFood(body, now, tz) === 'plan' ? T.alreadyPlan() : T.whichOnes({ ids: idList(st) }));
       return;

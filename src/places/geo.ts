@@ -34,6 +34,8 @@ export interface GeoPoint extends LatLon {
   midpoint: boolean;
   /** Gazetteer ids behind this point. */
   ids: string[];
+  /** Larger radius for a resolved city than for a neighborhood or address. */
+  radiusMeters?: number;
 }
 
 const NOM = 'OSM via Nominatim, looked up 2026-10-16';

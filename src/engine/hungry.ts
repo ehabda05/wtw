@@ -11,6 +11,7 @@ import { TEMPLATES } from './templates.js';
 
 /** Strong signals: 2 points each. */
 const STRONG: RegExp[] = [
+  /\b(?:bowling alleys?|museums?|parks?|cafes?|cafés?|things to do)\b/,
   /\bwhere (?:should|do|can|could|shall) we (?:eat|get food|grab food|go (?:to )?eat|get dinner|get lunch|go for (?:dinner|lunch))\b/,
   /\bwhere (?:are|r) we (?:eating|getting food|going to eat|gonna eat|getting dinner|getting lunch)\b/,
   /\bwhat (?:should|do|shall) we (?:eat|get to eat)\b/,
@@ -262,16 +263,30 @@ export function parseTaste(text: string): Taste {
   if (!cuisines.length && /(?<!\b(?:not|no|nothing)\s(?:too\s|that\s|very\s|super\s|overly\s)?)\bspicy\b|\bsome heat\b/.test(t)) for (const c of ['thai', 'indian', 'korean']) if (!vetoes.includes(c)) cuisines.push(c);
   const diet: string[] = [];
   for (const [tag, re] of DIETS) if (re.test(t)) diet.push(tag);
+  const category = /\b(?:bowling|bowling alley)\b/.test(t)
+    ? 'bowling'
+    : /\bmuseums?\b/.test(t)
+      ? 'museum'
+      : /\bparks?\b/.test(t)
+        ? 'park'
+        : /\b(?:cafes?|coffee shops?)\b/.test(t)
+          ? 'cafe'
+          : /\bactivities\b|\bthings to do\b/.test(t)
+            ? 'activity'
+            : undefined;
   const neighborhoods = neighborhoodsIn(t);
+  const freeformLocation = neighborhoods.length ? undefined : text.match(/\b(?:in|near|around)\s+([a-z0-9][a-z0-9\s,.'-]{1,100}?)(?=$|[.!?;])/i);
+  const location = freeformLocation?.[1]?.trim().replace(/\s+(?:please|pls|for us|for me)$/i, '').replace(/[,. ]+$/, '');
+  if (!neighborhoods.length && location && !/^(?:me|us|here|there|nearby)$/i.test(location)) neighborhoods.push(location);
   const price = priceIn(t);
   const vague = neighborhoods.length === 0 && /\bnear (?:me|here|us)\b|\bnearby\b|\bclose by\b|\baround here\b|\bwhere we are\b|\bnear here\b|\bclose to here\b|\bwalking distance\b/.test(t);
   const wildcard = /\banything\b(?!\s+(?:but|except))|\bidc\b|\bi don'?t care\b|\bwhatever\b|\bno preference\b|\bup to you\b|\bdon'?t mind\b|\banywhere\b|\beither is fine\b/.test(t);
-  const go = /\bjust pick\b|\byou pick\b|\bwhatever you think\b|\bdealer'?s choice\b|\bpick for us\b|\bsurprise us\b/.test(t);
-  return { cuisines, vetoes, price, diet, neighborhoods, wildcard, vague, go };
+  const go = /\bjust pick\b|\byou pick\b|\bwhatever you think\b|\bdealer'?s choice\b|\bpick for us\b|\bsurprise us\b|\buse the default area\b/.test(t);
+  return { cuisines, vetoes, price, diet, neighborhoods, category, wildcard, vague, go };
 }
 
 export function hasTaste(t: Taste): boolean {
-  return t.cuisines.length > 0 || t.vetoes.length > 0 || t.price !== undefined || t.diet.length > 0 || t.neighborhoods.length > 0 || t.wildcard || t.vague;
+  return t.cuisines.length > 0 || t.vetoes.length > 0 || t.price !== undefined || t.diet.length > 0 || t.neighborhoods.length > 0 || t.category !== undefined || t.wildcard || t.vague;
 }
 
 export function newHungry(now: number, instant: boolean): EngineHungry {
@@ -293,6 +308,7 @@ export function mergeTaste(h: EngineHungry, member: MemberKey, t: Taste): void {
   for (const v of t.vetoes) if (!h.vetoes.includes(v)) h.vetoes.push(v);
   if (t.price !== undefined) h.priceMax = h.priceMax === undefined ? t.price : (Math.min(h.priceMax, t.price) as PriceBand);
   for (const d of t.diet) if (!h.diet.includes(d)) h.diet.push(d);
+  if (t.category) h.category = t.category;
   const mp = (h.memberPlaces ??= {});
   const places = (mp[member] ??= []);
   for (const n of t.neighborhoods) {
@@ -336,6 +352,7 @@ export function queryCuisines(h: HungryState): string[] {
 
 export function placesQuery(h: HungryState, near: string, at: number): PlacesQuery {
   const q: PlacesQuery = { cuisines: queryCuisines(h), diet: [...h.diet], near, at };
+  if (h.category) q.category = h.category;
   if (h.priceMax !== undefined) q.priceMax = h.priceMax;
   return q;
 }
@@ -482,6 +499,7 @@ export function placesHeader(h: HungryState, near: string, options: PlaceOption[
   const where = whereLabel(near);
   const n = options.length;
   const comp = compromise(h);
+  const category = h.category ? capitalize(h.category === 'activity' ? 'activity' : h.category) : undefined;
   // The 2+1 line describes the list, so it is used only when the list really is two of one and one of the other.
   const serves = (c: string) => options.filter((o) => placeCuisines(o.cuisine).some((t) => [c, ...(RELATED[c] ?? [])].includes(t))).length;
   if (comp && n === 3 && serves(comp.top[0]) >= 2 && serves(comp.second[0]) >= 1) {
@@ -500,7 +518,7 @@ export function placesHeader(h: HungryState, near: string, options: PlaceOption[
   if (top && !options.some((o) => placeCuisines(o.cuisine).some((t) => related.includes(t)))) {
     return TEMPLATES.foodHeaderNoMatch({ cuisine: cuisineLabel(top), where: where.replace(/^halfway between /, '') || undefined, n, price: priceWord(h) || undefined, how });
   }
-  const cuisine = top ? capitalize(cuisineLabel(top)) : 'Good food';
+  const cuisine = top ? capitalize(cuisineLabel(top)) : category ?? 'Good food';
   return TEMPLATES.foodHeader({ summary: [cuisine, priceWord(h), where].filter(Boolean).join(', '), n, how });
 }
 

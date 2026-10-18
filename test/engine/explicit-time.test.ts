@@ -35,7 +35,7 @@ test('"dinner tonight at 8pm at halal guys" at 5:44pm: one option at 8pm, the pl
   const h = new Harness({ start: EVENING });
   const out = h.say('riad', 'Hommi plan a dinner tonight at 8pm at halal guys');
   const sends = ofType(out, 'send');
-  assert.deepEqual(sends.filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Sat Oct 17 · 8pm']);
+  assert.deepEqual(sends.filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Sat Oct 17, 8pm']);
   assert.match(joined(out), /Noted: halal guys/);
   assert.equal(h.plan!.place?.name, 'halal guys');
   const dl = ofType(out, 'schedule').find((s) => s.job === 'availability_deadline')!;
@@ -46,17 +46,17 @@ test('"dinner tonight at 8pm at halal guys" at 5:44pm: one option at 8pm, the pl
 test('"dinner friday 7pm": the named time is the option, not three generated ones', () => {
   const h = new Harness({ start: MORNING });
   const out = h.say('riad', 'homi dinner friday 7pm');
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Fri Oct 23 · 7pm']);
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Fri Oct 23, 7pm']);
 });
 
 test('"homi I said 8 pm": the open poll is re-proposed at 8pm; an existing time is a vote, not a change', () => {
   const h = new Harness({ start: EVENING });
   const first = h.say('riad', 'homi dinner tonight');
-  assert.deepEqual(ofType(first, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Sat Oct 17 · 9pm', '2 · Sat Oct 17 · 10pm']);
+  assert.deepEqual(ofType(first, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Sat Oct 17, 9pm', '2. Sat Oct 17, 10pm']);
   const out = h.say('riad', 'Homi I said 8 pm why are u telling me 9 or 10');
   const sends = ofType(out, 'send');
   assert.equal(sends[0].text, 'Changed the time to 8pm:');
-  assert.deepEqual(sends.filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['3 · Sat Oct 17 · 8pm']);
+  assert.deepEqual(sends.filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['3. Sat Oct 17, 8pm']);
   assert.deepEqual(h.plan!.options.filter((o) => !o.removed).map((o) => o.id), [3]);
   // "homi 8pm" now names the only option: that is a yes, not another change.
   const vote = h.say('ana', 'homi 8pm works');
@@ -68,23 +68,20 @@ test('"plan something for 8 pm to eat out": a plan for tonight at 8pm, not an in
   const h = new Harness({ start: EVENING });
   const out = h.say('riad', 'Homi plan something for 8 pm to eat out');
   assert.equal(h.plan!.state, 'collecting_availability');
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Sat Oct 17 · 8pm']);
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Sat Oct 17, 8pm']);
   assert.ok(!joined(out).includes('What are we feeling'));
 });
 
-test('roster: a plan started after the members snapshot knows the group and waits for them', () => {
+test('roster: one preference searches immediately, while place selection still waits for group votes', () => {
   const h = new Harness({ start: EVENING, surface: 'imessage-dedicated' });
   // iMessage dedicated lines report the roster at first sight, before any plan exists.
   h.apply({ kind: 'members_snapshot', members: [{ key: 'k-riad', platformName: 'Riad' }, { key: 'k-esc', platformName: 'Escander' }] });
   assert.equal(h.plan, null);
   h.say('riad', 'homi where should we eat');
   assert.deepEqual(Object.keys(h.plan!.members).sort(), ['k-esc', 'k-riad']);
-  // One taste answer out of two members: Homi asks nothing more and does not search yet.
+  // One complete preference is enough to search.
   const first = h.say('riad', 'mexican in harvard square');
-  assert.equal(ofType(first, 'lookup_places').length, 0, 'searched after one answer');
-  // The second member answers: now it searches.
-  const second = h.say('esc', 'mexican works for me');
-  assert.equal(ofType(second, 'lookup_places').length, 1);
+  assert.equal(ofType(first, 'lookup_places').length, 1);
   h.places(fakePlaces());
   assert.equal(h.plan!.hungry?.phase, 'voting');
   // One place vote out of two: not locked yet.
@@ -94,17 +91,15 @@ test('roster: a plan started after the members snapshot knows the group and wait
   assert.equal(ofType(v2, 'send').some((s) => /it is:/.test(s.text)), true);
 });
 
-test('head count (Telegram): a plan started after the count waits for that many people, even before they speak', () => {
+test('head count (Telegram): one preference searches immediately and the place vote uses the stated group size', () => {
   const h = new Harness({ start: EVENING, surface: 'telegram' });
   h.apply({ kind: 'headcount', n: 2 });
   assert.equal(h.plan, null);
   h.say('riad', 'homi where should we eat');
   assert.equal(h.plan!.expectedHeadcount, 2);
-  // Only Riad is known by name, but the group is two: one taste answer does not search.
+  // Only Riad is known by name, but the group size still informs the later vote.
   const first = h.say('riad', 'mexican in harvard square');
-  assert.equal(ofType(first, 'lookup_places').length, 0, 'searched after one answer');
-  const second = h.say('charlie', 'mexican works');
-  assert.equal(ofType(second, 'lookup_places').length, 1);
+  assert.equal(ofType(first, 'lookup_places').length, 1);
   h.places(fakePlaces());
   assert.equal(h.plan!.hungry?.phase, 'voting');
   const v1 = h.say('riad', '1');
@@ -118,14 +113,17 @@ test('a day nobody proposed becomes a new option: addressed always, unaddressed 
   h.say('riad', 'homi dinner next week?');
   // Passing mention: ignored.
   assert.equal(h.say('ben', 'ugh wednesday was rough').length, 0);
-  // Proposal phrase, unaddressed: added, with Ana's yes.
+  // A proposal phrase, unaddressed: add a fresh option without treating the suggestion as agreement.
   const out = h.say('ana', 'I was thinking Wednesday');
   assert.match(joined(out), /Added it as a new option/);
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['4 · Wed Oct 21 · 7pm']);
-  assert.equal(h.plan!.members['k-ana']?.optionVotes[4], 'yes');
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['4. Wed Oct 21, 7pm']);
+  assert.equal(h.plan!.members['k-ana']?.optionVotes[4], undefined);
+  assert.equal(h.plan!.pendingProposal?.optionId, 4);
+  h.react('ben', '❤️', 'option:4');
+  assert.equal(h.plan!.pendingProposal, undefined);
   // Addressed: no phrase needed. Saturday Oct 17 -> next Monday is Oct 19.
   const out2 = h.say('ben', 'homi monday works');
-  assert.deepEqual(ofType(out2, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['5 · Mon Oct 19 · 7pm']);
+  assert.deepEqual(ofType(out2, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['5. Mon Oct 19, 7pm']);
   // A day already on the ballot is a plain vote.
   const out3 = h.say('jo', 'homi friday works');
   assert.equal(ofType(out3, 'send').some((s) => s.tag?.startsWith('option:')), false);
@@ -135,7 +133,7 @@ test('a day nobody proposed becomes a new option: addressed always, unaddressed 
 test('"saturday 7pm" said on a Saturday evening means next Saturday, not a time that already passed', () => {
   const h = new Harness({ start: '2026-10-17T19:05:00-04:00' }); // Saturday, 7:05pm
   const out = h.say('riad', 'homi dinner saturday 7pm');
-  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1 · Sat Oct 24 · 7pm']);
+  assert.deepEqual(ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text), ['1. Sat Oct 24, 7pm']);
   // "tonight at 6" when it is already 7: no roll, the generator falls back to what is left tonight.
   const g = new Harness({ start: '2026-10-17T19:05:00-04:00' });
   const late = g.say('riad', 'homi dinner tonight at 6pm');

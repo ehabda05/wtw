@@ -17,6 +17,7 @@ import { Executor, type SentInfo } from './executor.js';
 import type { CallResult, EngineApi, PlacesService, VoiceService } from './services.js';
 import type { ActionHandler, PhotoStore } from './handlers/types.js';
 import { restorePlaceholders, type RepairFn } from '../llm/router.js';
+import type { ReceiptReadResult } from '../llm/receipt.js';
 import { TEMPLATES } from '../engine/templates.js';
 import { NameMemory, REPAIR_TIMEOUT_MS, RepairTimeout, knownNamesFor, onlyGenericFallback, repairContext, skipRepair, withTimeout } from './repair.js';
 
@@ -88,6 +89,7 @@ export interface RunnerConfig {
   retentionHours: number;
   quietHours: [number, number];
   defaultTz: string;
+  defaultSearchLocation?: string;
   /** Demo quorum timers (Ctx.quorum; config.ts parseQuorum). */
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
   /** DEMO_SIMPLE=on (Ctx.simple). */
@@ -135,10 +137,9 @@ export interface RunnerDeps {
   handlers?: ActionHandler[];
   photoStore?: PhotoStore;
   /**
-   * Receipt reader (src/llm/receipt.ts): "homi split the bill" with a receipt photo (as the caption, or within ten
-   * minutes of the photo) reads the total off the image and runs the usual split. Off without the LLM switch.
+   * Receipt reader (src/llm/receipt.ts): "homi split the bill" with a receipt photo reads the amounts off the image.
    */
-  readReceipt?: (bytes: Uint8Array, mime: string) => Promise<{ total: number } | null>;
+  readReceipt?: (bytes: Uint8Array, mime: string) => Promise<ReceiptReadResult>;
   /** Public base URL for member-only links (album page). */
   publicBaseUrl?: string;
 }
@@ -153,6 +154,8 @@ const SPLIT_ASK = /\b(?:split|divide)\b.*\b(?:bill|check|receipt|tab|it|this|tha
 /** A money amount in the text: "$84", "84.00", or any number of two or more digits (small numbers are head counts). */
 const HAS_AMOUNT = /\$\s?\d|\d+\.\d{1,2}\b|\b\d{2,}\b/;
 const RECEIPT_TTL_MS = 10 * 60_000;
+const RECEIPT_MAX_BYTES = 10 * 1024 * 1024;
+const RECEIPT_MEMORY_BYTES = 20 * 1024 * 1024;
 /** Rewrites the listener never acts on: money, pledges, trips, albums, and anything that deletes or leaves. */
 const NOT_FOR_LISTENING =
   /^homi (?:stop|forget|clear|undo|cancel|remove|delete|dispute|settle|split|itemize|tab|pledges?|i'?m (?:in|here)|let'?s (?:do|plan)|start an album|album|trip|comfortable|budget|privacy|help|what do you know|tone|notice|you can|remind|add to calendar|note|lock)\b/i;
@@ -183,8 +186,8 @@ export class Runner {
   readonly #hostedLlm?: RunnerDeps['hostedLlm'];
   readonly #photoStore?: PhotoStore;
   readonly #readReceipt?: RunnerDeps['readReceipt'];
-  /** spaceKey -> the latest photo posted (memory only, ten minutes), so "homi split the bill" can refer to it. */
-  readonly #lastPhoto = new Map<string, { bytes: Uint8Array; mime: string; at: number }>();
+  /** Recent images stay in memory only; an explicit reply can select an older image instead of the latest one. */
+  readonly #recentPhotos = new Map<string, { ref: string; bytes: Uint8Array; mime: string; at: number; unsupported?: boolean }[]>();
   readonly #publicBaseUrl?: string;
   readonly #repair?: RepairFn;
   readonly #llmFirst: boolean;
@@ -262,8 +265,9 @@ export class Runner {
     return new Promise((r) => this.#idleWaiters.push(r));
   }
 
-  #memberRef(surface: Surface, spaceId: string, user: { handle: string; platformName?: string }): MemberRef {
+  #memberRef(surface: Surface, spaceId: string, user: { handle: string; platformName?: string; isBot?: boolean }): MemberRef {
     const ref: MemberRef = { key: this.#ids.member(surface, spaceId, user.handle) };
+    if (user.isBot) ref.isBot = true;
     // platformName must never be a phone number / email / handle-like string.
     if (user.platformName && !containsPii(user.platformName)) ref.platformName = user.platformName.slice(0, 64);
     return ref;
@@ -337,6 +341,7 @@ export class Runner {
       caps: adapter.caps,
       retentionHours: this.#config.retentionHours,
       quietHours: this.#config.quietHours,
+      ...(this.#config.defaultSearchLocation ? { defaultSearchLocation: this.#config.defaultSearchLocation } : {}),
       ...(this.#config.quorum ? { quorum: this.#config.quorum } : {}),
       ...(this.#config.simple ? { simple: true } : {}),
       newId: this.#newId,
@@ -604,31 +609,102 @@ export class Runner {
    * Returns the events to run (empty = handled, nothing more), or null when this is not a receipt split.
    */
   async #receiptSplit(m: ChannelInbound, spaceKey: SpaceKey, state: GroupState, adapter: ChannelAdapter, now: number): Promise<EngineEvent[] | null> {
-    if (m.kind === 'photo' && m.photo) this.#lastPhoto.set(spaceKey, { bytes: m.photo.bytes, mime: m.photo.mime, at: now });
-    if (!this.#readReceipt || !m.from) return null;
+    for (const [key, photos] of this.#recentPhotos) {
+      const fresh = photos.filter((p) => now - p.at <= RECEIPT_TTL_MS);
+      if (fresh.length) this.#recentPhotos.set(key, fresh);
+      else this.#recentPhotos.delete(key);
+    }
+    if (m.kind === 'photo' && m.photo) {
+      const recent = (this.#recentPhotos.get(spaceKey) ?? []).filter((p) => now - p.at <= RECEIPT_TTL_MS);
+      recent.push({
+        ref: m.msgId,
+        bytes: m.photo.bytes.length <= RECEIPT_MAX_BYTES ? m.photo.bytes : new Uint8Array(),
+        mime: m.photo.mime,
+        at: now,
+        ...(m.photo.bytes.length > RECEIPT_MAX_BYTES ? { unsupported: true } : {}),
+      });
+      this.#recentPhotos.set(spaceKey, recent.slice(-8));
+      while (true) {
+        const all = [...this.#recentPhotos.values()].flat();
+        if (all.length <= 64 && all.reduce((n, p) => n + p.bytes.byteLength, 0) <= RECEIPT_MEMORY_BYTES) break;
+        let oldest: { key: string; ref: string; at: number } | undefined;
+        for (const [key, photos] of this.#recentPhotos) {
+          const p = photos[0];
+          if (p && (!oldest || p.at < oldest.at)) oldest = { key, ref: p.ref, at: p.at };
+        }
+        if (!oldest) break;
+        const left = (this.#recentPhotos.get(oldest.key) ?? []).slice(1);
+        if (left.length) this.#recentPhotos.set(oldest.key, left);
+        else this.#recentPhotos.delete(oldest.key);
+      }
+    }
+    if (!m.from) return null;
     const text = m.text?.trim() ?? '';
     if (!text || !SPLIT_ASK.test(text) || HAS_AMOUNT.test(text)) return null;
     if (!(m.mentionsAgent || this.#engine.detectAddressed(text))) return null;
-    const photo = this.#lastPhoto.get(spaceKey);
-    if (!photo || now - photo.at > RECEIPT_TTL_MS) return null;
-    const space = shortKey(spaceKey);
-    const r = await this.#readReceipt(photo.bytes, photo.mime).catch(() => null);
-    if (!r || !(r.total > 0)) {
-      this.#log.info('runner: receipt not readable', { space });
-      await adapter.send(m.spaceId, TEMPLATES.receiptUnreadable()).catch(() => undefined);
+    const recent = (this.#recentPhotos.get(spaceKey) ?? []).filter((p) => now - p.at <= RECEIPT_TTL_MS);
+    this.#recentPhotos.set(spaceKey, recent);
+    const photo = m.replyTo ? recent.find((p) => p.ref === m.replyTo) : recent.at(-1);
+    if (!photo) {
+      await adapter.send(m.spaceId, TEMPLATES.receiptMissing()).catch((err) => {
+        this.#log.warn('runner: receipt prompt delivery failed', { stage: 'missing-image', space: shortKey(spaceKey), error: err instanceof Error ? err.name : 'unknown' });
+      });
       return [];
     }
-    this.#lastPhoto.delete(spaceKey);
+    if (photo.unsupported) {
+      await adapter.send(m.spaceId, TEMPLATES.receiptUnsupported()).catch((err) => {
+        this.#log.warn('runner: receipt prompt delivery failed', { stage: 'unsupported-image-size', space: shortKey(spaceKey), error: err instanceof Error ? err.name : 'unknown' });
+      });
+      return [];
+    }
+    if (!this.#readReceipt) {
+      await adapter.send(m.spaceId, TEMPLATES.receiptDisabled()).catch((err) => {
+        this.#log.warn('runner: receipt prompt delivery failed', { stage: 'reader-disabled', space: shortKey(spaceKey), error: err instanceof Error ? err.name : 'unknown' });
+      });
+      return [];
+    }
+    const space = shortKey(spaceKey);
+    let result: ReceiptReadResult;
+    try {
+      result = await this.#readReceipt(photo.bytes, photo.mime);
+    } catch (err) {
+      result = { status: 'provider-error' };
+      this.#log.warn('runner: receipt read failed', { stage: 'reader', space, error: err instanceof Error ? err.name : 'unknown' });
+    }
+    if (result.status !== 'ok') {
+      this.#log.info('runner: receipt read outcome', { space, outcome: result.status });
+      const prompt = result.status === 'disabled' ? TEMPLATES.receiptDisabled()
+        : result.status === 'unsupported' ? TEMPLATES.receiptUnsupported()
+          : result.status === 'unsupported-currency' ? TEMPLATES.receiptUnsupportedCurrency()
+            : result.status === 'unknown-currency' ? TEMPLATES.receiptUnknownCurrency()
+          : result.status === 'provider-error' ? TEMPLATES.receiptProviderError()
+            : result.status === 'inconsistent' ? TEMPLATES.receiptInconsistent()
+              : TEMPLATES.receiptUnreadable();
+      await adapter.send(m.spaceId, prompt).catch((err) => {
+        this.#log.warn('runner: receipt prompt delivery failed', { stage: result.status, space, error: err instanceof Error ? err.name : 'unknown' });
+      });
+      return [];
+    }
+    this.#recentPhotos.set(spaceKey, recent.filter((p) => p.ref !== photo.ref));
     const clean = (s: string) => s.replace(/\band\b/gi, ' ').replace(/[,&]/g, ' ').replace(/\s+/g, ' ').trim();
     const payer = text.match(/\bpaid by\b[^.!?,]*/i)?.[0];
     const whoRaw = text.match(/\b(?:between|among|amongst|with)\b[^.!?]*/i)?.[0] ?? text.match(/\b\d{1,2}\s*(?:ways?|people|ppl|of us)\b/i)?.[0];
     const who = whoRaw?.replace(/,?\s*\bpaid by\b.*$/i, '');
-    let tail = who ? clean(who) : '';
-    if (!tail && !state.plan) {
-      const n = state.space.roster?.length ?? state.space.headcount ?? 0;
-      if (n >= 2) tail = `${n} ways`;
+    const namedCount = text.match(/\b(?:between|among|amongst|with)\s+(?:(?:these|the)\s+)?(one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})\s+(?:people|ppl|of us)\b/i)?.[1]?.toLowerCase();
+    const numberWords: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+    const count = namedCount ? numberWords[namedCount] ?? Number(namedCount) : undefined;
+    let tail = count !== undefined ? `${count} ways` : who ? clean(who) : '';
+    if (!tail) {
+      const n = state.space.headcount ?? state.space.roster?.filter((r) => !r.isBot).length ?? state.plan?.expectedHeadcount;
+      if (n !== undefined && n >= 2) tail = `${n} ways`;
+      else {
+        await adapter.send(m.spaceId, TEMPLATES.receiptAskParticipants()).catch((err) => {
+          this.#log.warn('runner: receipt prompt delivery failed', { stage: 'participant-count', space, error: err instanceof Error ? err.name : 'unknown' });
+        });
+        return [];
+      }
     }
-    const rewritten = `homi split ${r.total.toFixed(2)}${tail ? ` ${tail}` : ''}${payer ? `, ${clean(payer)}` : ''}`;
+    const rewritten = `homi split ${result.receipt.total.toFixed(2)}${tail ? ` ${tail}` : ''}${payer ? `, ${clean(payer)}` : ''}`;
     this.#log.info('runner: receipt read, splitting', { space });
     return [{ kind: 'message', from: this.#memberRef(m.surface, m.spaceId, m.from), text: rewritten, msgRef: m.msgId, addressed: true }];
   }

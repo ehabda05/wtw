@@ -21,6 +21,7 @@ export function planOrFood(body: string, now: number, tz: string): 'plan' | 'foo
   if (fs.money && !win) return null;
   const todayOnly = !!win && win.single && !win.explicit && win.days[0] === isoDay(now, tz);
   if (win && !(todayOnly && fs.strong)) return 'plan';
+  if (!win && fs.score >= 1 && /\b(?:bowling alleys?|museums?|parks?|cafes?|cafés?|things to do)\b/.test(body.toLowerCase())) return 'food';
   // "plan something for 8 pm to eat out": a clock time with no day is still a plan (for today), not an instant search.
   if (!win && preferredTime(body)) return 'plan';
   if (fs.score >= 1 && !planWords) return 'food';

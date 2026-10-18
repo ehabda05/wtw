@@ -35,6 +35,10 @@ Homi only listens to bill commands that are addressed to it ("homi …", @homi, 
 
 `homi forget` deletes the plan only. The tab stays until "homi clear the tab" or "homi stop" (DEMO step 26).
 
+### Receipt photos
+
+Reply to a receipt photo (or ask within ten minutes) with `homi split the bill`. The configured hosted reader extracts the grand total, currency, visible items and printed charges; Homi refuses unsupported currencies and totals whose printed arithmetic is inconsistent. It equal-splits the validated USD grand total using the human roster/headcount when available, and asks for a count when membership is not reliable. Item-by-item claiming is not yet wired into the bill flow.
+
 ### Extras: tip, tax, service and fees
 
 You can write extras as a percent or a fixed amount, inline (`+ 18% tip`, `tip 20%`) or as an itemized segment (`tax 7%`):

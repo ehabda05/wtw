@@ -147,11 +147,11 @@ function withPlace(): Harness {
   h.say('ben', 'fri works');
   h.say('ana', 'fri works');
   h.say('maya', 'homi find food');
-  h.say('ana', 'thai sounds amazing');
-  h.say('jo', 'homi go, harvard square');
+  h.say('ana', 'thai sounds amazing, harvard square');
   h.places(fakePlaces());
   h.say('jo', '1');
   h.say('ana', '1');
+  h.say('ben', '1');
   assert.equal(h.plan!.state, 'confirmed');
   return h;
 }
@@ -190,15 +190,22 @@ test('money words veto food: a bill question never starts the food flow', () => 
   assert.equal(h.plan!.state, 'collecting_availability');
 });
 
-test('food answers get a 👍, and one answer with food + budget + area searches right away', () => {
+test('any food preference is actionable, and cuisine plus budget plus area are forwarded together', () => {
   const h = planned();
   h.say('ben', 'fri works');
   h.say('ana', 'fri works');
   h.say('maya', 'homi find food');
   const one = h.say('ana', 'ramen sounds amazing');
   assert.equal(ofType(one, 'react').length, 1);
-  assert.equal(ofType(one, 'lookup_places').length, 0);
-  const all = h.say('jo', 'something spicy and not too expensive near central square');
+  assert.equal(ofType(one, 'lookup_places').length, 1);
+  const oneQuery = ofType(one, 'lookup_places')[0].query;
+  assert.ok(oneQuery.cuisines.includes('japanese'));
+  assert.equal(oneQuery.near, 'Boston');
+  const g = planned();
+  g.say('ben', 'fri works');
+  g.say('ana', 'fri works');
+  g.say('maya', 'homi find food');
+  const all = g.say('jo', 'something spicy and not too expensive near central square');
   assert.equal(ofType(all, 'lookup_places').length, 1);
   const q = ofType(all, 'lookup_places')[0].query;
   assert.ok(q.cuisines.includes('thai'));

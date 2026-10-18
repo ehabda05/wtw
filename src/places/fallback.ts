@@ -90,10 +90,12 @@ export function searchOffline(query: PlacesQuery, center: GeoPoint, opts: Offlin
   const radius = opts.radiusM ?? (center.midpoint ? MIDPOINT_RADIUS_M : DEFAULT_RADIUS_M);
   const limit = opts.limit ?? MAX_CANDIDATES;
   const groups = queryCuisineGroups(query.cuisines ?? []);
+  if (query.category && !['cafe'].includes(query.category)) return [];
   const diets = [...new Set((query.diet ?? []).map(normalizeDiet).filter(Boolean))];
 
   const eligible: Scored[] = [];
   for (const place of data.places) {
+    if (query.category === 'cafe' && place.amenity !== 'cafe') continue;
     const distance = haversineMeters(center, place);
     if (distance > radius) continue;
     // Snapshot prices are team ESTIMATES (OSM has none), so an estimate may sit one band above the budget; the

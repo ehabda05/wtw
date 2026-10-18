@@ -115,7 +115,7 @@ test('dump lists the plan, never ids, message ids or text, and offers forget', (
   const d = joined(h.say('jules', 'wait homi what do you know'));
   assert.match(d, /^Here's everything I have for this chat: /);
   assert.match(d, /plan "dinner" \(next week\)/);
-  assert.match(d, /options Thu Oct 22 7pm, Fri Oct 23 7pm, Sat Oct 24 7pm/);
+  assert.match(d, /options Thu Oct 22, 7pm, Fri Oct 23, 7pm, Sat Oct 24, 7pm/);
   assert.match(d, /4 people: 2 answered, 2 pending/);
   assert.match(d, /names I know: Jules/);
   assert.match(d, /0 nudges sent/);
