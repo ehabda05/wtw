@@ -7,7 +7,7 @@ import { joined, ofType, texts } from '../engine/helpers.js';
 import { CREW, at, demoPlan } from './commit-harness.js';
 
 const HEADER =
-  'Show-up pledge for Fri Oct 23 · 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?';
+  'Show-up pledge for Fri Oct 23, 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?';
 const RULES = [
   'How the pledge works (payments are SIMULATED in this demo):',
   '· Check in: "homi I\'m here" at Hokkaido Ramen Santouka, 6:45–7:30pm; it counts once a second person is there (or someone 👍s it)',

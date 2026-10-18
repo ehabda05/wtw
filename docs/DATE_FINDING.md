@@ -58,7 +58,7 @@ Input: the trigger message ("dinner next week?") and the current time in the gro
    - **Single-day windows** ("tomorrow") get 3 *times* on that day instead (e.g., 12:30, 6:30, 8pm).
 4. **Decide-by deadline.** `min(now + 24h, first option − 6h)`, but at least `now + 2h`. If it lands in quiet hours, move it to 9:30am, or to 10:30pm if 9:30am would be too late.
 
-**Output:** for example, "1 · Thu Oct 22 · 7pm", "2 · Fri Oct 23 · 7pm", "3 · Sat Oct 24 · 7pm", locking "tomorrow 9:30pm".
+**Output:** for example, "1. Thu Oct 22, 7pm", "2. Fri Oct 23, 7pm", "3. Sat Oct 24, 7pm", locking "tomorrow 9:30pm".
 
 ## 2. Two taps to answer
 

@@ -10,9 +10,9 @@ import type { EngineEvent, Option } from '../../src/engine/types.js';
 import { fakeEngine, makeEnv, makePlan, textIn } from './helpers.js';
 
 const OPTIONS: Option[] = [
-  { id: 1, startsAt: Date.UTC(2026, 9, 22, 23), day: '2026-10-22', time: '19:00', label: 'Thu Oct 22 · 7pm' },
-  { id: 2, startsAt: Date.UTC(2026, 9, 23, 23), day: '2026-10-23', time: '19:00', label: 'Fri Oct 23 · 7pm' },
-  { id: 3, startsAt: Date.UTC(2026, 9, 24, 23), day: '2026-10-24', time: '19:00', label: 'Sat Oct 24 · 7pm' },
+  { id: 1, startsAt: Date.UTC(2026, 9, 22, 23), day: '2026-10-22', time: '19:00', label: 'Thu Oct 22, 7pm' },
+  { id: 2, startsAt: Date.UTC(2026, 9, 23, 23), day: '2026-10-23', time: '19:00', label: 'Fri Oct 23, 7pm' },
+  { id: 3, startsAt: Date.UTC(2026, 9, 24, 23), day: '2026-10-24', time: '19:00', label: 'Sat Oct 24, 7pm' },
 ];
 
 function envWithOpenPoll(llmCalls: string[]) {

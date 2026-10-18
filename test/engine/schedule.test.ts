@@ -12,31 +12,31 @@ const labels = (os: { label: string }[]) => os.map((o) => o.label);
 test('§1: "dinner next week?" -> Thu, Fri, Sat at 7pm (top three by score, chronological)', () => {
   const w = parseWindow('dinner next week?', SAT, TZ)!;
   const os = generateOptions({ activity: 'dinner', window: w, now: SAT, tz: TZ });
-  assert.deepEqual(labels(os), ['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']);
+  assert.deepEqual(labels(os), ['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm']);
   assert.deepEqual(os.map((o) => o.id), [1, 2, 3]);
 });
 
 test('§1: activity times, weekend preference and "hang out" weekday/weekend defaults', () => {
   const w = parseWindow('next week', SAT, TZ)!;
-  assert.deepEqual(labels(generateOptions({ activity: 'drinks', window: w, now: SAT, tz: TZ })), ['Thu Oct 22 · 8pm', 'Fri Oct 23 · 8pm', 'Sat Oct 24 · 8pm']);
-  assert.deepEqual(labels(generateOptions({ activity: 'brunch', window: w, now: SAT, tz: TZ, weekendPref: true })), ['Fri Oct 23 · 11am', 'Sat Oct 24 · 11am', 'Sun Oct 25 · 11am']);
-  assert.deepEqual(labels(generateOptions({ activity: 'hang out', window: w, now: SAT, tz: TZ })), ['Thu Oct 22 · 6:30pm', 'Fri Oct 23 · 6:30pm', 'Sat Oct 24 · 2pm']);
+  assert.deepEqual(labels(generateOptions({ activity: 'drinks', window: w, now: SAT, tz: TZ })), ['Thu Oct 22, 8pm', 'Fri Oct 23, 8pm', 'Sat Oct 24, 8pm']);
+  assert.deepEqual(labels(generateOptions({ activity: 'brunch', window: w, now: SAT, tz: TZ, weekendPref: true })), ['Fri Oct 23, 11am', 'Sat Oct 24, 11am', 'Sun Oct 25, 11am']);
+  assert.deepEqual(labels(generateOptions({ activity: 'hang out', window: w, now: SAT, tz: TZ })), ['Thu Oct 22, 6:30pm', 'Fri Oct 23, 6:30pm', 'Sat Oct 24, 2pm']);
 });
 
 test('§1: single-day windows get three times; slots under 3h away are dropped', () => {
   const w = parseWindow('dinner tomorrow?', SAT, TZ)!;
-  assert.deepEqual(labels(generateOptions({ activity: 'dinner', window: w, now: SAT, tz: TZ })), ['Sun Oct 18 · 6pm', 'Sun Oct 18 · 7pm', 'Sun Oct 18 · 8:30pm']);
+  assert.deepEqual(labels(generateOptions({ activity: 'dinner', window: w, now: SAT, tz: TZ })), ['Sun Oct 18, 6pm', 'Sun Oct 18, 7pm', 'Sun Oct 18, 8:30pm']);
   const five = Date.parse('2026-10-17T16:30:00-04:00');
   const t = generateOptions({ activity: 'dinner', window: parseWindow('tonight', five, TZ)!, now: five, tz: TZ });
   assert.ok(t.every((o) => o.startsAt >= five + 3 * 3600_000));
-  assert.equal(t[0].label, 'Sat Oct 17 · 8:30pm');
+  assert.equal(t[0].label, 'Sat Oct 17, 8:30pm');
 });
 
 test('§1: explicit days override generation; ruled-out days are removed', () => {
   const ex = generateOptions({ activity: 'dinner', window: parseWindow('thu, fri or sat?', SAT, TZ)!, now: SAT, tz: TZ });
-  assert.deepEqual(labels(ex), ['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']);
+  assert.deepEqual(labels(ex), ['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm']);
   const noFri = generateOptions({ activity: 'dinner', window: parseWindow('next week', SAT, TZ)!, now: SAT, tz: TZ, excludeWeekdays: [5] });
-  assert.deepEqual(labels(noFri), ['Thu Oct 22 · 7pm', 'Sat Oct 24 · 7pm', 'Sun Oct 25 · 7pm']);
+  assert.deepEqual(labels(noFri), ['Thu Oct 22, 7pm', 'Sat Oct 24, 7pm', 'Sun Oct 25, 7pm']);
 });
 
 test('§1 step 4: deadline = min(now+24h, first-6h), >= now+2h, quiet hours -> 9:30am', () => {

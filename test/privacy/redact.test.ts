@@ -35,7 +35,7 @@ test('emails, @handles and long digit runs are scrubbed', () => {
 });
 
 test('dates, times, prices and short numbers survive', () => {
-  for (const s of ['Fri Oct 23 · 7pm', '2026-10-23 19:00', '2026-10-16T21:52:00.000Z', 'split 142.50 3 ways', 'we are 6', 'lock it when 4 say yes', '7:30pm']) {
+  for (const s of ['Fri Oct 23, 7pm', '2026-10-23 19:00', '2026-10-16T21:52:00.000Z', 'split 142.50 3 ways', 'we are 6', 'lock it when 4 say yes', '7:30pm']) {
     assert.equal(redact(s), s);
   }
 });

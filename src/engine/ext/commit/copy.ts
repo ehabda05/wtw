@@ -61,7 +61,7 @@ export const C = {
 
   header: (v: View) =>
     show(v)
-      ? `Show-up pledge for ${day(v)} · ${t(v, v.c.at)}: ${each(v)} each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?`
+      ? `Show-up pledge for ${day(v)}, ${t(v, v.c.at)}: ${each(v)} each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?`
       : `Goal pledge: ${each(v)} each that ${v.c.goal} by ${day(v)}, back once it's done. First, where should missed-goal money go (everyone who pledges has to agree)?`,
   option: (v: View, i: number) => `${i} · ${OPTION[DESTS[i - 1]](v)}`,
   rules: (v: View) => {

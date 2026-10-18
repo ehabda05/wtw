@@ -115,6 +115,8 @@ function absentLabel(st: Step): string | undefined {
  */
 export function lockOption(st: Step, id: number, how: LockReason, prompting: Prompting, by?: MemberKey): void {
   const p = P(st);
+  if (p.pendingProposal && how !== 'forced') return;
+  if (how === 'forced') p.pendingProposal = undefined;
   const o = activeOptions(p).find((x) => x.id === id);
   if (!o) return;
   const now = st.ctx.now;
@@ -173,7 +175,7 @@ export function lockOption(st: Step, id: number, how: LockReason, prompting: Pro
  */
 export function maybeEarlyLock(st: Step, prompting: Prompting): boolean {
   const p = P(st);
-  if (p.state !== 'collecting_availability' || p.bridge) return false;
+  if (p.state !== 'collecting_availability' || p.bridge || p.pendingProposal) return false;
   const ch = chooseOption(p);
   // Demo quorum: once everyone is accounted for (answered or out) and fewer than minYes can make it, it is no plan.
   const q = st.ctx.quorum;

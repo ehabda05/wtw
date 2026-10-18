@@ -15,7 +15,7 @@ const MAX_REWRITE = 200;
 export interface RepairContext {
   /** 'none' or the plan state, e.g. 'collecting_availability'. */
   planState: string;
-  /** Open date option labels ("Thu Oct 22 · 7pm"). */
+  /** Open date option labels ("Thu Oct 22, 7pm"). */
   options: string[];
   members?: number;
   /** e.g. 'bill tab', 'trip', 'pledge', 'album', 'food vote'. */

@@ -89,9 +89,9 @@ export function applyEvent(state: GroupState, event: EngineEvent, ctx: Ctx): App
     case 'members_snapshot': {
       intro(st);
       // Remembered for the next plan (first sight is usually before any plan exists), and applied to an open one.
-      st.s.space.roster = event.members.slice(0, 64).map((r) => ({ key: r.key, ...(r.platformName ? { platformName: r.platformName } : {}) }));
+      st.s.space.roster = event.members.filter((r) => !r.isBot).slice(0, 64).map((r) => ({ key: r.key, ...(r.platformName ? { platformName: r.platformName } : {}) }));
       const p = planOf(st);
-      if (p && isOpen(p)) for (const ref of event.members) member(st, ref);
+      if (p && isOpen(p)) for (const ref of event.members) if (!ref.isBot) member(st, ref);
       break;
     }
     case 'headcount': {

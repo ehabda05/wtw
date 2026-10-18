@@ -5,7 +5,7 @@ import type { EnginePlan, ParsedAvailability, WindowSpec } from '../model.js';
 import { TEMPLATES as T } from '../templates.js';
 import { cuisinesIn } from '../hungry.js';
 import { dayTokens, detectActivity, excludedWeekdays, nextOccurrence, parseAvailability, parseWindow, placeIn, preferredTime, thresholdIn } from '../parse.js';
-import { activeOptions, computeDeadline, defaultTime, generateOptions, tallyLine } from '../schedule.js';
+import { activeOptions, computeDeadline, defaultTime, effectiveVote, generateOptions, tallyLine } from '../schedule.js';
 import { nudgeTime } from '../nudge.js';
 import { HOUR, MIN, addDays, atLocal, fmtTime, isoDay, listJoin, normText, optionLabel, relLabel, shortDay, weekdayOf } from '../util.js';
 import { type Step, P, availabilityOpen, cancel, howOf, member, reachable, react, refKey, say, schedule, seedRoster, touch, tzOf } from './core.js';
@@ -210,6 +210,22 @@ export function tallyEdit(st: Step, before: string): void {
 /** After any vote: bridges first (prompted, immediate), then early lock, then the living tally. */
 export function afterVote(st: Step, m: Member, parsed: ParsedAvailability | null, before: string, prompting: Prompting = 'prompted'): void {
   const p = P(st);
+  const pending = p.pendingProposal;
+  if (pending && pending.member !== m.key && pending.optionId !== undefined) {
+    const proposed = p.options.find((o) => o.id === pending.optionId);
+    const vote = proposed ? effectiveVote(m, proposed) : undefined;
+    if (vote === 'yes') {
+      p.pendingProposal = undefined;
+    } else if (vote === 'no') {
+      if (proposed) proposed.removed = true;
+      p.pendingProposal = undefined;
+      say(st, T.proposalDeclined());
+    }
+  }
+  if (p.pendingProposal) {
+    tallyEdit(st, before);
+    return;
+  }
   let asked = false;
   if (parsed) asked = bridgeAnswer(st, m, parsed);
   if (!asked && !p.bridge && p.state === 'collecting_availability') asked = askBridge(st, m, parsed);
@@ -244,41 +260,118 @@ export function tryTextVote(st: Step, ev: MessageEvent, body: string, addressed:
 }
 
 /** Window replies while collecting_dates: addressed, or a short unaddressed reply that names a window. */
-const PROPOSE = /\b(?:i was thinking|i'?m thinking|what about|how about|maybe|can we do|could we do|let'?s do|lets do|prefer|rather|would be better|is better|instead)\b/;
+const PROPOSE = /\b(?:i was thinking|i'?m thinking|what about|how about|can we do|could we do|let'?s do|lets do|prefer|rather|would be better|is better|instead)\b/;
+const EXPLICIT_AGREEMENT = /\b(?:works? for me|i can make it|i'?m in|i am in|yes|that works|sounds good)\b/;
+const CLOCK_WITHOUT_MERIDIEM = /\bat\s+(\d{1,2})(?::\d{2})?\b(?!\s*(?:am|pm)\b)/;
 
 /**
- * A day nobody proposed ("homi wednesday works", or an unaddressed "I was thinking Wednesday") becomes a new option
- * at the plan's time, with the proposer's yes. Unaddressed messages need a proposal phrase, so passing mentions of
- * a weekday stay ignored. Days already on the ballot are left to the vote grammar.
+ * A proposed day/time is added as a fresh option; votes on other options remain attached to their original ids.
+ * Proposal language never approves a pre-existing option. A distinct member must vote on the proposal before an
+ * automatic lock can proceed.
  */
 export function proposeDay(st: Step, ev: MessageEvent, body: string, addressed: boolean): boolean {
   const p = P(st);
   if (p.state !== 'collecting_availability') return false;
   const t = normText(body);
   if (t.split(/\s+/).length > 12) return false;
-  if (!addressed && !PROPOSE.test(t)) return false;
+  const proposal = PROPOSE.test(t) || /^\s*maybe\b/.test(t);
   const now = st.ctx.now;
   const tz = tzOf(st);
+  if (p.pendingProposal?.needsClarification) {
+    const explicitTime = preferredTime(t);
+    const meridiem = /\b(?:am|pm)\b/i.test(t);
+    const pendingDay = p.pendingProposal.day ?? (() => {
+      const found = dayTokens(t).map((d) => nextOccurrence(isoDay(now, tz), d.wd));
+      if (/\btomorrow\b|\btmrw?\b|\btmr\b/.test(t)) found.push(addDays(isoDay(now, tz), 1));
+      return [...new Set(found)].length === 1 ? [...new Set(found)][0] : undefined;
+    })();
+    if (!pendingDay) {
+      if (dayTokens(t).length || /\btomorrow\b|\btmrw?\b|\btmr\b/.test(t)) return false;
+      const time = explicitTime ?? p.pendingProposal.time;
+      if (!time) return false;
+      say(st, T.askProposalDay({ time: fmtTime(time), ambiguous: p.pendingProposal.needsMeridiem }));
+      return true;
+    }
+    const time = explicitTime ?? p.pendingProposal.time;
+    if (!time) {
+      say(st, T.askWhen());
+      return true;
+    }
+    if (p.pendingProposal.needsMeridiem && !meridiem) {
+      p.pendingProposal.day = pendingDay;
+      p.pendingProposal.time = time;
+      say(st, T.clarifyMeridiem({ day: shortDay(pendingDay), time: String(Number(time.slice(0, 2))) }));
+      return true;
+    }
+    p.pendingProposal.needsMeridiem = false;
+    return addProposedOption(st, ev, pendingDay, time, true);
+  }
+  if (!addressed && !proposal) return false;
   const today = isoDay(now, tz);
   const days = [...new Set(dayTokens(t).map((d) => nextOccurrence(today, d.wd)))];
   if (/\btomorrow\b|\btmrw?\b|\btmr\b/.test(t)) days.push(addDays(today, 1));
   else if (/\btonight\b|\btoday\b/.test(t)) days.push(today);
-  if (days.length !== 1) return false;
+  const time = preferredTime(t);
+  const bareClock = t.match(CLOCK_WITHOUT_MERIDIEM);
+  const ambiguousClock = bareClock !== null && Number(bareClock[1]) <= 12;
+  if (days.length !== 1) {
+    if (proposal && time && days.length === 0) {
+      p.pendingProposal = { member: ev.from.key, createdAt: now, needsClarification: true, needsMeridiem: ambiguousClock, time };
+      say(st, T.askProposalDay({ time: ambiguousClock ? bareClock[1] : fmtTime(time), ambiguous: ambiguousClock }));
+      return true;
+    }
+    return false;
+  }
   const day = days[0];
-  if (p.options.some((o) => !o.removed && o.day === day)) return false;
-  const time = p.preferredTime ?? defaultTime(p.activity, weekdayOf(day));
+  if (time && ambiguousClock) {
+    p.pendingProposal = { day, time, member: ev.from.key, createdAt: now, needsClarification: true, needsMeridiem: true };
+    say(st, T.clarifyMeridiem({ day: shortDay(day), time: bareClock[1] }));
+    return true;
+  }
+  return addProposedOption(st, ev, day, time ?? p.preferredTime ?? defaultTime(p.activity, weekdayOf(day)), proposal);
+}
+
+function addProposedOption(st: Step, ev: MessageEvent, day: string, time: string, proposal: boolean): boolean {
+  const p = P(st);
+  const now = st.ctx.now;
+  const tz = tzOf(st);
   const startsAt = atLocal(day, time, tz);
-  if (startsAt < now + 3 * HOUR) return false;
+  if (startsAt < now + 3 * HOUR) {
+    if (proposal) say(st, T.proposalPast());
+    return proposal;
+  }
+  const existing = activeOptions(p).find((o) => o.day === day && o.time === time);
+  if (existing) {
+    if (proposal) say(st, T.optionAlreadyListed({ id: existing.id }));
+    return proposal;
+  }
   const m = touch(st, ev.from, ev.msgRef);
   if (!m) return false;
   const before = tallyLine(p);
   const id = p.options.reduce((x, o) => Math.max(x, o.id), 0) + 1;
-  p.options.push({ id, day, time, startsAt, label: optionLabel(day, time) });
-  m.optionVotes[id] = 'yes';
-  if (m.status !== 'out') m.status = 'answered';
+  const option: Option = { id, day, time, startsAt, label: optionLabel(day, time) };
+  p.options.push(option);
+  if (!proposal || EXPLICIT_AGREEMENT.test(normText(ev.text))) {
+    m.optionVotes[id] = 'yes';
+    if (m.status !== 'out') m.status = 'answered';
+  } else {
+    p.pendingProposal = { optionId: id, day, time, member: ev.from.key, createdAt: now };
+  }
+  const earliest = Math.min(...activeOptions(p).map((o) => o.startsAt));
+  p.deadlineAt = computeDeadline(earliest, now, tz, st.ctx.quietHours);
+  schedule(st, 'availability_deadline', p.deadlineAt);
+  const nudgeAt = nudgeTime(now, p.deadlineAt, tz, st.ctx.quietHours);
+  if (nudgeAt !== null) schedule(st, 'availability_nudge', nudgeAt);
+  p.refs.poll = undefined;
   say(st, T.addedOption({ how: howOf(st) }));
-  say(st, T.optionBubble({ id, label: optionLabel(day, time) }), 'prompted', `option:${id}`);
-  afterVote(st, m, null, before);
+  if (st.ctx.caps.polls) {
+    const opts = activeOptions(p);
+    const bubbles = opts.map((o) => T.optionBubble({ id: o.id, label: o.label }));
+    st.acts.push({ type: 'poll', question: T.pollQuestion({ activity: p.activity, window: p.windowLabel ?? 'soon', deadline: lockWhen(st) }), options: bubbles, prompting: 'prompted', tag: 'poll:dates' });
+  } else {
+    say(st, T.optionBubble({ id, label: option.label }), 'prompted', `option:${id}`);
+  }
+  if (!p.pendingProposal) afterVote(st, m, null, before);
   return true;
 }
 

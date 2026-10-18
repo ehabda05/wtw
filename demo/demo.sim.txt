@@ -19,11 +19,10 @@ ben: lol fri was wild
 /ff 12h
 /ff 1h
 maya: ok I'm starving where are we eating
-ana: ramen sounds amazing
-ben: something cheap pls
-jo: harvard square
-you: homi go
+ana: ramen sounds amazing, something cheap pls, harvard square
 /react ana ❤️ 1
+/react ben ❤️ 1
+/react maya ❤️ 1
 jo: 1
 
 # ── Act 2 · show-up pledge ──

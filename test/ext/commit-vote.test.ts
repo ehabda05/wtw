@@ -16,7 +16,7 @@ test('a pledge needs a locked date', () => {
   assert.equal(joined(h.say('maya', 'homi pledge $1000')), 'Lock a date first; then I can set up a pledge.');
   const d = demoPlan();
   assert.equal(joined(d.say('maya', 'homi commit $1000 each')), 'Pledges can be $1 to $500 each.');
-  assert.match(joined(d.say('maya', 'homi commit $20 each')), /^Show-up pledge for Fri Oct 23 · 7pm: \$20 each/);
+  assert.match(joined(d.say('maya', 'homi commit $20 each')), /^Show-up pledge for Fri Oct 23, 7pm: \$20 each/);
   assert.equal(joined(d.say('ana', 'homi pledge $10')), 'There\'s already a pledge for this plan; say "homi pledges" to see it.');
 });
 

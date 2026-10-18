@@ -21,14 +21,14 @@ Both the offline simulator demo (`npm run demo`) and the phone video (`story/mot
 1. Maya: "guys we never hang out anymore" → Homi posts its one-time intro (name Homi).
 2. You: "@homi dinner next week?" → Homi posts a header and three options: Thu Oct 22, Fri Oct 23 and Sat Oct 24, all at 7pm.
 3. Replies come in ("fri works, i'm busy thu and sat", "sat works. thu and fri i can't", and so on). The **conflict bridge** appears and adds Sat Oct 24 · 11am. Then hearts, and "anything but thu".
-4. 12 hours later Homi nudges once and calls Sam, who opted in **(simulated call)**. Sam answers "friday works", and Homi posts "Fri Oct 23 · 7pm it is: 5 in."
+4. 12 hours later Homi nudges once and calls Sam, who opted in **(simulated call)**. Sam answers "friday works", and Homi posts "Fri Oct 23, 7pm it is: 5 in."
 5. Maya: "ok I'm starving where are we eating" → one question; the answers are ramen, cheap, harvard square. Homi offers three places and the group locks **Hokkaido Ramen Santouka, 1 Bow Street, Cambridge**.
 
 ## Act 2: show-up pledge (optional commitment)
 
 6. Maya: "homi let's do a $10 show-up pledge"
 7. Homi asks first where no-show money should go. **Nothing is held until every participant agrees.**
-   - **Header:** "Show-up pledge for Fri Oct 23 · 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?"
+   - **Header:** "Show-up pledge for Fri Oct 23, 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?"
    - **Options:**
      - `1 · Group fund for the next outing`
      - `2 · Split among the people who showed up`

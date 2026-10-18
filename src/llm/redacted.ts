@@ -2,7 +2,7 @@
 // (docs/PRIVACY.md §3). OFF by default: it runs only when DISABLE_HOSTED_LLM=false AND
 // ANTHROPIC_API_KEY is set. The model never sees raw text: names, handles, emails, phone
 // numbers, URLs and long digit runs are replaced before the request, and the prompt carries
-// only the redacted reply plus the option labels ("Thu Oct 22 · 7pm", ...).
+// only the redacted reply plus the option labels ("Thu Oct 22, 7pm", ...).
 
 import type Anthropic from '@anthropic-ai/sdk';
 import type { Vote } from '../engine/types.js';

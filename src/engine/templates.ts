@@ -17,6 +17,8 @@ export function countSentences(text: string): number {
     .replace(/"[^"\n]*"/g, 'Q') // a quoted example command ("homi dinner next week?") is not a sentence end
     .replace(/https?:\/\/\S+/g, 'URL')
     .replace(/(\d)\.(\d)/g, '$1$2')
+    .replace(/(^|\n)(\d+)\.\s+/g, '$1$2 ')
+    .replace(/(\s)(\d+)\.\s+(?=(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) [A-Z][a-z]{2} \d{1,2},)/g, '$1$2 ')
     .replace(/\b(e\.g|i\.e|etc|vs|approx|est|min|st|ave|rd|blvd|dr|mt|ft|jr|sr|mr|mrs|ms)\./gi, '$1')
     .replace(/\.{2,}|…/g, ' ');
   const parts = t.split(/[.!?]+["')\]]*(?=\s|$)/);
@@ -28,11 +30,11 @@ const maybeTail = (maybe: number) => (maybe > 0 ? `, ${maybe} maybe` : '');
 export const TEMPLATES = {
   // ── consent & privacy (always plain) ──
   intro: (p: { hours: number }) =>
-    `Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it ${p.hours}h after the event, and "homi stop" makes me delete everything and leave.`,
+    `Hi, I'm Homi 👋 When a plan is active, I look for plan-related messages, so you don't have to mention me each time. If hosted AI or live place search is enabled, configured providers may process relevant text or a location you share; I keep plan details, not chat history, delete the plan ${p.hours}h after the event, and remove everything on "homi stop".`,
   help: () =>
-    `I can find a date ("homi dinner next week?"), pick food, split bills ("homi split 84 3 ways"), run a $10 show-up pledge (simulated money), keep a shared album and plan trips. Ask "homi what do you know" anytime to see everything I store.`,
+    `I can help find a date, pick food, split bills, set up show-up pledges (simulated in demos), save shared photos to an album, and plan trips. Ask "homi what do you know" to see what I remember.`,
   privacy: (p: { hours: number }) =>
-    `I keep only the plan (dates, votes, place, and names you give me), never your messages, and I delete it ${p.hours}h after the event. Say "homi what do you know" to see all of it or "homi forget" to delete it now (full policy: docs/PRIVACY.md).`,
+    `I store plan details, not chat history; if hosted AI or live place search is enabled, configured providers may process relevant text or a location you share. I delete the plan ${p.hours}h after the event, or everything on "homi stop".`,
   stopLeave: () => `Deleted everything for this chat. Bye 👋`,
   stopTombstone: () =>
     `Deleted everything for this chat, and I'll ignore it from now on 👋 This app won't let me leave on my own, so please remove me from the group.`,
@@ -48,12 +50,12 @@ export const TEMPLATES = {
   header: (p: { activity: string; window: string; deadline: string; how: 'tap' | 'reply'; tally?: string }) => {
     const head = `${capitalize(p.activity)}, ${p.window}${p.tally ? ` ✓ ${p.tally}` : ''}.`;
     return p.how === 'tap'
-      ? `${head} Tap ❤️ on every time that works (or reply like "fri or sat"); I'll lock it in ${p.deadline}.`
-      : `${head} Reply with the numbers that work (like "1 3") or days (like "fri or sat"); I'll lock it in ${p.deadline}.`;
+      ? `${head} React to every time that works (or reply like "fri or sat"); I'll lock it in ${p.deadline}.`
+      : `${head} Reply with the numbers that work (like 1 or 3) or days (like "fri or sat"); I'll lock it in ${p.deadline}.`;
   },
   pollQuestion: (p: { activity: string; window: string; deadline: string }) =>
     `${capitalize(p.activity)}, ${p.window}: pick every time that works, and I'll lock it in ${p.deadline}.`,
-  optionBubble: (p: { id: number; label: string }) => `${p.id} · ${p.label}`,
+  optionBubble: (p: { id: number; label: string }) => `${p.id}. ${p.label}`,
   whichOnes: (p: { ids: string }) => `Got it, which ones could work: ${p.ids}?`,
   noneWork: () => `None of these work for anyone yet. Reply with a day that does, or "homi forget" to drop it.`,
 
@@ -128,6 +130,12 @@ export const TEMPLATES = {
     `${p.a} can only do ${p.dayA} and ${p.b} only ${p.dayB}. Could either of you do ${p.dayA} ${p.altA} or ${p.dayB} ${p.altB} (I'll add it)?`,
   addedOption: (p: { how: 'tap' | 'reply' }) =>
     p.how === 'tap' ? `Added it as a new option; tap ❤️ if it works.` : `Added it as a new option; reply with its number if it works.`,
+  clarifyMeridiem: (p: { day: string; time: string }) => `For ${p.day}, did you mean ${p.time}am or ${p.time}pm?`,
+  optionAlreadyListed: (p: { id: number }) => `That time is already option ${p.id}; it stays unchanged.`,
+  askProposalDay: (p: { time: string; ambiguous?: boolean }) =>
+    p.ambiguous ? `Which day should I add at ${p.time}? Did you mean ${p.time}am or ${p.time}pm?` : `Which day should I add at ${p.time}?`,
+  proposalDeclined: () => `Dropped that suggested time; the existing options are unchanged.`,
+  proposalPast: () => `That time has passed or is too soon, so I left the options unchanged.`,
   timeShift: (p: { day: string; time: string; count: number; everyone: boolean }) =>
     `${p.day} works for ${p.everyone ? 'everyone' : p.count} if we push to ${p.time}. Want ${p.day} ${p.time}?`,
   timeShiftDone: (p: { bubble: string }) => `Moved it: ${p.bubble}.`,
@@ -148,6 +156,14 @@ export const TEMPLATES = {
   helpSimple: () => `Say "homi dinner friday 7pm" (or any day and time); everyone votes, I lock it, ask what we're feeling and post 3 spots to pick from. After: send the receipt and say "homi split the bill"; "homi where are we at" shows the plan, "homi forget" drops it.`,
   simpleOnly: () => `In this demo I only plan the hangout, the spot and the bill; say "homi dinner friday 7pm" to start one.`,
   receiptUnreadable: () => `I couldn't read a total on that receipt; say "homi split <amount>" and I'll do the rest.`,
+  receiptAskParticipants: () => `I read the receipt total, but can't reliably count the people here; how many people should split it?`,
+  receiptMissing: () => `I don't see a recent receipt image to read; send one or reply to the receipt photo with "homi split the bill".`,
+  receiptDisabled: () => `Receipt reading is turned off here; type "homi split <amount>" and I'll split it.`,
+  receiptUnsupported: () => `I can't read that image format; send a JPEG, PNG, GIF or WebP receipt image instead.`,
+  receiptUnsupportedCurrency: () => `I can only split receipts in US dollars right now; type the amount in dollars and I'll split it.`,
+  receiptUnknownCurrency: () => `I couldn't identify the receipt currency; tell me the total in US dollars and I'll split it.`,
+  receiptProviderError: () => `The receipt reader is temporarily unavailable; try again or type "homi split <amount>".`,
+  receiptInconsistent: () => `The receipt amounts don't add up, so I won't guess; check the total and type "homi split <amount>".`,
   simpleDayFirst: () => `Let's lock the day first; I'll post the spots right after.`,
   cuisineAsk: () => `What are we feeling? Tacos, sushi, pizza, Thai, anything; or say "surprise us".`,
   cuisineSplit: (p: { tally: string; need: number; n: number }) =>
@@ -222,8 +238,11 @@ export const TEMPLATES = {
 
   // ── hungry flow ──
   foodAsk: (p: { where: boolean }) =>
-    p.where ? `What are we feeling? Cuisine, budget, and roughly where?` : `What are we feeling? Cuisine and budget?`,
-  foodWhere: () => `Which neighborhood? I never use your location.`,
+    p.where ? `Any preferences for cuisine or activity, budget, or area? All are optional; say "surprise us" and I'll choose.` : `Any preferences for cuisine or activity or budget? All are optional; say "surprise us" and I'll choose.`,
+  foodWhere: () => `I can't use device location; share a city, neighborhood, or address, or say "use the default area" and I'll search there.`,
+  foodLocationAmbiguous: () => `I found multiple places matching that location; add a city or state so I don't guess.`,
+  foodLocationUnknown: () => `I couldn't resolve that location; try adding its city and state, or share a nearby address.`,
+  foodSearchUnavailable: () => `I couldn't search that location right now; try again later or tell me the place you have in mind.`,
   foodHeader: (p: { summary: string; n: number; how: 'tap' | 'reply' }) => {
     const nums = p.n === 1 ? '1' : p.n === 2 ? '1 or 2' : '1, 2 or 3';
     return p.how === 'tap'
@@ -232,7 +251,7 @@ export const TEMPLATES = {
   },
   placeBubble: (p: { id: number; name: string; cuisine?: string; price?: string; walk?: string; open: string; check?: string }) =>
     [`${p.id}`, p.name, p.cuisine, p.price, p.walk, p.open, p.check ? `check: ${p.check}` : undefined].filter(Boolean).join(' · '),
-  foodNoResults: () => `I couldn't find a match for that nearby. Try another cuisine or neighborhood?`,
+  foodNoResults: () => `I couldn't find a match nearby. Try another cuisine, activity, or location?`,
   foodGiveUp: () => `I couldn't find a good match, so tell me the spot with "homi we're going to …".`,
   foodHeaderNoMatch: (p: { cuisine: string; where?: string; n: number; price?: string; how: 'tap' | 'reply' }) => {
     const nums = p.n === 1 ? '1' : p.n === 2 ? '1 or 2' : '1, 2 or 3';
@@ -284,19 +303,19 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
     [{ activity: 'hang out', window: 'Thu, Fri or Sat', deadline: 'tonight 9:30pm', how: 'tap', tally: 'Thu 0 · Fri 1 · Sat 0' }],
   ],
   pollQuestion: [[{ activity: 'drinks', window: 'this weekend', deadline: 'Fri 9:30am' }]],
-  optionBubble: [[{ id: 1, label: 'Thu Oct 22 · 7pm' }], [{ id: 4, label: 'Sat Oct 24 · 11am' }]],
+  optionBubble: [[{ id: 1, label: 'Fri Oct 23, 7pm' }], [{ id: 4, label: 'Sat Oct 24, 11am' }]],
   whichOnes: [[{ ids: '1, 2 or 3' }]],
   noneWork: [[]],
-  lockEarly: [[{ label: 'Fri Oct 23 · 7pm', yes: 4, maybe: 1 }], [{ label: 'Fri Oct 23 · 7pm', yes: 6, maybe: 0 }]],
+  lockEarly: [[{ label: 'Fri Oct 23, 7pm', yes: 4, maybe: 1 }], [{ label: 'Fri Oct 23, 7pm', yes: 6, maybe: 0 }]],
   lockDeadline: TONES.flatMap((t) => [
-    [t, { label: 'Fri Oct 23 · 7pm', yes: 4, maybe: 1, absent: 'Sam' }] as [Tone, { label: string; yes: number; maybe: number; absent?: string }],
-    [t, { label: 'Fri Oct 23 · 7pm', yes: 4, maybe: 0 }] as [Tone, { label: string; yes: number; maybe: number; absent?: string }],
+    [t, { label: 'Fri Oct 23, 7pm', yes: 4, maybe: 1, absent: 'Sam' }] as [Tone, { label: string; yes: number; maybe: number; absent?: string }],
+    [t, { label: 'Fri Oct 23, 7pm', yes: 4, maybe: 0 }] as [Tone, { label: string; yes: number; maybe: number; absent?: string }],
   ]),
   whereTo: [[]],
   maybePing: [[{ names: 'Jo' }], [{}]],
   missYou: [[{ names: 'Ben' }], [{}]],
   stranded: [[{ win: 'Fri', winYes: 4, notNames: 'Ben', alt: 'Sat', altYes: 3, inclNames: 'Ben', altWord: 'sat' }]],
-  switched: [[{ label: 'Sat Oct 24 · 7pm', yes: 3 }]],
+  switched: [[{ label: 'Sat Oct 24, 7pm', yes: 3 }]],
   card: [
     [{ when: 'Fri Oct 23, 7pm', place: 'Tasty Thai, 1234 Mass Ave', yes: 4, maybe: 1, remind: 'the day before' }],
     [{ when: 'Fri Oct 23, 7pm', yes: 4, maybe: 0, remind: 'an hour before' }],
@@ -318,7 +337,7 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
     [{ who: '2 people', callees: 'Sam', same: false, mode: 'mixed' }],
   ],
   escalateTimeout: [[{ name: 'Sam', day: 'Fri' }]],
-  dmCheckIn: [[{ options: '1 · Thu 7pm, 2 · Fri 7pm or 3 · Sat 7pm' }]],
+  dmCheckIn: [[{ options: '1. Thu Oct 22, 7pm, 2. Fri Oct 23, 7pm or 3. Sat Oct 24, 7pm' }]],
   callQuestion: [[{ options: 'Thursday at 7, Friday at 7, or Saturday at 11' }]],
   callYes: [
     [{ name: 'Sam', days: 'Fri', k: 6, n: 6, simulated: false }],
@@ -337,8 +356,13 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
     [{ a: 'One of you', dayA: 'Thu', b: 'another', dayB: 'Fri', altA: 'late', altB: 'lunch' }],
   ],
   addedOption: [[{ how: 'tap' }], [{ how: 'reply' }]],
+  clarifyMeridiem: [[{ day: 'Friday', time: '8' }]],
+  optionAlreadyListed: [[{ id: 2 }]],
+  askProposalDay: [[{ time: '8', ambiguous: true }], [{ time: '8pm' }]],
+  proposalDeclined: [[]],
+  proposalPast: [[]],
   timeShift: [[{ day: 'Fri', time: '8:30pm', count: 5, everyone: true }], [{ day: 'Fri', time: '8:30pm', count: 4, everyone: false }]],
-  timeShiftDone: [[{ bubble: '2 · Fri Oct 23 · 8:30pm' }]],
+  timeShiftDone: [[{ bubble: '2. Fri Oct 23, 8:30pm' }]],
   timeShiftKeep: [[{ time: '7pm' }]],
   timeMoved: [[{ time: '8pm' }]],
   timeWhich: [[]],
@@ -352,11 +376,19 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   simpleOnly: [[]],
   simpleDayFirst: [[]],
   receiptUnreadable: [[]],
+  receiptAskParticipants: [[]],
+  receiptMissing: [[]],
+  receiptDisabled: [[]],
+  receiptUnsupported: [[]],
+  receiptUnsupportedCurrency: [[]],
+  receiptUnknownCurrency: [[]],
+  receiptProviderError: [[]],
+  receiptInconsistent: [[]],
   cuisineAsk: [[]],
   cuisineSplit: [[{ tally: 'Thai 1 · Japanese 1', need: 2, n: 2 }]],
   curatedHeader: [[{ cuisine: 'Mexican', how: 'tap' }], [{ cuisine: 'Thai', how: 'reply' }]],
   quorumPing: [[{ who: 'Sam and Jo', dmd: true, by: '6:45pm' }], [{ who: '2 people', dmd: false, by: 'tonight 6:45pm' }]],
-  dmQuorum: [[{ activity: 'dinner', options: '1 · Fri Oct 23 · 7pm' }]],
+  dmQuorum: [[{ activity: 'dinner', options: '1. Fri Oct 23, 7pm' }]],
   dmThanks: [[]],
   quorumOut: [[{ who: 'Sam' }]],
   noQuorum: [[{ yes: 1, activity: 'dinner' }]],
@@ -410,6 +442,9 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   vetoReopen: [[{ place: 'Tasty Thai' }], [{}]],
   foodAsk: [[{ where: true }], [{ where: false }]],
   foodWhere: [[]],
+  foodLocationAmbiguous: [[]],
+  foodLocationUnknown: [[]],
+  foodSearchUnavailable: [[]],
   foodHeader: [
     [{ summary: 'Thai, keeping it cheap, Harvard Sq', n: 3, how: 'tap' }],
     [{ summary: 'Two said Thai, one said Mexican: two Thai spots and a Mexican place, halfway between Harvard Sq and Allston', n: 3, how: 'reply' }],
@@ -436,7 +471,7 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   ],
   remindHour: [[{ what: 'Tasty Thai, 1234 Mass Ave' }]],
   remind30: [[{ what: 'Tasty Thai, 1234 Mass Ave' }]],
-  dumpPlan: [[{ parts: 'plan "dinner" (next week) · options Thu Oct 22 · 7pm, Fri Oct 23 · 7pm · 5 people' }]],
+  dumpPlan: [[{ parts: 'plan "dinner" (next week) · options Thu Oct 22, 7pm, Fri Oct 23, 7pm · 5 people' }]],
   dumpNoPlan: [[{ settings: 'settings only (tone normal, time zone America/New_York, notice off)' }]],
 };
 

@@ -25,6 +25,16 @@ export type LockReason = 'deadline' | 'everyone' | 'threshold' | 'forced' | 'bri
 
 export interface EnginePlan extends Plan {
   hungry?: EngineHungry;
+  /** A proposed date/time is waiting for a distinct member's explicit vote before automatic locking resumes. */
+  pendingProposal?: {
+    optionId?: number;
+    day?: string;
+    time?: string;
+    member: MemberKey;
+    createdAt: number;
+    needsClarification?: boolean;
+    needsMeridiem?: boolean;
+  };
   /** Members seeded from the platform roster at plan start (core.ts seedRoster); the place vote waits for a majority of them. */
   rosterSize?: number;
   /** The trigger named no activity ("homi plan something"); Homi asked, and the next answer sets it. */
@@ -111,6 +121,7 @@ export interface Taste {
   price?: PriceBand;
   diet: string[];
   neighborhoods: string[];
+  category?: 'cafe' | 'bowling' | 'museum' | 'park' | 'activity';
   wildcard: boolean;
   vague: boolean;
   go: boolean;

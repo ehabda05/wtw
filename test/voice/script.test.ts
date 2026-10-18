@@ -4,17 +4,17 @@ import { AGENT_PROMPT, assertSafeQuestion, buildQuestion, spokenOptions, spokenT
 
 test('buildQuestion: three options, spoken weekday + hour', () => {
   assert.equal(
-    buildQuestion(['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']),
+    buildQuestion(['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm']),
     "Hi, this is Homi calling about your group's plan. Does Thursday at 7, Friday at 7, or Saturday at 7 work for you?",
   );
 });
 
 test('buildQuestion: two options read as a choice', () => {
   assert.equal(
-    buildQuestion(['Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm']),
+    buildQuestion(['Fri Oct 23, 7pm', 'Sat Oct 24, 7pm']),
     "Hi, this is Homi calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?",
   );
-  assert.equal(buildQuestion(['Fri Oct 23 · 7pm'], undefined, { greeting: 'none' }), 'Does Friday at 7 work for you?');
+  assert.equal(buildQuestion(['Fri Oct 23, 7pm'], undefined, { greeting: 'none' }), 'Does Friday at 7 work for you?');
 });
 
 test('spoken times: 7:30, noon, midnight, morning, 24h', () => {
@@ -29,7 +29,7 @@ test('spoken times: 7:30, noon, midnight, morning, 24h', () => {
   assert.equal(spokenTime('09:30'), '9:30 in the morning');
   assert.equal(spokenTime('7'), '7');
   assert.equal(spokenTime('13pm'), undefined);
-  assert.deepEqual(spokenOptions(['Sat Oct 24 · noon', 'Sun Oct 25 · 12:30pm', 'Friday, Oct 23, 7:30pm']), [
+  assert.deepEqual(spokenOptions(['Sat Oct 24, noon', 'Sun Oct 25, 12:30pm', 'Friday, Oct 23, 7:30pm']), [
     'Saturday at noon',
     'Sunday at 12:30',
     'Friday at 7:30',
@@ -37,12 +37,12 @@ test('spoken times: 7:30, noon, midnight, morning, 24h', () => {
 });
 
 test('same weekday twice adds the date; identical labels are deduped', () => {
-  assert.deepEqual(spokenOptions(['Fri Oct 23 · 7pm', 'Fri Oct 30 · 7pm', 'Sat Oct 24 · 7pm']), [
+  assert.deepEqual(spokenOptions(['Fri Oct 23, 7pm', 'Fri Oct 30, 7pm', 'Sat Oct 24, 7pm']), [
     'Friday the 23rd at 7',
     'Friday the 30th at 7',
     'Saturday at 7',
   ]);
-  assert.deepEqual(spokenOptions(['Fri Oct 23 · 7pm', 'Fri Oct 23 · 7pm']), ['Friday at 7']);
+  assert.deepEqual(spokenOptions(['Fri Oct 23, 7pm', 'Fri Oct 23, 7pm']), ['Friday at 7']);
 });
 
 test('unparseable labels fall back to a sanitized label', () => {
@@ -50,14 +50,14 @@ test('unparseable labels fall back to a sanitized label', () => {
 });
 
 test('activity: generic words are spoken, free text is dropped', () => {
-  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], 'dinner'), /^Hi, this is Homi calling about your group's dinner plan\. /);
-  const q = buildQuestion(['Fri Oct 23 · 7pm'], "Sam's birthday at Lucia's");
+  assert.match(buildQuestion(['Fri Oct 23, 7pm'], 'dinner'), /^Hi, this is Homi calling about your group's dinner plan\. /);
+  const q = buildQuestion(['Fri Oct 23, 7pm'], "Sam's birthday at Lucia's");
   assert.ok(!/Sam|Lucia|birthday/.test(q));
   assert.match(q, /your group's plan/);
 });
 
 test('inbound greeting', () => {
-  assert.match(buildQuestion(['Fri Oct 23 · 7pm'], undefined, { greeting: 'inbound' }), /^Hi, it's Homi, thanks for calling/);
+  assert.match(buildQuestion(['Fri Oct 23, 7pm'], undefined, { greeting: 'inbound' }), /^Hi, it's Homi, thanks for calling/);
 });
 
 test('buildQuestion throws on no options', () => {
@@ -66,7 +66,7 @@ test('buildQuestion throws on no options', () => {
 });
 
 test('assertSafeQuestion: forbidden names and places, whole word, case-insensitive, without echoing the token', () => {
-  const q = buildQuestion(['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm']);
+  const q = buildQuestion(['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm']);
   assert.doesNotThrow(() => assertSafeQuestion(q, ['Sam', 'Lucia', "Joe's Pizza", 'Ed', 'Fri Night Crew']));
   assert.throws(() => assertSafeQuestion(`${q} Sam is coming.`, ['sam']), (e: unknown) => {
     assert.ok(e instanceof UnsafeQuestionError);

@@ -28,7 +28,7 @@ test('quorum DM round trip: handle sealed on the group message, DM sent at 30 s,
   const dm = env.adapter.calls.find((c) => c.method === 'dm');
   assert.ok(dm, 'a DM went out');
   assert.equal(dm!.args[0], 'c1');
-  assert.match(String(dm!.args[1]), /does 1 · Fri Oct 23 · 7pm work for you/);
+  assert.match(String(dm!.args[1]), /does 1\. Fri Oct 23, 7pm work for you/);
 
   // Charlie answers in the private chat: routed to the plan, thanked in the DM, never treated as a new DM space.
   await env.runner.handleInbound({ surface: 'telegram', spaceId: 'c1', isGroup: false, kind: 'text', from: { handle: 'c1', platformName: 'Charlie' }, text: 'yes', msgId: 'p1', mentionsAgent: true, at: 0 });

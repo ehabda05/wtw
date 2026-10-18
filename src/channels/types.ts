@@ -9,6 +9,8 @@ export interface InboundUser {
   handle: string;
   /** Name the platform itself provides (Telegram first name / @username, sim persona name). Never a phone number. */
   platformName?: string;
+  /** Present only when the platform identifies service accounts. */
+  isBot?: boolean;
 }
 
 export interface ChannelInbound {

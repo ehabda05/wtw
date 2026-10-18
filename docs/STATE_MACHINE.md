@@ -96,7 +96,7 @@ Three options are posted and people are answering.
 
 - **On entry:**
   - **Header:** "{Activity}, {window}. Tap ❤️ on every time that works (or reply like "fri or sat"); I'll lock it in {deadline}."
-  - **Option bubbles:** "1 · Thu Oct 22 · 7pm", "2 · Fri Oct 23 · 7pm", "3 · Sat Oct 24 · 7pm".
+  - **Option bubbles:** "1. Thu Oct 22, 7pm", "2. Fri Oct 23, 7pm", "3. Sat Oct 24, 7pm".
   - **Native poll:** where the channel has native multi-answer polls (Telegram, and iMessage on iOS 26 if supported), the options go out as a poll.
 - **What counts as an answer:** see [DATE_FINDING.md](DATE_FINDING.md). Every member gets a vote of yes, maybe, no, or unknown per option.
 - **Moves forward on:**
@@ -138,7 +138,7 @@ The date is set. Homi still needs a place, plus any plan notes.
 
 This is the hungry flow. Full detail is in [HUNGRY_FLOW.md](HUNGRY_FLOW.md).
 
-- **On entry:** "What are we feeling? Cuisine, budget, and roughly where?"
+- **On entry:** "What should I search for: cuisine or activity, budget, and roughly where?"
 - **Moves forward on:** answers collected → 3 options → votes → winner → `place` set → **pop**.
 - **Nudges:** none. Food is time-sensitive, so after 10 minutes Homi recommends with whatever answers it has.
 - **`stop`:** purge and leave.

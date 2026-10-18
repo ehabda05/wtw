@@ -35,13 +35,17 @@ export function pushHungry(st: Step, from: MemberRef, body: string, prompting: P
   p.stack.push(instant ? 'idle' : p.state);
   p.state = 'collecting_place';
   const h = newHungry(st.ctx.now, instant);
+  if (p.activity === 'bowling' || p.activity === 'museum' || p.activity === 'park' || p.activity === 'cafe') h.category = p.activity;
   for (const c of p.cuisineHint ?? []) {
     h.cuisineVotes[c] = (h.cuisineVotes[c] ?? 0) + 1;
     (h.memberCuisines![p.initiator] ??= []).push(c);
   }
   p.hungry = h;
   const taste = parseTaste(body);
-  if (searchNow && taste.cuisines.length && p.neighborhood) {
+  if (
+    (searchNow && (taste.cuisines.length || taste.category) && p.neighborhood) ||
+    (instant && (taste.cuisines.length || taste.category) && taste.neighborhoods.length > 0)
+  ) {
     mergeTaste(h, from.key, taste);
     schedule(st, 'hungry_deadline', h.deadlineAt as number);
     return startSearch(st);
@@ -78,15 +82,7 @@ export function startSearch(st: Step): void {
     resolveCuisine(st, true);
     return;
   }
-  const near = nearOf(h, p.neighborhood);
-  if (!near) {
-    // No neighborhood yet: ask once (Homi never uses device location), then give up quietly.
-    if (h.askedWhere) return giveUp(st);
-    h.askedWhere = true;
-    h.deadlineAt = st.ctx.now + WINDOW;
-    schedule(st, 'hungry_deadline', h.deadlineAt, { suffix: 'where' });
-    return say(st, T.foodWhere());
-  }
+  const near = nearOf(h, p.neighborhood) || st.ctx.defaultSearchLocation || 'Boston';
   p.neighborhood = near;
   h.searches = (h.searches ?? 0) + 1;
   h.phase = 'searching';
@@ -126,10 +122,14 @@ export function onPlaceMessage(st: Step, ev: MessageEvent, body: string, address
         else resolveCuisine(st, false);
         return;
       }
-      // One message with food, budget and area ("something spicy, not too pricey, near central square") is enough.
+      if (taste.vague && !taste.neighborhoods.length && !p.neighborhood) {
+        h.askedWhere = true;
+        say(st, T.foodWhere());
+        return;
+      }
+      // Any provided preference is actionable; omitted preferences use general recommendations.
       // DEMO_SIMPLE: one cuisine word is never "complete"; the question waits for the group (or "surprise us" / the window).
-      const complete = !st.ctx.simple && (taste.cuisines.length > 0 || taste.wildcard) && taste.price !== undefined && taste.neighborhoods.length > 0;
-      if (taste.go || complete || (!st.ctx.simple && (h.searches ?? 0) > 0)) return startSearch(st);
+      if (taste.go || hasTaste(taste)) return startSearch(st);
       if (!st.ctx.simple && taste.vague && !h.askedWhere && !Object.keys(h.neighborhoods).length && !p.neighborhood) {
         h.askedWhere = true;
         say(st, T.foodWhere());
@@ -149,9 +149,8 @@ export function onPlaceMessage(st: Step, ev: MessageEvent, body: string, address
 }
 
 /**
- * Text votes replace; tapbacks add. Closes as soon as a majority voted: of the people who answered the food
- * question, or of the platform roster when there is one (a dedicated iMessage line), whichever is larger. So in a
- * group of two the first "1" waits for the second person (or the vote deadline), as in the demo.
+ * Text votes replace; tapbacks add. Closes once a majority of the known active group, platform roster, or stated
+ * headcount has voted. Preference answers do not reduce the number of votes needed.
  */
 export function placeVote(st: Step, key: MemberKey, id: number, mode: 'set' | 'add'): void {
   const p = P(st);
@@ -161,7 +160,7 @@ export function placeVote(st: Step, key: MemberKey, id: number, mode: 'set' | 'a
   h.votes[key] = mode === 'set' ? [id] : cur.includes(id) ? cur : [...cur, id];
   const roster = p.rosterSize ? Math.min(p.rosterSize, activeMembers(p).length) : 0;
   const counted = p.expectedHeadcount ? groupSize(p) : 0;
-  const n = Math.max(h.answeredBy.length, roster, counted, 1);
+  const n = Math.max(h.answeredBy.length, activeMembers(p).length, roster, counted, 1);
   if (Object.keys(h.votes).length >= Math.floor(n / 2) + 1) closePlaces(st, 'prompted');
 }
 
@@ -171,6 +170,19 @@ export function onPlacesResult(st: Step, ev: Extract<EngineEvent, { kind: 'place
   if (!p || !h || h.phase !== 'searching' || h.requestId !== ev.requestId) return;
   const now = st.ctx.now;
   h.source = ev.source;
+  if (ev.source === 'unknown-neighborhood' || ev.source === 'unknown-location' || ev.source === 'ambiguous-location' || ev.source === 'provider-error' || ev.source === 'provider-limit') {
+    h.phase = 'asking';
+    const message =
+      ev.source === 'unknown-neighborhood'
+        ? T.foodWhere()
+        : ev.source === 'ambiguous-location'
+          ? T.foodLocationAmbiguous()
+          : ev.source === 'unknown-location'
+            ? T.foodLocationUnknown()
+            : T.foodSearchUnavailable();
+    say(st, message);
+    return;
+  }
   const ranked = rankPlaces(ev.options, h, h.instant ? undefined : p.eventAt);
   h.deadlineAt = now + WINDOW;
   schedule(st, 'hungry_deadline', h.deadlineAt, { suffix: 'vote' });

@@ -92,9 +92,9 @@ export function dayLabel(day: string): string {
   return `${shortDay(day)} ${MON[monthOf(day)]} ${dayOfMonth(day)}`;
 }
 
-/** Option label: "Thu Oct 22 · 7pm" */
+/** Option label: "Thu Oct 22, 7pm" */
 export function optionLabel(day: string, time: string): string {
-  return `${dayLabel(day)} · ${fmtTime(time)}`;
+  return `${dayLabel(day)}, ${fmtTime(time)}`;
 }
 
 /** Card label: "Fri Oct 23, 7pm" */

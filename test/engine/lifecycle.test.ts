@@ -16,7 +16,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
 
   // Plan start: options right away.
   const start = h.say('lee', '@homi dinner next week?');
-  assert.deepEqual(ofType(start, 'send').map((s) => s.text).slice(1), ['1 · Thu Oct 22 · 7pm', '2 · Fri Oct 23 · 7pm', '3 · Sat Oct 24 · 7pm']);
+  assert.deepEqual(ofType(start, 'send').map((s) => s.text).slice(1), ['1. Thu Oct 22, 7pm', '2. Fri Oct 23, 7pm', '3. Sat Oct 24, 7pm']);
 
   for (const [who, name] of [['ana', 'Ana'], ['ben', 'Ben'], ['sam', 'Sam'], ['jo', 'Jo'], ['maya', 'Maya']]) h.say(who, `homi I'm ${name}`);
   assert.match(joined(h.say('sam', 'homi you can call me')), /I'll call you once and tell the group first/);
@@ -25,7 +25,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   h.say('ana', "fri works, i'm busy thu and sat");
   assert.equal(joined(h.say('ben', "sat works. thu and fri i can't")).split('\n').find((t) => /can only do/.test(t)),
     "Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch (I'll add it)?");
-  assert.match(joined(h.say('ana', 'sat brunch works actually!')), /4 · Sat Oct 24 · 11am/);
+  assert.match(joined(h.say('ana', 'sat brunch works actually!')), /4. Sat Oct 24, 11am/);
   h.react('jo', '❤️', 'option:2');
   h.react('jo', '😂', 'option:1');
   h.say('maya', 'anything but thu');
@@ -45,23 +45,22 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   const res = h.apply({ kind: 'call_result', planId: h.plan!.id, member: 'k-sam', answerText: 'Friday works', ok: true, simulated: true });
   const lines = ofType(res, 'send').map((s) => s.text);
   assert.equal(lines[0], "Sam's in for Fri (by phone). 5 for 6 🎉 (simulated call)");
-  assert.match(lines[1], /^Fri Oct 23 · 7pm it is: 5 in\. Where to: say "homi find food"/);
+  assert.match(lines[1], /^Fri Oct 23, 7pm it is: 5 in\. Where to: say "homi find food"/);
   assert.ok(ofType(res, 'send').every((s) => s.prompting === 'prompted'));
   assert.equal(h.plan!.lockedBy, 'everyone');
 
   // Food: unaddressed strong signal while a plan is active.
   h.advance(HOUR);
-  assert.equal(joined(h.say('maya', "ok I'm starving where are we eating")), 'What are we feeling? Cuisine, budget, and roughly where?');
-  h.say('ana', 'thai sounds amazing');
-  h.say('ben', 'something cheap pls');
-  h.say('jo', 'harvard square');
-  const look = ofType(h.say('lee', 'homi go'), 'lookup_places')[0];
+  assert.match(joined(h.say('maya', "ok I'm starving where are we eating")), /All are optional/);
+  const look = ofType(h.say('ana', 'thai, something cheap, harvard square'), 'lookup_places')[0];
   assert.deepEqual(look.query.cuisines, ['thai']);
   assert.equal(look.query.priceMax, 1);
   assert.equal(look.query.near, 'Harvard Square');
   assert.match(joined(h.places(fakePlaces())), /^Thai, keeping it cheap, Harvard Sq: here are 3\./);
   h.react('ana', '❤️', 'place:1');
-  const close = h.say('jo', '1');
+  h.say('jo', '1');
+  h.say('ben', '1');
+  const close = h.say('maya', '1');
   assert.match(joined(close), /^Tasty Thai it is: 1234 Mass Ave https:\/\/maps\.example\/tasty 🍜 Want a reminder 30 min before/);
   assert.match(joined(close), /Locked: Fri Oct 23, 7pm · Tasty Thai · 5 in\./);
   assert.equal(h.plan!.state, 'confirmed');
@@ -76,7 +75,7 @@ test('demo story: intro -> options -> bridge -> call -> lock Fri -> food -> card
   // After dinner.
   assert.equal(joined(h.say('ana', 'homi split 142.50 5 ways')), '$142.50 split 5 ways: $28.50 each.');
   const dump = joined(h.say('jo', 'homi what do you know'));
-  assert.match(dump, /chosen Fri Oct 23 7pm \(5 yes\)/);
+  assert.match(dump, /chosen Fri Oct 23, 7pm \(5 yes\)/);
   assert.match(dump, /place Tasty Thai, 1234 Mass Ave/);
   assert.match(dump, /names I know: Lee|names I know: .*Sam/);
   assert.equal(joined(h.say('ana', 'homi forget')), "Done: I've deleted this plan.");

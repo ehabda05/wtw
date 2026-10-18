@@ -62,6 +62,7 @@ export interface Config {
   /** [startHour, endHour] in group-local time, e.g. [23, 9]. */
   quietHours: [number, number];
   defaultTz: string;
+  defaultSearchLocation: string;
   /** 32-byte AES-256-GCM key. */
   dataKey: Buffer;
   /** HMAC key for member / space keys. */
@@ -286,6 +287,7 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
     retentionHours,
     quietHours: parseQuietHours(str(env, 'QUIET_HOURS')),
     defaultTz: str(env, 'DEFAULT_TZ') ?? 'America/New_York',
+    defaultSearchLocation: str(env, 'DEFAULT_SEARCH_LOCATION') ?? 'Boston',
     dataKey,
     idSalt,
     ephemeralKeys,

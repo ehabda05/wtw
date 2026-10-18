@@ -29,7 +29,7 @@ function gate(st: Step, expiresAt?: number, must = false) {
 function checkIn(st: Step, esc: Member[]): void {
   const p = P(st);
   const question = T.callQuestion({ options: callQuestionList(p) });
-  const dmOptions = listJoin(activeOptions(p).map((o) => `${o.id} · ${o.label}`), 'or');
+  const dmOptions = listJoin(activeOptions(p).map((o) => T.optionBubble({ id: o.id, label: o.label })), 'or');
   for (const m of esc) {
     if (m.optInCall) st.acts.push({ type: 'call', member: m.key, question, options: callOptions(p), callRef: st.ctx.newId(), planId: p.id });
     else st.acts.push({ type: 'dm', member: m.key, text: T.dmCheckIn({ options: dmOptions }), planId: p.id });
@@ -98,6 +98,10 @@ function availabilityDeadline(st: Step, payload?: Record<string, unknown>): void
   if (payload?.afterEscalation) return p.escalationPending?.length ? concludeEscalation(st, p.escalationPending) : undefined;
   if (p.state === 'collecting_place' && p.stack.includes('collecting_availability')) return defer(st, 'availability_deadline', now + 15 * MIN);
   if (p.state !== 'collecting_availability') return;
+  if (p.pendingProposal) {
+    p.deadlineAt = now + DAY;
+    return defer(st, 'availability_deadline', p.deadlineAt);
+  }
   if (answeredCount(p) === 0) return schedule(st, 'dates_abandon', now + DAY);
   const ch = chooseOption(p);
   const best = ch?.ranked.find((r) => r.id === ch.optionId);
@@ -141,7 +145,7 @@ function quorumDm(st: Step): void {
   const pend = Object.values(p.members).filter((m) => m.status === 'pending');
   const unknown = Math.max(0, groupSize(p) - activeMembers(p).length);
   if (!pend.length && !unknown) return;
-  const dmOptions = listJoin(activeOptions(p).map((o) => `${o.id} · ${o.label}`), 'or');
+  const dmOptions = listJoin(activeOptions(p).map((o) => T.optionBubble({ id: o.id, label: o.label })), 'or');
   let dmd = 0;
   for (const m of pend) {
     // A sealed handle (they spoke or tapped), or a platform roster the runner can resolve (dedicated iMessage line).

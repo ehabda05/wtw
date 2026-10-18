@@ -16,8 +16,8 @@ function photoIn(spaceId: string, handle: string, caption?: string) {
 async function envWithRoster(total: number | null) {
   const engine = (await loadEngine()) as never;
   const seen: string[] = [];
-  const env = makeEnv({ engine, caps: CAPS['imessage-dedicated'], simple: true, runnerDeps: { readReceipt: async (_b, mime) => (seen.push(mime), total === null ? null : { total }) } });
-  await env.runner.handleInbound({ surface: 'imessage-dedicated', spaceId: 'g1', isGroup: true, kind: 'members', members: [{ handle: 'riad', platformName: 'Riad' }, { handle: 'esc', platformName: 'Escander' }], msgId: 'roster', mentionsAgent: false, at: 0 });
+  const env = makeEnv({ engine, caps: CAPS['imessage-dedicated'], simple: true, runnerDeps: { readReceipt: async (_b, mime) => (seen.push(mime), total === null ? { status: 'unreadable' } : { status: 'ok', receipt: { total, currency: 'USD', items: [], arithmeticConsistent: true } }) } });
+  await env.runner.handleInbound({ surface: 'imessage-dedicated', spaceId: 'g1', isGroup: true, kind: 'members', members: [{ handle: 'riad', platformName: 'Riad' }, { handle: 'esc', platformName: 'Escander' }, { handle: 'homi', isBot: true }], msgId: 'roster', mentionsAgent: false, at: 0 });
   return { env, seen };
 }
 
@@ -51,12 +51,44 @@ test('"homi split it 3 ways" after a photo honours the count; an explicit amount
   assert.match(env.adapter.sends().at(-1)!, /\$45\.00 split 3 ways/);
 });
 
-test('no readable total: Homi says so and asks for the amount; no photo at all: the normal split help applies', async () => {
+test('no readable total and missing image have distinct responses', async () => {
   const { env } = await envWithRoster(null);
   await env.runner.handleInbound(photoIn('g1', 'riad', 'homi split the bill'));
   assert.match(env.adapter.sends().at(-1)!, /couldn't read a total on that receipt/);
   const { env: bare, seen } = await envWithRoster(84);
   await bare.runner.handleInbound(textIn('g1', 'riad', 'homi split the bill', { surface: 'imessage-dedicated' }));
   assert.equal(seen.length, 0);
-  assert.ok(!/couldn't read a total/.test(bare.adapter.sends().at(-1)!));
+  assert.match(bare.adapter.sends().at(-1)!, /don't see a recent receipt image/);
+});
+
+test('a replied-to receipt is selected instead of a newer unrelated photo', async () => {
+  const engine = (await loadEngine()) as never;
+  const seen: number[] = [];
+  const env = makeEnv({
+    engine, caps: CAPS['imessage-dedicated'], simple: true,
+    runnerDeps: { readReceipt: async (bytes) => {
+      seen.push(bytes[0]);
+      return { status: 'ok', receipt: { total: bytes[0], currency: 'USD', items: [], arithmeticConsistent: true } };
+    } },
+  });
+  await env.runner.handleInbound({ ...photoIn('g1', 'riad'), msgId: 'receipt-1', photo: { mime: 'image/png', bytes: new Uint8Array([84]) } });
+  await env.runner.handleInbound({ ...photoIn('g1', 'riad'), msgId: 'other-photo', photo: { mime: 'image/png', bytes: new Uint8Array([20]) } });
+  await env.runner.handleInbound(textIn('g1', 'riad', 'homi split the bill 2 ways', { surface: 'imessage-dedicated', replyTo: 'receipt-1' }));
+  assert.deepEqual(seen, [84]);
+  assert.match(env.adapter.sends().at(-1)!, /\$84\.00/);
+});
+
+test('receipt splitting asks when human membership is unavailable and accepts an explicit spelled-out count', async () => {
+  const engine = (await loadEngine()) as never;
+  const env = makeEnv({
+    engine, caps: CAPS['imessage-dedicated'], simple: true,
+    runnerDeps: { readReceipt: async () => ({ status: 'ok', receipt: { total: 84, currency: 'USD', items: [], arithmeticConsistent: true } }) },
+  });
+  await env.runner.handleInbound(photoIn('g1', 'riad'));
+  await env.runner.handleInbound(textIn('g1', 'riad', 'homi split the bill', { surface: 'imessage-dedicated' }));
+  assert.match(env.adapter.sends().at(-1)!, /can't reliably count the people/);
+
+  await env.runner.handleInbound(photoIn('g1', 'riad'));
+  await env.runner.handleInbound(textIn('g1', 'riad', 'homi split the bill between these three people', { surface: 'imessage-dedicated' }));
+  assert.match(env.adapter.sends().at(-1)!, /\$84\.00 split 3 ways: \$28\.00 each/);
 });

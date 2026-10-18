@@ -3,7 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DateTime } from 'luxon';
-import { periodsOpenAt, searchGoogle, textQueryFor, buildGoogleRequest } from '../../src/places/google.js';
+import { periodsOpenAt, searchGoogle, textQueryFor, textQueryForCategory, buildGoogleRequest } from '../../src/places/google.js';
+import { geocodeGoogle } from '../../src/places/geocoding.js';
 import { classifyPeriod, findPeriod, getWeather, pointsUrl } from '../../src/places/weather.js';
 import { geocode } from '../../src/places/geo.js';
 
@@ -72,6 +73,50 @@ test('Google request builder', () => {
     pageSize: 20,
   });
   assert.deepEqual(buildGoogleRequest('thai', HSQ, 1, 1200).body.priceLevels, ['PRICE_LEVEL_INEXPENSIVE']);
+  assert.equal(textQueryForCategory('bowling'), 'bowling alley');
+});
+
+test('Google category search uses the requested activity category', async () => {
+  let body: Record<string, unknown> | undefined;
+  const fakeFetch = (async (_url: string | URL | Request, init?: RequestInit) => {
+    body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    return new Response(JSON.stringify({ places: [] }), { status: 200 });
+  }) as typeof fetch;
+  await searchGoogle({ cuisines: [], category: 'museum', diet: [], near: 'x' }, HSQ, { apiKey: 'k', fetch: fakeFetch });
+  assert.equal(body?.textQuery, 'museum');
+});
+
+test('Google geocoding resolves explicit city text and reports ambiguous results', async () => {
+  let request = '';
+  const cityFetch = (async (input: string | URL | Request) => {
+    request = String(input);
+    return new Response(JSON.stringify({
+      status: 'OK',
+      results: [{
+        formatted_address: 'Malden, MA, USA',
+        types: ['locality', 'political'],
+        geometry: { location: { lat: 42.4251, lng: -71.0662 } },
+      }],
+    }), { status: 200 });
+  }) as typeof fetch;
+  const result = await geocodeGoogle('Malden, Massachusetts', { apiKey: 'k', fetch: cityFetch, timeoutMs: 1000 });
+  assert.equal(result.kind, 'resolved');
+  if (result.kind === 'resolved') {
+    assert.equal(result.point.label, 'Malden, MA, USA');
+    assert.equal(result.point.radiusMeters, 5000);
+  }
+  assert.equal(new URL(request).searchParams.get('address'), 'Malden, Massachusetts');
+
+  const ambiguousFetch = (async () => new Response(JSON.stringify({
+    status: 'OK',
+    results: [{
+      formatted_address: 'Malden, MA, USA',
+      partial_match: true,
+      types: ['locality'],
+      geometry: { location: { lat: 42.4251, lng: -71.0662 } },
+    }],
+  }), { status: 200 })) as typeof fetch;
+  assert.deepEqual(await geocodeGoogle('Malden', { apiKey: 'k', fetch: ambiguousFetch, timeoutMs: 1000 }), { kind: 'ambiguous' });
 });
 
 test('NWS: rain classification', () => {

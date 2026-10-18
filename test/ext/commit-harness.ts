@@ -42,7 +42,7 @@ export class PledgeHarness extends Harness {
   }
 }
 
-/** DEMO Act 1, compressed: dinner locked Fri Oct 23 · 7pm at Hokkaido Ramen Santouka, six named members. */
+/** DEMO Act 1, compressed: dinner locked Fri Oct 23, 7pm at Hokkaido Ramen Santouka, six named members. */
 export function demoPlan(caps = {}, crew = CREW): PledgeHarness {
   const h = new PledgeHarness({ start: '2026-10-17T10:00:00-04:00', caps });
   h.say(crew.includes('maya') ? 'maya' : crew[0], 'guys we never hang out anymore');

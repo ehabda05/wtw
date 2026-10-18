@@ -124,6 +124,7 @@ function handleMessage(st: Step, ev: MessageEvent, body: string, addressed: bool
       // "I want to do earlier" names no time: ask for one instead of letting the wish vanish (demo: even unaddressed).
       if (voteAddressed && TIME_SHIFT.test(body) && !preferredTime(body)) return say(st, T.timeWhich());
       if (proposeDay(st, ev, body, addressed)) return;
+      if (tryTextVote(st, ev, body, voteAddressed)) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, planOrFood(body, now, tz) === 'plan' ? T.alreadyPlan() : T.whichOnes({ ids: idList(st) }));
       return;

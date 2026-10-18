@@ -69,6 +69,9 @@ export function dayTokens(t: string): Array<{ wd: number; index: number; len: nu
 // ───────────────────────── activity ─────────────────────────
 
 const ACTIVITIES: Array<[string, RegExp, boolean, boolean]> = [
+  ['bowling', /\bbowling\b/, false, false],
+  ['museum', /\bmuseums?\b/, false, false],
+  ['cafe', /\bcafes?\b|\bcafés?\b/, false, false],
   ['game night', /\bgame night\b|\bboard games?\b/, false, false],
   ['brunch', /\bbrunch\b/, false, true],
   ['breakfast', /\bbreakfast\b/, false, false],
@@ -79,7 +82,7 @@ const ACTIVITIES: Array<[string, RegExp, boolean, boolean]> = [
   ['movie', /\bmovies?\b|\bfilm\b|\bcinema\b/, false, false],
   ['hike', /\bhike\b|\bhiking\b/, true, true],
   ['picnic', /\bpicnic\b/, true, true],
-  ['park', /\bpark\b/, true, true],
+  ['park', /\bparks?\b/, true, true],
 ];
 
 export function detectActivity(text: string): ActivityInfo {
@@ -404,7 +407,7 @@ export function parseCommand(body: string): Command | null {
   if (/^(?:where are we at|where are we|where we at|status|what'?s the plan|whats the plan|what is the plan|plan status|where do we stand|what'?s happening|update me)\??$/.test(b) || isStatusAsk(b)) return { kind: 'status' };
   const why = b.match(/^(?:why|explain|explain yourself|how did you decide|show (?:me )?the tally)(?:\s+(.+?))?\??$/);
   if (why) return { kind: 'why', ref: why[1] };
-  if (/^(?:find (?:us )?(?:food|a place|a spot|somewhere to eat|a restaurant|somewhere)|food options|pick a (?:place|spot|restaurant)|where should we eat)\b/.test(b)) return { kind: 'food' };
+  if (/^(?:find (?:us )?(?:food|a place|a spot|somewhere to eat|a restaurant|somewhere|a bowling alley|a museum|a cafe|a park|something to do)|food options|pick a (?:place|spot|restaurant)|where should we (?:eat|go)|what should we do)\b/.test(b)) return { kind: 'food' };
 
   const thr = thresholdIn(b);
   if (thr !== undefined && /^lock/.test(b)) return { kind: 'threshold', n: thr };

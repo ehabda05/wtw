@@ -207,9 +207,49 @@ test('Google failure, timeout or empty answer falls back to the snapshot', async
 });
 
 test('unknown neighborhood: no lookup at all', async () => {
-  const calls = stubFetch(() => json(googlePlaces));
+  const calls = stubFetch(() => json({ status: 'ZERO_RESULTS', results: [] }));
   const svc = createPlacesService({ provider: 'google', apiKey: 'k' });
-  assert.deepEqual(await svc.search({ cuisines: ['thai'], diet: [], near: 'my place', at: AT }), { options: [], source: 'unknown-neighborhood' });
+  assert.deepEqual(await svc.search({ cuisines: ['thai'], diet: [], near: 'my place', at: AT }), { options: [], source: 'unknown-location' });
   assert.equal(await svc.weather('my place', AT), null);
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1, 'only the explicit location text is sent to geocoding');
+});
+
+test('a free-form city is geocoded, then only its rounded coordinates go to Places; searches are capped', async () => {
+  const malden = { lat: 42.4251, lon: -71.0662 };
+  const calls = stubFetch((rec) => {
+    if (rec.method === 'GET') {
+      assert.equal(new URL(rec.url).searchParams.get('address'), 'Malden, Massachusetts');
+      return json({
+        status: 'OK',
+        results: [{
+          formatted_address: 'Malden, MA, USA',
+          types: ['locality', 'political'],
+          geometry: { location: { lat: malden.lat, lng: malden.lon } },
+        }],
+      });
+    }
+    return json({
+      places: [{
+        id: 'malden-italian',
+        displayName: { text: 'Malden Italian Kitchen' },
+        primaryType: 'italian_restaurant',
+        priceLevel: 'PRICE_LEVEL_INEXPENSIVE',
+        location: { latitude: malden.lat + 0.001, longitude: malden.lon },
+        shortFormattedAddress: '1 Main St, Malden',
+      }],
+    });
+  });
+  const svc = createPlacesService({ provider: 'google', apiKey: 'k', now: () => NOW, maxSearchesPerDay: 1 });
+  const query: PlacesQuery = { cuisines: ['italian'], priceMax: 1, diet: [], near: 'Malden, Massachusetts', at: AT };
+  const res = await svc.search(query);
+  assert.equal(res.source, 'google');
+  assert.equal(res.options[0].name, 'Malden Italian Kitchen');
+  const placesRequest = calls.find((c) => c.method === 'POST')!;
+  const body = JSON.parse(placesRequest.body!) as { textQuery: string; locationBias: { circle: { center: { latitude: number; longitude: number }; radius: number } } };
+  assert.equal(body.textQuery, 'italian restaurant');
+  assert.equal(body.locationBias.circle.radius, 5000);
+  assert.equal(body.locationBias.circle.center.latitude, 42.425);
+  assert.doesNotMatch(placesRequest.body!, /Malden|Massachusetts/);
+  assert.deepEqual((await svc.search({ ...query, near: 'Boston, Massachusetts' })).source, 'provider-limit');
+  assert.equal(calls.length, 2);
 });

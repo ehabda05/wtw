@@ -7,7 +7,7 @@ import { LLM_MODEL } from '../llm/redacted.js';
 
 const CONTEXT = {
   planState: 'collecting_availability',
-  options: ['Thu Oct 22 · 7pm', 'Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm'],
+  options: ['Thu Oct 22, 7pm', 'Fri Oct 23, 7pm', 'Sat Oct 24, 7pm'],
   members: 5,
   openFlows: [] as string[],
 };

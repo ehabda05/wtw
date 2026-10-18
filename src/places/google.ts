@@ -121,15 +121,26 @@ export function textQueryFor(tag: string | undefined): string {
   return SNACK_CUISINES.has(tag) ? words : `${words} restaurant`;
 }
 
+export function textQueryForCategory(category: NonNullable<PlacesQuery['category']>): string {
+  return {
+    cafe: 'cafe',
+    bowling: 'bowling alley',
+    museum: 'museum',
+    park: 'park',
+    activity: 'things to do',
+  }[category];
+}
+
 /** Exactly what leaves the server for one Google call. Exported for the egress test. */
 export function buildGoogleRequest(
   cuisineTag: string | undefined,
   center: { lat: number; lon: number },
   priceMax: PriceBand | undefined,
   radiusM: number,
+  customTextQuery?: string,
 ): { url: string; body: Record<string, unknown> } {
   const body: Record<string, unknown> = {
-    textQuery: textQueryFor(cuisineTag),
+    textQuery: customTextQuery ?? textQueryFor(cuisineTag),
     locationBias: { circle: { center: { latitude: round3(center.lat), longitude: round3(center.lon) }, radius: radiusM } },
     pageSize: 20,
   };
@@ -193,11 +204,15 @@ async function callOnce(
 export async function searchGoogle(query: PlacesQuery, center: GeoPoint, opts: GoogleOptions): Promise<PlaceCandidate[]> {
   const now = opts.now ?? Date.now();
   const at = query.at ?? now;
-  const radius = center.midpoint ? MIDPOINT_RADIUS_M : DEFAULT_RADIUS_M;
+  const radius = center.radiusMeters ?? (center.midpoint ? MIDPOINT_RADIUS_M : DEFAULT_RADIUS_M);
   const groups = queryCuisineGroups(query.cuisines ?? []);
-  const tags: (string | undefined)[] = groups.length ? groups.slice(0, opts.maxQueries ?? 2).map((g) => g.tag) : [undefined];
+  const queries = groups.length
+    ? groups.slice(0, opts.maxQueries ?? 2).map((g) => ({ tag: g.tag, text: textQueryFor(g.tag) }))
+    : [{ tag: undefined, text: query.category ? textQueryForCategory(query.category) : 'restaurant' }];
 
-  const results = await Promise.all(tags.map((tag) => callOnce(buildGoogleRequest(tag, center, query.priceMax, radius), opts).then((ps) => ({ tag, ps }))));
+  const results = await Promise.all(
+    queries.map(({ tag, text }) => callOnce(buildGoogleRequest(tag, center, query.priceMax, radius, text), opts).then((ps) => ({ tag, ps }))),
+  );
 
   const diets = [...new Set((query.diet ?? []).map(normalizeDiet).filter(Boolean))];
   const seen = new Set<string>();

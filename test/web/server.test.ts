@@ -39,11 +39,11 @@ test('a message from "you" reaches the real engine: Homi posts options, live ove
     const r = await post(web.url, '/api/say', { persona: 'you', text: '@homi dinner next week?' });
     assert.equal(r.status, 200);
     assert.match(r.body.ref, /^u-\d+$/);
-    const opt = await events.next((e) => e.event === 'entry' && (e.data as { from: string; text: string }).from === 'homi' && /^3 · /.test((e.data as { text: string }).text));
-    assert.match((opt.data as { text: string }).text, /^3 · Sat Oct 24 · 7pm$/);
+    const opt = await events.next((e) => e.event === 'entry' && (e.data as { from: string; text: string }).from === 'homi' && /^3\. /.test((e.data as { text: string }).text));
+    assert.match((opt.data as { text: string }).text, /^3\. Sat Oct 24, 7pm$/);
     const t = await getJson(web.url, '/api/transcript');
-    const options = t.entries.filter((e: { from: string; text: string }) => e.from === 'homi' && /^\d · /.test(e.text));
-    assert.deepEqual(options.map((e: { text: string }) => e.text), ['1 · Thu Oct 22 · 7pm', '2 · Fri Oct 23 · 7pm', '3 · Sat Oct 24 · 7pm']);
+    const options = t.entries.filter((e: { from: string; text: string }) => e.from === 'homi' && /^\d\. /.test(e.text));
+    assert.deepEqual(options.map((e: { text: string }) => e.text), ['1. Thu Oct 22, 7pm', '2. Fri Oct 23, 7pm', '3. Sat Oct 24, 7pm']);
     assert.ok(t.entries.every((e: { seq: number }) => e.seq > 0), 'every entry has a sequence number');
 
     // Tapback on option 2 as Jo, then a threaded reply as Ana.

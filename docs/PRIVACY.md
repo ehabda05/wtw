@@ -16,12 +16,12 @@ This document lists our ten privacy principles. For each one it gives the rule, 
 
 ## 1. Consent at the door
 
-**Rule.** When Homi first sees a new chat, it introduces itself **once**, says what it reads and stores, and then does nothing until a member starts a plan. A member starts a plan by mentioning Homi or typing `/plan`. Any member can say `homi stop`, and Homi deletes everything and leaves.
+**Rule.** When Homi first sees a new chat, it introduces itself **once**, says what it reads and stores, and does nothing beyond its introduction until a member starts a plan. A member starts a plan by mentioning Homi or typing `/plan`. While a plan is active, Homi checks incoming messages for plan-related replies without requiring a mention on each one. Any member can say `homi stop`, and Homi deletes everything and leaves.
 
 **How it works.**
 - **Trigger.** The intro fires on the first message Homi sees in an unknown chat. Where the platform also tells us Homi was added to a group, that event triggers the intro too. Both triggers are idempotent, so the intro is sent only once per chat (`intro_sent` flag).
 - **Intro text** (one message of two sentences, the same on every channel):
-  > Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "homi stop" makes me delete everything and leave.
+  > Hi, I'm Homi 👋 When a plan is active, I look for plan-related messages, so you don't have to mention me each time. If hosted AI or live place search is enabled, configured providers may process relevant text or a location you share; I keep plan details, not chat history, delete the plan 24h after the event, and remove everything on "homi stop".
 - **Before a plan exists**, Homi replies only to:
   - its name or `/plan`
   - `homi privacy`
@@ -41,7 +41,7 @@ This document lists our ten privacy principles. For each one it gives the rule, 
 - nudge history
 - display names that members chose to give it
 
-Homi stores **no chat history**. A message not addressed to Homi gets one local check (is this my name, a command, or a reply to my question?) and is then dropped. It never reaches disk.
+Homi stores **no chat history**. Before a plan exists, unrelated messages are discarded after checking for Homi's name and commands. While a plan is active, incoming messages are checked for relevant plan replies; unrelated content is still discarded and never written to disk.
 
 **How it works.**
 - **Classified events only.** The channel adapter turns each inbound message into a typed event, such as `vote`, `mention` or `food-signal`. The engine and the database see only those events.
@@ -75,9 +75,9 @@ A hosted LLM (Claude) is **off by default** (`DISABLE_HOSTED_LLM=true`). It has 
 
 **1. Availability fallback.** It is used only for an addressed availability reply that both earlier stages failed to parse, while a date poll is open. It sees the redacted reply and the option labels ("Thu 7pm / Fri 7pm / Sat 7pm"), nothing else. Anything the parser recognises as a command ("homi go", "homi status", "homi split 84 3 ways") never reaches it, even when the command does not apply yet: live, the model once read "homi go" as "every day works". Test: `test/runner/llm-fallback.test.ts`.
 
-**2. Repair router** (for live demos). It runs only when someone **addressed Homi** and the engine could only answer with a generic fallback ("Not sure what you mean…", the help line, "which ones could work", "we already have a plan"). Unaddressed chatter is never sent.
+**2. Repair router** (for live demos). It runs only when someone **addressed Homi** and the engine could only answer with a generic fallback ("Not sure what you mean…", the help line, "which ones could work", "we already have a plan"). In Claude-first mode, relevant unaddressed messages during an active plan may also be sent as redacted snippets; unrelated chatter is not sent.
 
-**3. Receipt reading.** When someone sends a photo and asks Homi to split "the bill" (no amount in the message, within ten minutes of the photo), that one image goes to Claude to read the total, tax and tip. The image is held in memory only until it is read or ten minutes pass, is never stored or logged, and the amounts never appear in logs. Any other photo stays with the album rules. Same switch and key as the rest of this section; off without them. Code: `src/llm/receipt.ts`, `src/runner/runner.ts` (`#receiptSplit`). Test: `test/runner/receipt.test.ts`.
+**3. Receipt reading.** When someone sends a photo and asks Homi to split "the bill" (no amount in the message, within ten minutes of the photo), that image and a short instruction go to the configured hosted AI provider to read printed items and totals. The image is held in memory only until it is read or ten minutes pass, is never stored or logged, and extracted amounts never appear in logs. The reader reports disabled, unsupported, unreadable, provider-error, and arithmetic-inconsistency outcomes separately. Any other photo stays with the album rules. The same switch and key as other hosted-AI uses apply; receipt processing is unavailable when hosted AI is off. Code: `src/llm/receipt.ts`, `src/runner/runner.ts` (`#receiptSplit`). Test: `test/runner/receipt.test.ts`.
 
 **Claude-first mode** (`HOMI_LLM_FIRST=on`, needs the same switch and key). The router runs for **every** message addressed to Homi, before the engine answers, except exact commands and availability replies the local parser already reads. Claude still only sees the redacted snippet and the context line, can still only answer with a command from the fixed catalog, and its answer is still validated locally; it wins when the engine gives it a real answer, otherwise the local result stands. The promise changes from "only unparsed replies" to "every addressed message, redacted". In this mode Homi also **listens** while a plan is open: an unaddressed message that the engine ignored and that reads like plan talk (a weekday, "tonight", a clock time, "works", "can't", "instead", "how about", "I'm in/out") is sent redacted too, and acted on only if Claude maps it to a vote, a day, a time, a place, a food answer or "I'm out"; never bills, pledges, trips, albums, or anything that deletes. Everything else unaddressed is still never sent. Test: `test/runner/llm-first.test.ts`.
 - It receives a **redacted snippet** of that one message and a short context line, for example `plan state: collecting_availability; open options: Thu Oct 22 7pm | Fri Oct 23 7pm | Sat Oct 24 7pm; members: 6; open flows: bill tab`. No names, no group name, no other messages, no notes or places.
@@ -155,15 +155,16 @@ A hosted LLM (Claude) is **off by default** (`DISABLE_HOSTED_LLM=true`). It has 
 
 **Code:** `src/engine/plan.ts` (`dump`). It is generated from the same store rows that the purge deletes, so the dump cannot drift from what is actually stored.
 
-## 9. Coarse, consented location only
+## 9. Explicitly shared location only
 
 **Rule.**
 - Homi never requests device location and never tracks anyone.
-- For places it uses only what members **type**, such as "Harvard Square" or "near Allston", or a single pin a member chooses to share.
+- For places it uses only what members **type**, such as "Harvard Square", "Malden, Massachusetts", or an address; it never reads device location.
 - The location is stored as **one neighborhood string on the plan**, never per person, and it is purged with the plan.
-- Only three things go to the places lookup: cuisine, price band, and a coordinate that **we** derive from the neighborhood string using a bundled gazetteer.
+- Offline lookup uses a bundled gazetteer and sends nothing to an external search provider.
+- With Google Places enabled, cuisine/category, price filters, and a rounded coordinate go to Google Places. If a shared location is not in the local gazetteer, Google Geocoding receives that text to resolve it. When members omit a location, Homi searches the explicitly configured `DEFAULT_SEARCH_LOCATION` (Boston by default), not device location. Google responses are not cached; the configured per-day request cap is process-local.
 
-**Code:** `src/places/geo.ts` (gazetteer, so the neighborhood string itself never leaves the server), `src/places/*`.
+**Code:** `src/places/geo.ts` (local gazetteer), `src/places/geocoding.ts` (live fallback), `src/places/index.ts` (limits), `src/places/*`.
 
 **Test:** `test/places/egress.test.ts` stubs the HTTP layer and asserts the exact query parameters sent.
 

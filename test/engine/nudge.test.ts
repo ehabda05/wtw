@@ -119,7 +119,7 @@ test('short window: escalation at the deadline, one unprompted message + call, l
   const res = h.apply({ kind: 'call_result', planId: h.plan!.id, member: 'k-sam', answerText: "uh yeah friday works, saturday i'm busy", ok: true, simulated: true });
   const lines = ofType(res, 'send');
   assert.match(lines[0].text, /^Sam's in for Fri \(by phone\)\./);
-  assert.match(lines[1].text, /^Fri Oct 23 · 7pm it is: 4 in/);
+  assert.match(lines[1].text, /^Fri Oct 23, 7pm it is: 4 in/);
   assert.ok(lines.every((s) => s.prompting === 'prompted'));
   assert.equal(h.plan!.lockedBy, 'everyone');
   assert.deepEqual(h.advance(HOUR).filter((a) => a.type === 'send'), [], 'the 10-minute fallback was cancelled');
@@ -131,7 +131,7 @@ test('short window: no call result within 10 minutes -> "Couldn\'t reach Sam; go
   const out = h.advance(10 * MIN);
   const sends = ofType(out, 'send');
   assert.equal(sends[0].text, "Couldn't reach Sam; going with Fri.");
-  assert.match(sends[1].text, /^Fri Oct 23 · 7pm it is: 3 in/);
+  assert.match(sends[1].text, /^Fri Oct 23, 7pm it is: 3 in/);
   assert.ok(sends.every((s) => s.prompting === 'prompted'));
   assert.equal(h.plan!.lockedBy, 'deadline');
 });

@@ -7,7 +7,7 @@ import { fakeClock, noNetwork, PHONE_LIKE, stubFetch } from './_helpers.js';
 const KEY = 'key_service_test';
 const FROM = '+16175550100';
 const TO = '+16175550142';
-const OPTIONS = ['Fri Oct 23 · 7pm', 'Sat Oct 24 · 7pm'];
+const OPTIONS = ['Fri Oct 23, 7pm', 'Sat Oct 24, 7pm'];
 const SPOKEN = "Hi, this is Homi calling about your group's plan. Does Friday at 7 or Saturday at 7 work better for you?";
 const req = (over: Partial<Parameters<VoiceService['placeCall']>[0]> = {}) => ({
   to: TO,

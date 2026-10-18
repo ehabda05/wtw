@@ -15,7 +15,7 @@ function locked(): Harness {
 test('unaddressed strong food talk in a plan pushes collecting_place and asks once', () => {
   const h = locked();
   const out = h.say('maya', "ok I'm starving where are we eating");
-  assert.equal(joined(out), 'What are we feeling? Cuisine, budget, and roughly where?');
+  assert.match(joined(out), /All are optional/);
   assert.equal(h.plan!.state, 'collecting_place');
   assert.deepEqual(h.plan!.stack, ['collecting_details']);
   assert.ok(out.some((a) => a.type === 'schedule' && a.key === `${h.plan!.id}:hungry_deadline`));
@@ -25,9 +25,7 @@ test('unaddressed strong food talk in a plan pushes collecting_place and asks on
 test('lookup query, 3 bubbles with (est.) prices and "hours unknown", votes, address once, pop to confirmed', () => {
   const h = locked();
   h.say('maya', 'homi find food');
-  h.say('ana', 'thai sounds amazing');
-  h.say('ben', 'something cheap pls');
-  const look = ofType(h.say('jo', 'homi go, harvard square'), 'lookup_places')[0];
+  const look = ofType(h.say('ana', 'thai sounds amazing, cheap, harvard square'), 'lookup_places')[0];
   assert.deepEqual(look.query, { cuisines: ['thai'], diet: [], near: 'Harvard Square', at: h.plan!.eventAt, priceMax: 1 });
   const res = h.places(fakePlaces());
   const sends = ofType(res, 'send');
@@ -45,6 +43,30 @@ test('lookup query, 3 bubbles with (est.) prices and "hours unknown", votes, add
   assert.equal(h.plan!.place?.name, 'Tasty Thai');
 });
 
+test('a cuisine and free-form location trigger search immediately without requiring a budget', () => {
+  const h = locked();
+  h.say('maya', 'homi find food');
+  const lookup = ofType(h.say('maya', 'Italian in Malden MA'), 'lookup_places')[0];
+  assert.deepEqual(lookup.query.cuisines, ['italian']);
+  assert.equal(lookup.query.near, 'Malden MA');
+  assert.equal(lookup.query.priceMax, undefined);
+  assert.equal(h.plan!.hungry?.phase, 'searching');
+});
+
+test('all preference fields are optional; cuisine-only and no-preference answers search the configured default area', () => {
+  const h = locked();
+  h.say('maya', 'homi find food');
+  const lookup = ofType(h.say('maya', 'Italian'), 'lookup_places')[0];
+  assert.deepEqual(lookup.query.cuisines, ['italian']);
+  assert.equal(lookup.query.near, 'Boston');
+
+  const any = locked();
+  any.say('maya', 'homi find food');
+  const general = ofType(any.say('maya', 'surprise us'), 'lookup_places')[0];
+  assert.deepEqual(general.query.cuisines, []);
+  assert.equal(general.query.near, 'Boston');
+});
+
 test('hungry_deadline: after 10 minutes Homi searches with what it has, then closes with "#1 since nobody objected"', () => {
   const h = locked();
   h.say('maya', 'homi find food, thai near harvard sq');
@@ -59,16 +81,15 @@ test('instant plan from idle: today, no date options, no reminder offer, confirm
   const h = new Harness({ start: '2026-10-17T18:30:00-04:00' });
   assert.deepEqual(h.say('aiden', "ok i'm starving, where are we eating").filter((a) => a.type === 'send').length, 1, 'intro only');
   const ask = h.say('bea', '@homi where should we eat');
-  assert.equal(joined(ask), 'What are we feeling? Cuisine, budget, and roughly where?');
+  assert.match(joined(ask), /All are optional/);
   assert.equal(h.plan!.options.length, 0);
-  assert.match(joined(h.say('chidi', 'somewhere near here, $$ is fine')), /Which neighborhood\? I never use your location\./);
-  h.say('devi', "we're in harvard sq rn");
-  h.say('emre', 'fatima and i are in allston tho');
-  const look = ofType(h.say('bea', 'ok homi go'), 'lookup_places')[0];
-  assert.equal(look.query.near, 'Harvard Square + Allston');
-  assert.match(joined(h.places(fakePlaces())), /halfway between Harvard Sq and Allston/);
+  assert.match(joined(h.say('chidi', 'somewhere near here, $$ is fine')), /share a city, neighborhood, or address/);
+  const look = ofType(h.say('bea', 'use the default area'), 'lookup_places')[0];
+  assert.equal(look.query.near, 'Boston');
+  assert.match(joined(h.places(fakePlaces())), /Good food, mid-range, Boston: here are 3/);
   h.say('devi', '2');
-  const close = h.react('emre', '❤️', 'place:2');
+  h.react('emre', '❤️', 'place:2');
+  const close = h.say('chidi', '2');
   assert.match(joined(close), /^Pho Basil it is/);
   assert.doesNotMatch(joined(close), /remind/);
   assert.equal(h.plan!.state, 'confirmed');
@@ -76,6 +97,22 @@ test('instant plan from idle: today, no date options, no reminder offer, confirm
   const purge = h.advance(25 * HOUR);
   assert.ok(purge.some((a) => a.type === 'purge'));
   assert.equal(h.plan, null);
+});
+
+test('a direct activity request includes its free-form location in the search and asks instead of guessing if ambiguous', () => {
+  const h = new Harness({ start: '2026-10-17T10:00:00-04:00' });
+  const out = h.say('maya', 'homi find a bowling alley in Malden, Massachusetts');
+  const lookup = ofType(out, 'lookup_places')[0];
+  assert.equal(lookup.query.category, 'bowling');
+  assert.equal(lookup.query.near, 'Malden, Massachusetts');
+  const clarify = h.apply({
+    kind: 'places_result',
+    requestId: lookup.requestId,
+    options: [],
+    source: 'ambiguous-location',
+  });
+  assert.match(joined(clarify), /multiple places matching that location/);
+  assert.equal(h.plan!.hungry?.phase, 'asking');
 });
 
 test('food detour while the date is open pops back to collecting_availability; the lock then confirms', () => {
