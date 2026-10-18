@@ -198,6 +198,11 @@ export interface SpaceSettings {
   roster?: MemberRef[];
   /** Member count from a platform that cannot list members (Telegram); the next plan's expected head count. */
   headcount?: number;
+  /**
+   * Names people gave Homi ("homi I'm Ana"), by hashed member key, kept from one plan to the next so nobody has to
+   * introduce themselves twice. Sealed with the settings; deleted by "homi stop".
+   */
+  names?: Record<MemberKey, string>;
   /** Group-level extension data (bill tab, trip, album), sealed with the settings. Each extension types its slot. */
   ext?: Partial<Record<ExtName, unknown>>;
 }

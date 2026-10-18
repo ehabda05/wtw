@@ -123,5 +123,28 @@
     </svg>`;
   }
 
-  window.HOMI_PHOTOS = { ramen, friends, city, neon };
+  // A restaurant receipt on a dark table: paper, a torn edge, line items and the total Homi reads.
+  function receipt(u) {
+    const line = (y, l, r, bold) =>
+      `<text x="44" y="${y}" font-family="Consolas, 'Courier New', monospace" font-size="${bold ? 10.5 : 9}" font-weight="${bold ? 700 : 400}" fill="${bold ? '#1a1a1a' : '#3a3a3a'}">${l}</text>` +
+      `<text x="156" y="${y}" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="${bold ? 10.5 : 9}" font-weight="${bold ? 700 : 400}" fill="${bold ? '#1a1a1a' : '#3a3a3a'}">${r}</text>`;
+    let tear = 'M30 182';
+    for (let x = 30; x <= 170; x += 7) tear += ` L${x + 3.5} ${x % 14 === 2 ? 186 : 182} L${x + 7} 182`;
+    return `${head(u)}<defs><linearGradient id="w${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b2a1e"/><stop offset="1" stop-color="#1b140f"/></linearGradient>
+      <filter id="s${u}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity=".55"/></filter></defs>
+      <rect width="200" height="200" fill="url(#w${u})"/>
+      <g filter="url(#s${u})" transform="rotate(-3 100 100)">
+        <path d="M30 14 H170 V182 ${tear.slice(7)} Z" fill="#f6f1e6"/>
+        <text x="100" y="36" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="800" letter-spacing="2" fill="#1a1a1a">DAKZEN</text>
+        <text x="100" y="48" text-anchor="middle" font-family="Consolas, 'Courier New', monospace" font-size="7.5" fill="#6a6a6a">195 ELM ST · SOMERVILLE</text>
+        <line x1="44" y1="58" x2="156" y2="58" stroke="#c9c2b4" stroke-width="1" stroke-dasharray="2 2"/>
+        ${line(72, 'PAD SEE EW', '16.00')}${line(84, 'GREEN CURRY', '17.00')}${line(96, 'TOM YUM', '15.00')}${line(108, 'THAI ICED TEA x3', '13.50')}${line(120, 'MANGO STICKY RICE', '14.00')}
+        <line x1="44" y1="130" x2="156" y2="130" stroke="#c9c2b4" stroke-width="1" stroke-dasharray="2 2"/>
+        ${line(142, 'SUBTOTAL', '75.50')}${line(153, 'TAX 7%', '5.29')}${line(164, 'SVC', '3.21')}
+        <line x1="44" y1="169" x2="156" y2="169" stroke="#1a1a1a" stroke-width="1.2"/>
+        ${line(178, 'TOTAL', '$84.00', true)}
+      </g></svg>`;
+  }
+
+  window.HOMI_PHOTOS = { ramen, friends, city, neon, receipt };
 })();

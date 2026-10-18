@@ -2,7 +2,7 @@
 // Before a plan exists Homi answers only when addressed (silence until invited); notice mode is the one
 // opt-in exception and is gated by the noise budget and quiet hours.
 
-import type { MessageEvent } from '../types.js';
+import type { Action, MessageEvent } from '../types.js';
 import { TEMPLATES as T } from '../templates.js';
 import { UNADDRESSED_COMMANDS, detectAddressed, isBareNo, isBareYes, isHangoutPhrase, parseCommand, preferredTime, stripAddress } from '../parse.js';
 import { foodTrigger, planOrFood } from '../intent.js';
@@ -46,11 +46,39 @@ function onIdle(st: Step, ev: MessageEvent, body: string, addressed: boolean): v
   startInstant(st, ev.from, ev.msgRef, body, 'unprompted');
 }
 
+/** Bookkeeping only: a remembered handle or a (re)scheduled job is not an answer. Anything else (a message, a reaction,
+ *  a lookup or payment whose result will reply) means the message was understood. */
+const SILENT = new Set<Action['type']>(['schedule', 'cancel', 'remember_handle']);
+
+/**
+ * Someone who addressed Homi always gets an answer. The handlers below stay silent on purpose for unaddressed
+ * chatter, but an addressed message that none of them read ("homi are you there?" during the cuisine question,
+ * "homi can you find us a place" with a plan open) must not disappear: Homi re-asks the open question or says it
+ * did not follow.
+ */
 export function onMessage(st: Step, ev: MessageEvent): void {
+  const mark = st.acts.length;
+  const addressed = dispatchMessage(st, ev);
+  if (!addressed || st.acts.slice(mark).some((a) => !SILENT.has(a.type) && !(a.type === 'send' && a.tag === 'intro'))) return;
+  const p = planOf(st);
+  if (p?.state === 'collecting_place' && p.hungry?.phase === 'asking' && st.ctx.simple) return say(st, T.cuisineAsk());
+  say(st, T.unknown());
+}
+
+/** A sentence that asks to move the time without naming one ("I want to do earlier", "can we do it later?"). */
+const TIME_SHIFT = /\b(?:earlier|later|sooner|too late|too early|push it back|move it up|bit before|bit after)\b/i;
+
+/** Routes one message; returns whether it was addressed to Homi (so onMessage can guarantee an answer). */
+function dispatchMessage(st: Step, ev: MessageEvent): boolean {
   intro(st);
   const text = ev.text ?? '';
   const addressed = ev.addressed || detectAddressed(text) || isHomiRef(planOf(st), ev.replyTo);
   const body = stripAddress(text);
+  handleMessage(st, ev, body, addressed);
+  return addressed;
+}
+
+function handleMessage(st: Step, ev: MessageEvent, body: string, addressed: boolean): void {
   if (planOf(st)) reachable(st, touch(st, ev.from, ev.msgRef), ev.msgRef);
   // Bills, travel, commitments and the album get first look (src/engine/ext); the simple demo keeps only bills.
   for (const x of EXTENSIONS) if ((!st.ctx.simple || x.name === 'bills') && x.onMessage?.(st, ev, body, addressed)) return;
@@ -78,7 +106,7 @@ export function onMessage(st: Step, ev: MessageEvent): void {
       const pt = win ? preferredTime(body) : undefined;
       if (pt) p.preferredTime = pt;
       if (win && p.preferredTime) win = rollPastDay(win, p.preferredTime, now, tz);
-      if (win && openAvailability(st, win, 'prompted')) return;
+      if (win && openAvailability(st, win, 'prompted', ev.from)) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, T.askWhen());
       return;
@@ -93,6 +121,8 @@ export function onMessage(st: Step, ev: MessageEvent): void {
         return;
       }
       if (tryTextVote(st, ev, body, voteAddressed)) return;
+      // "I want to do earlier" names no time: ask for one instead of letting the wish vanish (demo: even unaddressed).
+      if (voteAddressed && TIME_SHIFT.test(body) && !preferredTime(body)) return say(st, T.timeWhich());
       if (proposeDay(st, ev, body, addressed)) return;
       if (food()) return pushHungry(st, ev.from, body, 'prompted');
       if (addressed) say(st, planOrFood(body, now, tz) === 'plan' ? T.alreadyPlan() : T.whichOnes({ ids: idList(st) }));

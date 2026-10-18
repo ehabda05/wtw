@@ -31,6 +31,11 @@ export function stop(st: Step): void {
   st.s = fresh;
 }
 
+/** "homi I'm Ana" is kept with the chat's settings, so the next plan already knows Ana (PRIVACY.md §4; "homi stop" deletes it). */
+function rememberName(st: Step, key: string, name: string): void {
+  st.s.space.names = { ...(st.s.space.names ?? {}), [key]: name };
+}
+
 function markOut(st: Step, m: Member): void {
   m.status = 'out';
   m.optionVotes = {};
@@ -181,12 +186,13 @@ export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string
   if (!p) {
     if (cmd.kind === 'out' && !addressed) return true;
     if (cmd.kind === 'change_place') return false; // "homi sushi instead" with no plan: the idle handler decides
+    if (cmd.kind === 'name') rememberName(st, ev.from.key, cmd.name);
     say(st, cmd.kind === 'name' ? T.nameNoPlan({ name: cmd.name }) : cmd.kind === 'optin' ? T.optInNoPlan() : T.needPlan());
     return true;
   }
   const m = member(st, ev.from);
   switch (cmd.kind) {
-    case 'name': m.name = cmd.name; say(st, T.nameSet({ name: cmd.name })); return true;
+    case 'name': m.name = cmd.name; rememberName(st, m.key, cmd.name); say(st, T.nameSet({ name: cmd.name })); return true;
     case 'out': markOut(st, m); return true;
     case 'optin': optIn(st, m, cmd.mode); return true;
     case 'threshold':

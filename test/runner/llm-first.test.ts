@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { TEMPLATES as T } from '../../src/engine/templates.js';
 import type { Action, EngineEvent } from '../../src/engine/types.js';
 import type { RepairFn, RepairRequest } from '../../src/llm/router.js';
-import { fakeEngine, makeEnv, makePlan, textIn, type FakeEngine } from './helpers.js';
+import { INTRO, fakeEngine, makeEnv, makePlan, textIn, type FakeEngine } from './helpers.js';
 
 const SPLIT = '$120.00 split 5 ways: $24.00 each.';
 
@@ -62,6 +62,28 @@ test('llmFirst: exact commands and open-poll votes skip the model; unaddressed c
   assert.equal(r.calls.length, 0);
   await env.runner.handleInbound(textIn('g1', 'persona:ben', 'homi help'));
   assert.equal(r.calls.length, 0, '"homi help" is answered locally');
+});
+
+test('llmFirst listening: the engine\'s safety-net reply and its bookkeeping never turn chatter into "Not sure what you mean"', async () => {
+  // Like the real engine under DEMO_SIMPLE: an addressed message it cannot read gets the safety-net reply, plus a
+  // remember_handle (demo quorum). Unaddressed chatter gets nothing.
+  const e = fakeEngine((s, ev): Action[] => {
+    if (ev.kind !== 'message') return [];
+    if (/^homi start$/i.test(ev.text)) {
+      s.plan = makePlan('p1', { state: 'collecting_place' });
+      return [{ type: 'send', text: 'started', prompting: 'prompted' }];
+    }
+    if (!ev.addressed) return [];
+    return [{ type: 'remember_handle', member: 'k', planId: 'p1' }, { type: 'send', text: T.unknown(), prompting: 'prompted' }];
+  });
+  const r = router(() => 'homi thai');
+  const env = makeEnv({ engine: e, simple: true, runnerDeps: { repairWithLlm: r.repair, llmFirst: true } });
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi start'));
+  const before = r.calls.length; // Claude-first also looked at the addressed "homi start"
+  await env.runner.handleInbound(textIn('g1', 'persona:ben', 'sushi for me'));
+  assert.equal(r.calls.length, before + 1, 'simple mode listens to chatter while the place is being picked');
+  assert.deepEqual(env.adapter.sends().filter((s) => s !== INTRO), ['started'], 'nothing was said to the group');
+  assert.match(env.lines.join('\n'), /llm listen used: no.*still_generic/);
 });
 
 test('llmFirst: when Claude passes (null) or its rewrite is still generic, the local answer stands', async () => {

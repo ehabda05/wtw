@@ -137,6 +137,7 @@ export const TEMPLATES = {
   timeTooSoon: (p: { time: string }) => `${p.time} has passed or is too soon; keeping the options as they are.`,
   timeAlready: (p: { time: string; ids: string; how: 'tap' | 'reply' }) =>
     `${p.time} is already there, options ${p.ids}; ${p.how === 'tap' ? 'tap ❤️ on' : 'reply with'} the one that works.`,
+  timeWhich: () => `What time, then? Say "homi make it 8pm" (any time) and I'll move it.`,
 
   // ── intake ──
   askActivity: () => `I'm in. What are we doing: dinner, drinks, brunch, or something else?`,
@@ -185,7 +186,7 @@ export const TEMPLATES = {
   why: (p: { tally: string; notes?: string }) => `${p.tally}.${p.notes ? ` ${capitalize(p.notes)}.` : ''}`,
   whyPlaces: (p: { lines: string; source?: string }) => `${p.lines}.${p.source ? ` ${p.source}.` : ''}`,
   nameSet: (p: { name: string }) => `Hi ${p.name} 👋`,
-  nameNoPlan: (p: { name: string }) => `Hi ${p.name} 👋 I only keep names while a plan is open, so tell me again once one starts.`,
+  nameNoPlan: (p: { name: string }) => `Hi ${p.name} 👋 I'll remember that for this chat's plans.`,
   out: () => `All good, next time 💛`,
   optInDm: () => `Got it: if you haven't picked near the deadline, I'll DM you once and tell the group.`,
   optInDmUnavailable: () => `This chat app doesn't let me DM people, so I'll stick to the group.`,
@@ -340,6 +341,7 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   timeShiftDone: [[{ bubble: '2 · Fri Oct 23 · 8:30pm' }]],
   timeShiftKeep: [[{ time: '7pm' }]],
   timeMoved: [[{ time: '8pm' }]],
+  timeWhich: [[]],
   timeNoted: [[{ time: '8pm' }]],
   timeTooSoon: [[{ time: '8pm' }]],
   timeAlready: [[{ time: '8pm', ids: '1 and 2', how: 'tap' }], [{ time: '8pm', ids: '1 and 2', how: 'reply' }]],

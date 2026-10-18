@@ -26,7 +26,8 @@ const STATE_LABEL: Record<string, string> = {
 
 export function dump(state: GroupState, now?: number): string {
   const sp = state.space;
-  const inner = `tone ${sp.tone}, time zone ${sp.tz}, notice ${sp.notice ? 'on' : 'off'}`;
+  const remembered = Object.values(sp.names ?? {});
+  const inner = `tone ${sp.tone}, time zone ${sp.tz}, notice ${sp.notice ? 'on' : 'off'}${remembered.length ? `, names ${remembered.map((n) => clean(n)).join(', ')}` : ''}`;
   const settings = `settings (${inner})`;
   const p = state.plan as EnginePlan | null;
   const ext = EXTENSIONS.flatMap((x) => x.dump?.(state, now ?? 0) ?? []);

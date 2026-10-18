@@ -11,7 +11,18 @@ export const REPAIR_TIMEOUT_MS = 4000;
 /** A bare address or an explicit "help" already got the right answer: never repaired. */
 const SKIP = /^\s*(?:@?homi\b[,:!]?\s*)?\/?(?:help(?: me)?|commands|\?)?\s*[?!.]*\s*$/i;
 
-const NEUTRAL = new Set<Action['type']>(['schedule', 'cancel']);
+// Bookkeeping the group never sees: a (re)scheduled job, a remembered handle. Never evidence that Homi understood.
+const NEUTRAL = new Set<Action['type']>(['schedule', 'cancel', 'remember_handle']);
+
+/**
+ * The engine answers every ADDRESSED message, at worst with "Not sure what you mean" or by repeating its open
+ * question. When the runner only pretended a message was addressed (Claude-first listening on unaddressed chatter),
+ * those two safety-net replies must not reach the group: strip them before judging whether the rewrite said anything.
+ */
+export function withoutNetReplies(actions: Action[]): Action[] {
+  const net = new Set([T.unknown(), T.cuisineAsk()]);
+  return actions.filter((a) => !(a.type === 'send' && net.has(a.text)));
+}
 
 /**
  * True when the only things Homi would say are generic fallbacks (unknown, help, alreadyPlan, whichOnes, noteMissing, and

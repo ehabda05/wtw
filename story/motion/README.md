@@ -1,5 +1,9 @@
 # Whats the Word motion demo (agent: Homi)
 
+Two storyboards live here: `storyboard-v2.txt` (the current 1:15 cut, one plan start to finish, from
+`docs/DEMO_STORY.md`) and `storyboard-v1.txt` (the 2:30 six-act tour; its build is kept as `script-v1.json`).
+`script.json` is whichever one was built last.
+
 A dark-mode group chat in a phone frame, driven entirely by `script.json`. Nothing animates on its
 own: `window.__seek(ms)` computes every bubble, reaction, typing indicator, card, album tile and
 caption from the time alone, so the renderer can capture identical frames at 30 fps. The story follows
@@ -62,7 +66,25 @@ does not work, because browsers block `fetch('script.json')` on `file://`.
 | `call` | `duration`, `caller`, `number`, `label`, `note`, `accept` (ms into the call), `endAt`, `lines: [{from, text, t, duration}]` | Cuts to an incoming-call screen; the call is accepted at `accept`, then each line's words are revealed over its `duration` (times relative to the call start). `label` is the pill at the top ("Sam's phone · (simulated call)"), `note` the label at the bottom ("Simulated call audio"). |
 | `album` | `duration`, `title`, `header`, `sub`, `subAfter`, `foot` (`\n` for a second line), `photos: [{art, by}]`, optional `remove: {by, at, toast}` | A full-screen album slides up inside the phone: "Members only" header, title, a 2×2 grid with each contributor's name. With `remove`, that member's tiles fade out at `at` ms, the rest slide into place, `sub` switches to `subAfter` and `toast` pops up. |
 | `title` | `title`, `line`, `duration` | Opening title card (app name + Homi avatar), fades into the chat. |
-| `end` | `title`, `line`, `tagline`, `badge`, `qr`, optional `name`, `duration` | Full-frame end card with a QR placeholder box. |
+| `end` | `title`, `line`, `tagline`, `badge`, `qr`, optional `name`, `qrImage`, `duration` | Full-frame end card. `qrImage` (a path relative to `motion/`, e.g. `../qr/homi-qr.svg`) shows a real QR code instead of the placeholder box. |
+| `dm` | `tag`, `title`, `sub`, `lines: [{from: "homi" \| "me", text, t}]`, `duration` | A private thread slides in over the group chat inside the phone ("Charlie's phone"): Homi's DM, the reply, Homi's thanks. Line times are relative to the event start. |
+| `stat` | `n`, `prefix`, `suffix`, `line`, `foot`, `duration` | Full-stage statistic: the phone blurs, the number counts up (`88%`), the line and the source fade in under it. |
+| `pulse` | | A short amber swell behind the phone and a 2% breath of the phone itself; used on the lock, the address and the split. |
+
+The phone also drifts, breathes and tilts a few degrees in 3D the whole time (`placePhone` in `timeline.js`),
+a glass glare sweeps across it on every chapter, three blurred color fields drift behind it (`renderAurora`),
+a light band crosses the stage on every chapter (`renderSweep`), a particle burst comes out from under the
+phone on every `pulse` (`renderBurst`), captions rise in word by word and the title letter by letter, and a
+thin amber progress bar runs along the top edge. Everything is a function of `t`, so frames stay deterministic.
+
+## Sound
+
+`python story/audio/make-vo.py` generates the voiceover lines in `story/audio/vo-lines.json` with a Microsoft
+neural voice (edge-tts, free; `--elevenlabs` uses the ElevenLabs API when `ELEVENLABS_API_KEY` is set) and
+measures them. `node story/render/audio.mjs --plan` shows where each line lands against `script.json` and
+flags overlaps; `node story/render/audio.mjs` then muxes voice, synthesized UI sounds (a tick per message, a
+whoosh per jump and DM, a chime per pulse) and a soft pad that ducks under the voice into the rendered MP4s.
+Run it after `render.mjs`, since the render writes silent files.
 
 **Cards.** `card: { head, rows, sections: [{ title, rows }], foot, compact }`. A row is either a plain
 string (a bullet line such as "· Refund: automatic, by 8:30pm") or an object
@@ -104,6 +126,9 @@ Homi: Dinner, next week. Tap ❤️ on every time that works ...
 @react 👍 homi                   # Homi acknowledges the last message
 ~Ana: homi I'm in               # "~" = quick message from anyone: no typing, short gap
 @quote You: homi I'm here       # reply-quote above the next message
+@dm {"tag":"Charlie's phone","title":"Homi","lines":[{"from":"homi","text":"..."},{"from":"me","text":"yes"}]}
+@stat {"n":88,"suffix":"%","line":"of Gen Z have a plan stuck in a group chat","foot":"Survey · source","duration":3400}
+@pulse -150                     # glow swell; the offset (ms) shifts it relative to the current time
 @card Homi {"id":"bill","head":"Dinner $141.61 ...","rows":[{"l":"Ana","r":"$25.02"}],"foot":"...","hold":2800}
 @photo Jo friends,city | homi add          # photo bubble(s) + caption bubble
 @album {"title":"Ramen night · Fri Oct 23","header":"Members only","photos":[{"art":"ramen","by":"ana"}],"duration":2700}
