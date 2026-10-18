@@ -1,0 +1,115 @@
+# Whats the Word demo, v2 (agent: Homi). The sub-two-minute cut from docs/DEMO_STORY.md.
+# Build: node story/motion/build-script.mjs story/motion/storyboard-v2.txt story/motion/script.json
+#
+# One chat, one plan, one dinner that happens. Cold open = the dead plan from the 10/17 phone recording
+# ("Hey guys lets hangout!" -> one 👍 -> typing that gives up -> "Hello?"), then Homi finishes the job.
+# Every Homi line is the DEMO_SIMPLE build's own wording (src/engine/templates.ts, src/engine/curated.ts).
+# The three Thai spots are the curated Boston entries. The receipt is drawn (story/motion/photos.js).
+
+@chat the crew
+@fps 30
+@member you You
+@member esc Escander #2FA89A
+@member charlie Charlie #8B6CF0
+@member homi Homi bot
+@roster esc charlie
+@clock 11:58
+
+# ---- 0:00 cold open: the plan that died ----
+@title {"title":"Whats the Word","line":"The plan that actually happens.","duration":1800}
+@chapter Plans die here
+@divider *Sat, Oct 10* · 11:58 PM | 11:58
+You: Hey guys lets hangout! [#m0]
+@react 👍 esc
+@receipt Read by 2
+@wait 250
+@caption One thumbs up. Then *nothing*.
+You: Is that a yes?? Where do u guys wanna meet
+@typing charlie 1500
+@wait 150
+You: Hello?
+@wait 1600
+@jump 1600 a week later | Sun Mon Tue Wed Thu Fri Sat
+@divider a week later · *Sat, Oct 17* 10:12 AM | 10:12 | jump
+@caption Every group chat has a plan that *died like this*.
+@wait 1300
+@stat {"n":88,"suffix":"%","line":"of Gen Z have a plan stuck in a group chat right now","foot":"Survey of 1,000 Gen Z adults · Thorpe Park","duration":3900}
+
+# ---- 0:14 the turn ----
+@chapter Meet Homi
+@caption Meet Homi. It lives in the chat you *already have*.
+@system You added Homi to the conversation +homi
+@wait -300
+Homi: Hi, I'm Homi 👋 Say "homi dinner friday 7pm" and I'll get everyone's answer, lock the date, and pick a spot with you.
+@wait -200
+You: homi dinner friday 7pm
+Homi: Dinner, Fri Oct 23. Tap ❤️ if 7pm works (or reply "yes"); I'll lock it in once everyone answers.
++ 1 · Fri Oct 23 · 7pm [#d1]
+@wait -600
+@react ❤️ you #d1
+
+# ---- 0:22 everyone answers (the private follow-up) ----
+@chapter Everyone answers
+@caption It asks. Then it follows up, *privately*.
+@react ❤️ esc #d1
+@typing charlie 1100
+@jump 1300 30 seconds later | 10 20 30
+@divider 30 seconds later | 10:13 | jump
+Homi: Still need Charlie; I've asked them privately. No word by 10:14am counts as not coming.
+@wait -500
+@dm {"tag":"Charlie's phone","title":"Homi","sub":"direct message","lines":[{"from":"homi","text":"Homi here, from the group chat: does 1 · Fri Oct 23 · 7pm work for you for dinner? Reply yes, no, or a number.","t":600},{"from":"me","text":"yes","t":3600},{"from":"homi","text":"Got it, thanks. I'll tell the group.","t":4600}],"duration":6600}
+@caption Locked. Nobody *chased* anybody.
+Homi: Fri Oct 23 · 7pm it is: 3 in.
+@pulse -150
+@wait 2600
+
+# ---- 0:40 the argument, settled ----
+@chapter Majority rules
+@caption Three people, *three answers*.
+Homi: What are we feeling? Tacos, sushi, pizza, Thai, anything; or say "surprise us".
+@wait -500
+~You: thai
+@react 👍 homi
+~Escander: sushi for me
+@react 👍 homi
+~Charlie: pizza
+@react 👍 homi
+@caption *Majority rules.* Nobody gets steamrolled.
+Homi: No majority yet: Thai 1 · Japanese 1 · Pizza 1. Need 2 of 3 on one; say the one you'd switch to, or "surprise us".
+@wait 300
+~Escander: ok thai then
+@react 👍 homi
+@caption Three real spots. *One address.*
+Homi: Thai in Boston, here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).
++ 1 · 9 Tastes · Harvard Square · $ [#p1]
++ 2 · Dakzen · Davis Square · $$ [#p2]
++ 3 · Brown Sugar Café · Fenway · $$ [#p3]
+@wait -900
+@react ❤️ you #p2
+@react ❤️ charlie #p2
+Homi: Dakzen it is: 195 Elm Street, Somerville https://maps.apple.com/?q=Dakzen
+@pulse -150
+@wait 1100
+
+# ---- 1:08 the bill ----
+@chapter Split the bill
+@jump 1300 Friday night | 7:00 8:00 9:00
+@divider *Fri, Oct 23* · 9:12 PM | 9:12 | jump
+@caption Dinner's over. So is the *Venmo chase*.
+@photo You receipt | homi split the bill 3 ways
+@react 👍 homi
+Homi: $84.00 split 3 ways: $28.00 each.
+@pulse -150
+@wait 900
+
+# ---- 1:20 then it forgets ----
+@chapter Then it forgets
+@caption It keeps the plan. *Never your messages.*
+You: homi what do you know
+@card Homi {"id":"know","head":"Here's everything I have for this chat:","rows":[{"k":"Plan","l":"dinner · Fri Oct 23, 7pm · Dakzen · 3 in"},{"k":"Bill","l":"$84.00 split 3 ways · $28.00 each"},{"k":"Names","l":"You, Escander, Charlie"}],"foot":"Deletes 24h after dinner. Say \"homi forget\" to delete it now.","hold":3200}
+You: homi forget
+Homi: Done: I've deleted this plan.
+@wait 1300
+
+# ---- end card ----
+@end {"title":"Whats the Word","line":"Homi plans. You just show up.","tagline":"iMessage · Telegram · no app to download","badge":"HackHarvard 2026","qr":"github.com/ehabda05/wtw","qrImage":"../qr/homi-qr.svg","duration":5200}

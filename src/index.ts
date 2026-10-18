@@ -28,11 +28,29 @@ import { Scheduler } from './runner/scheduler.js';
 import { loadEngine } from './runner/services.js';
 import { openDatabase } from './store/db.js';
 import { Repo } from './store/repo.js';
+import { bootDining, diningMode } from './dining/boot.js';
 
 async function main(): Promise<void> {
   const config = loadConfig();
   const logger = createLogger({ level: config.logLevel });
   const log = logger.child({ mod: 'boot' });
+
+  // HOMI_MODE=dining (the default whenever ANTHROPIC_API_KEY is set): the LLM-first dining agent (src/dining/).
+  // HOMI_MODE=legacy runs the original rule-based planning engine below.
+  if (diningMode()) {
+    const dining = await bootDining(config, logger);
+    let stopping = false;
+    const stop = async (signal: string) => {
+      if (stopping) return;
+      stopping = true;
+      log.info('shutting down', { signal });
+      await dining.stop();
+      process.exit(0);
+    };
+    process.on('SIGINT', () => void stop('SIGINT'));
+    process.on('SIGTERM', () => void stop('SIGTERM'));
+    return;
+  }
 
   const clock = config.demoMode ? new OffsetClock() : new SystemClock();
   let scheduler: Scheduler | undefined;

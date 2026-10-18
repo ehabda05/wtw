@@ -1,6 +1,8 @@
 # Demo video: script and shot list
 
-**Rendered cut:** `story/out/homi-demo-1920x1080.mp4` (landscape) and `story/out/homi-phone-1080x1920.mp4` (vertical), both **2:30**. They're generated from `story/motion/script.json`, which follows [docs/DEMO.md](../docs/DEMO.md) beat for beat.
+**Current cut (v2, about 1:15):** `story/out/homi-demo-1920x1080.mp4` (landscape) and `story/out/homi-phone-1080x1920.mp4` (vertical), generated from `story/motion/storyboard-v2.txt`. Its beat sheet, captions and the reasoning behind each beat are in [docs/DEMO_STORY.md](../docs/DEMO_STORY.md). The table below describes the earlier 2:30 six-act cut, kept in `story/out/v1/`.
+
+**Previous cut (v1, 2:30):** generated from `story/motion/storyboard-v1.txt`, which follows [docs/DEMO.md](../docs/DEMO.md) beat for beat.
 
 **Length check.** Check the Devpost video limit in `research/judging.md` §1b once a teammate pastes it. If the limit is under 2:30, trim Act 5 (savings card) and Act 6 first.
 

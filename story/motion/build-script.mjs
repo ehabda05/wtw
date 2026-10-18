@@ -232,6 +232,28 @@ for (let i = 0; i < lines.length; i++) {
           break;
         }
         case 'quote': pendingQuote = arg; break;
+        case 'dm': {
+          // A private thread shown inside the phone: {"tag","title","lines":[{from:"homi"|"me",text,t?}],"duration"?}
+          const e = Object.assign({ t: T, type: 'dm', lines: [] }, arg ? JSON.parse(arg) : {});
+          let s = 520;
+          for (const ln of e.lines) {
+            ln.t = ln.t ?? s;
+            s = ln.t + clamp(420 + 17 * len(ln.text || ''), 800, 2600);
+          }
+          e.duration = e.duration ?? s + 700;
+          events.push(e);
+          T += e.duration;
+          break;
+        }
+        case 'stat': {
+          // Full-stage statistic with a count-up: {"n":88,"suffix":"%","line":"...","foot":"...","duration"?}
+          const e = Object.assign({ t: T, type: 'stat', duration: 2600 }, arg ? JSON.parse(arg) : {});
+          closeCaption(T);
+          events.push(e);
+          T += e.duration;
+          break;
+        }
+        case 'pulse': events.push({ t: T + Number(arg || 0), type: 'pulse' }); break;
         case 'wait': T += Number(arg); break;
         case 'at': T = Number(arg); break;
         case 'call': call = Object.assign({ type: 'call', lines: [] }, arg ? JSON.parse(arg) : {}); break;

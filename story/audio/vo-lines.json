@@ -1,0 +1,19 @@
+{
+  "voice": "en-US-AndrewMultilingualNeural",
+  "rate": "-2%",
+  "eleven": { "voice_id": "EXAVITQu4vr4xnSDxMaL", "voice_name": "Sarah", "model": "eleven_v4", "fallback_models": ["eleven_v3", "eleven_multilingual_v2"], "speed": 1.0 },
+  "lines": [
+    { "id": "v01", "cue": { "type": "message", "id": "m0" }, "offset": -900, "text": "You know this chat." },
+    { "id": "v02", "cue": { "type": "caption", "match": "One thumbs up" }, "offset": 200, "text": "One thumbs up. Then nothing." },
+    { "id": "v03", "cue": { "type": "jump", "match": "a week later" }, "offset": 300, "text": "A week later, the plan is dead." },
+    { "id": "v04", "cue": { "type": "stat" }, "offset": 350, "text": "Eighty-eight percent of Gen Z have one stuck right now." },
+    { "id": "v05", "cue": { "type": "chapter", "match": "Meet Homi" }, "offset": 200, "text": "So we built Homi. It lives in the chat you already have. One line, and it's on it." },
+    { "id": "v06", "cue": { "type": "chapter", "match": "Everyone answers" }, "offset": 300, "text": "Escander's in. Charlie goes quiet. So Homi asks Charlie privately, and brings the answer back." },
+    { "id": "v07", "cue": { "type": "pulse", "index": 0 }, "offset": 250, "text": "Locked. Nobody chased anybody." },
+    { "id": "v08", "cue": { "type": "chapter", "match": "Majority rules" }, "offset": 650, "text": "Three people, three cravings. Homi shows the split, someone switches, and the majority wins." },
+    { "id": "v09", "cue": { "type": "caption", "match": "Three real spots" }, "offset": 300, "text": "Three real spots. Two hearts. One address." },
+    { "id": "v10", "cue": { "type": "chapter", "match": "Split the bill" }, "offset": 1500, "text": "Dinner's over. Drop the receipt, and Homi reads it and splits it." },
+    { "id": "v11", "cue": { "type": "chapter", "match": "Then it forgets" }, "offset": 200, "text": "Ask what it knows. It keeps the plan, never your messages. Tell it to forget, and it's gone." },
+    { "id": "v12", "cue": { "type": "end" }, "offset": 700, "text": "What's the Word. Homi plans. You just show up." }
+  ]
+}

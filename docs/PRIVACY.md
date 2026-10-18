@@ -6,7 +6,7 @@ Homi is a guest in your group chat. A guest that remembers everything is a liabi
 - Homi reads only what it needs to notice its name.
 - It stores the plan, never the conversation.
 - It never asks where you are.
-- It deletes everything 24 hours after the event, or immediately when anyone says `homi forget`.
+- It deletes the plan 24 hours after the event, or immediately when anyone says `homi forget`; the chat's settings and the names people gave it stay until `homi stop`, which deletes everything.
 
 This document lists our ten privacy principles. For each one it gives the rule, how the code enforces it (with the file that does it), and how a judge can check it.
 
@@ -106,7 +106,7 @@ A hosted LLM (Claude) is **off by default** (`DISABLE_HOSTED_LLM=true`). It has 
 **Rule.** Plan state is deleted `RETENTION_HOURS` after the event (default 24).
 - `homi forget` deletes it **now**.
 - When a plan is purged, everything goes with it: rows, the delivery lookup, scheduled jobs, and dedupe hashes older than 24 hours.
-- **No cross-group profile of anyone exists.** One exception, which is per group only and opt-in: the group's settings row (tone, quiet-hours city, notice mode). It holds no personal data and is deleted by `homi stop`.
+- **No cross-group profile of anyone exists.** One exception, which is per group only: the group's settings row (tone, quiet-hours city, notice mode, the platform roster where there is one, and the names people gave Homi with "homi I'm Ana", keyed by hashed member id so the next plan does not ask again). It is sealed like everything else, holds nothing anyone did not say to Homi on purpose, and is deleted by `homi stop`.
 
 **How it works.**
 - A retention sweep runs every 10 minutes and at startup.

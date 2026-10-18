@@ -160,6 +160,42 @@ test('deliberation: a majority of the group decides without waiting for everyone
   assert.equal(ofType(out, 'send').find((s) => s.tag === 'place:header')!.text.split(' in Boston')[0], 'Korean');
 });
 
+test('simple: whoever proposes one exact time is in for it; one more yes locks', () => {
+  const h = group();
+  h.say('riad', 'homi dinner friday 7pm');
+  assert.equal(h.plan!.members['k-riad'].optionVotes[1], 'yes');
+  assert.equal(h.plan!.members['k-riad'].status, 'answered');
+  const lock = h.react('charlie', '❤️', 'option:1');
+  assert.match(joined(lock), /Fri Oct 23 · 7pm it is: 2 in\./);
+  assert.ok(joined(lock).includes('What are we feeling'));
+  // A window with several options still asks the proposer like everyone else.
+  const g = group();
+  g.say('riad', 'homi dinner next week');
+  assert.equal(g.plan!.members['k-riad'].status, 'pending');
+});
+
+test('simple: "I want to do earlier" during the poll asks for a time instead of vanishing; the time then moves', () => {
+  const h = group();
+  h.say('riad', 'homi dinner friday 7pm');
+  const ask = h.say('charlie', 'I want to do earlier');
+  assert.match(joined(ask), /What time, then\? Say "homi make it 8pm"/);
+  assert.equal(h.plan!.state, 'collecting_availability');
+  const moved = h.say('charlie', 'homi make it 6pm');
+  assert.match(joined(moved), /Changed the time to 6pm/);
+  assert.ok(joined(moved).includes('6pm'));
+});
+
+test('addressed means answered: a message Homi cannot read during the cuisine question gets the question again', () => {
+  const h = group();
+  locked(h);
+  const out = h.say('riad', 'homi are you there?');
+  assert.ok(ofType(out, 'send').some((s) => s.text.startsWith('What are we feeling?')), joined(out));
+  assert.equal(h.plan!.hungry?.phase, 'asking', 'nothing was counted as an answer');
+  // "homi find us a place" during the question: the food command declines in collecting_place; still not silence.
+  const again = h.say('charlie', 'homi can you find us a place');
+  assert.ok(ofType(again, 'send').length > 0, joined(again));
+});
+
 test('deliberation + timer: a split extends the window up to three times with the nudge, then the top cuisine goes', () => {
   const h = group(Q);
   locked(h);

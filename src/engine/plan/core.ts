@@ -80,8 +80,11 @@ export function member(st: Step, ref: MemberRef): Member {
   const p = P(st);
   let m = p.members[ref.key];
   if (!m) {
-    m = { key: ref.key, status: 'pending', dayPrefs: {}, optionVotes: {}, optInDm: false, optInCall: false, hasDelivery: false, nudgeCount: 0, joinedAt: st.ctx.now };
+    m = { key: ref.key, status: 'pending', dayPrefs: {}, optInDm: false, optInCall: false, hasDelivery: false, nudgeCount: 0, joinedAt: st.ctx.now, optionVotes: {} };
     p.members[ref.key] = m;
+    // A name given in an earlier plan ("homi I'm Ana") is remembered for this chat.
+    const known = st.s.space.names?.[ref.key];
+    if (known) m.name = known;
   }
   if (ref.platformName && !m.name) {
     const n = clean(ref.platformName, 30);

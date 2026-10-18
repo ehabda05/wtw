@@ -1,0 +1,225 @@
+# Whats the Word demo storyboard (agent: Homi). Follows docs/DEMO.md Acts 1-6.
+# Build: node story/motion/build-script.mjs story/motion/storyboard.txt story/motion/script.json
+#
+# Every name, number and label comes from docs/DEMO.md; Act 1 copy is the real template text from an
+# `npm run sim -- --script test/engine/demo.sim.txt` run. Restaurants are real entries from
+# src/places/data/harvard-allston.json (OpenStreetMap, ODbL); prices are team estimates "~$$ (est.)".
+# The phone call is simulated (VOICE_MODE=mock). Payments are SIMULATED. Travel prices are estimates.
+# The album link is a demo link and the photos are generated SVG art (story/motion/photos.js).
+
+@chat the crew
+@fps 30
+@member you You
+@member ana Ana #E0567F
+@member ben Ben #2FA89A
+@member maya Maya #8B6CF0
+@member jo Jo #3D8FE0
+@member sam Sam #6DB35C
+@member homi Homi bot
+@roster ana ben maya jo sam
+
+# ---- Title + cold open: hearts, no plan ----
+@at 0
+@title {"title":"Whats the Word","line":"Meet Homi, the friend who makes plans happen.","duration":2000}
+@chapter Plans die here
+@divider *Sun, Oct 11* · 8:14 PM | 8:14
+@caption Everyone loves the idea.
+You: we should hang out!! [#m0]
+@react ❤️ ana
+@react ❤️ ben
+@react ❤️ jo
+@receipt Read by 5
+@wait 150
+@jump 1400 6 days later | Sun Mon Tue Wed Thu Fri Sat
+@caption *Plans die here.*
+@divider 6 days later · *Sat, Oct 17* 10:00 AM | 10:00 | jump
+Maya: guys we never hang out anymore
+@wait 200
+
+# ---- Act 1.1: Homi joins, says hi once ----
+@chapter Homi joins
+@caption Add Homi to the chat you *already have*.
+@system Maya added Homi to the conversation +homi
+@wait -300
+Homi: Hi, I'm Homi 👋 Mention me or say /plan and I'll find a date and a place for this group; I skip every other message and never save your chats. I keep only the plan, delete it 24h after the event, and "homi stop" makes me delete everything and leave.
+@wait -600
+
+# ---- Act 1.2-1.3: propose, replies, conflict bridge, hearts ----
+@chapter Find a date
+@caption No calendars. Homi *proposes*, friends just *react*.
+You: @homi dinner next week?
+Homi: Dinner, next week. Tap ❤️ on every time that works (or reply like "fri or sat"); I'll lock it in tomorrow 10am.
++ 1 · Thu Oct 22 · 7pm [#d1]
++ 2 · Fri Oct 23 · 7pm [#d2]
++ 3 · Sat Oct 24 · 7pm [#d3]
+@wait -1500
+@react ❤️ jo #d2
+@react ❤️ you #d2
+Ana: fri works, i'm busy thu and sat
+@react 👍 homi
+Ben: sat works. thu and fri i can't
+@react 👍 homi
+@caption Conflict? Homi offers a *bridge*.
+Homi: Ana can only do Fri and Ben only Sat. Could either of you do Fri late or Sat brunch (I'll add it)?
+@wait -400
+Ana: sat brunch works actually!
+Homi: Added it as a new option; tap ❤️ if it works.
++ 4 · Sat Oct 24 · 11am [#d4]
+@wait -700
+@react ❤️ ana #d4
+@react ❤️ ben #d4
+Maya: anything but thu
+@wait -100
+
+# ---- Act 1.4-1.5: the quiet friend gets a (consented, simulated) call; then food ----
+@chapter The quiet friend
+@caption Quiet friend? Homi *calls*, only if they opted in.
+@jump 1200 12 hours later
+@divider 12 hours later · *Sat* 10:00 PM | 10:00 | jump
+Homi: 5 of 6 have picked, and I'm locking it in tomorrow 10am. Still need Sam, so I'm giving them a quick call (they said that's ok).
+@wait -200
+@call {"caller":"homi","number":"(617) 555-01xx","label":"Sam's phone · (simulated call)","note":"Simulated call audio","accept":900}
+> Homi: Hi, this is Homi calling about your group's plan. Does Friday at 7, Saturday at 11, or Saturday at 7 work for you?
+> Sam: friday works
+@endcall
+@caption The answer lands back *in the chat*.
+Homi: Fri Oct 23 · 7pm it is: 5 in. Where to: say "homi find food" for 3 options, or tell me the spot ("homi we're going to …").
+@wait -1100
+@caption Hungry? *One question*, three real places.
+Maya: ok I'm starving where are we eating
+Homi: What are we feeling? Cuisine, budget, and roughly where?
+@wait -600
+~Ana: ramen sounds amazing
+~Ben: something cheap pls
+~Jo: harvard square
+Homi: Ramen, keeping it cheap, Harvard Sq: here are 3. Tap ❤️ on your pick (or reply 1, 2 or 3).
++ 1 · Hokkaido Ramen Santouka · ~$$ (est.) · 5 min walk · open at 7pm [#p1]
++ 2 · Waku Waku Ramen · ~$$ (est.) · 3 min walk · open at 7pm [#p2]
++ 3 · Gyu-Kaku · ~$$ (est.) · 5 min walk · open at 7pm [#p3]
+@wait -1700
+@react ❤️ ana #p1
+@react ❤️ maya #p1
+@react ❤️ you #p1
+~Jo: 1
+Homi: Hokkaido Ramen Santouka it is: 1 Bow Street, Cambridge 🍜
+@wait -200
+
+# ---- Act 2: show-up pledge (optional; nothing is held until everyone agrees; SIMULATED) ----
+@chapter Show-up pledge
+@caption An optional *$10 show-up pledge*.
+Maya: homi let's do a $10 show-up pledge
+Homi: Show-up pledge for Fri Oct 23 · 7pm: $10 each, back when you check in. First, where should no-show money go (everyone who pledges has to agree)?
++ 1 · Group fund for the next outing [#o1]
++ 2 · Split among the people who showed up [#o2]
++ 3 · Donate to a charity we pick [#o3]
+@wait -900
+@card Homi {"id":"rules","head":"How the pledge works (payments are SIMULATED in this demo):","rows":["· Check in: \"homi I'm here\" at Hokkaido Ramen Santouka, 6:45–7:30pm; it counts once a second person is there (or someone 👍s it)","· Refund: automatic, by 8:30pm","· No-show: your $10 goes where we agree","· Cancel by Thu Oct 22, 7pm for a full refund (\"homi cancel my pledge\")","· Disputes: \"homi dispute\" within 24h; the others vote, a tie means a refund"],"hold":4300}
+@caption Nothing is held until *everyone agrees*.
+@react ❤️ ana #o1
+@react ❤️ ben #o1
+@react ❤️ jo #o1
+@react ❤️ maya #o1
+@react ❤️ you #o1
+~Sam: 1
+Homi: Everyone agreed: no-show money goes to the group fund. Pledges are open: say "homi I'm in" to put down $10 (SIMULATED, no real money moves).
+@wait -900
+@caption Six say I'm in. Every payment is *SIMULATED*.
+~Ana: homi I'm in
+@react 👍 homi
+~Ben: homi I'm in
+@react 👍 homi
+~Jo: homi I'm in
+@react 👍 homi
+~Maya: homi I'm in
+@react 👍 homi
+~Sam: homi I'm in
+@react 👍 homi
+~You: homi I'm in
+@react 👍 homi
+Homi: 6 of 6 pledged: $60 held (SIMULATED). See you Friday at 7.
+@wait -400
+
+# ---- Act 3: the night out: check-ins, the bill, the Uber, settle up, pledge outcome ----
+@chapter Split the bill
+@caption Friday: check in with *one line*.
+@jump 1300 6 days later | Sun Mon Tue Wed Thu Fri
+@divider 6 days later · *Fri, Oct 23* 6:50 PM | 6:50 | jump
+~Ana: homi I'm here
+@react 👍 homi
+~Ben: homi I'm here
+@react 👍 homi
+~Jo: homi I'm here
+@react 👍 homi
+~Maya: homi I'm here
+@react 👍 homi
+~You: homi I'm here
+@react 👍 homi
+@quote You: homi I'm here
+Homi: 5 of 6 checked in ✓ Still waiting on Sam; check-in closes at 7:30pm.
+@wait -300
+@divider *Fri* 8:05 PM | 8:05
+@caption Ben paid. Homi does *the math*.
+Ben: homi itemize dinner, paid by ben: ana shio ramen 16.50; ben spicy miso ramen 17.50 + gyoza 8; jo toroniku ramen 21; maya veggie ramen 16; you shoyu ramen 16.50; shared edamame 6 + karaage 10; tax 7%; tip 20%
+@wait 300
+@card Homi {"id":"bill","head":"Dinner $141.61 (tax $7.81 + 20% tip $22.30), paid by Ben:","rows":[{"l":"Ana","r":"$25.02"},{"l":"Ben","r":"$36.45"},{"l":"Jo","r":"$30.74"},{"l":"Maya","r":"$24.38"},{"l":"You","r":"$25.02"}],"foot":"Adds up to $141.61 exactly.","hold":2800}
+Jo: homi jo paid 23.40 for the uber, split ana jo you
+Homi: Uber $23.40 paid by Jo: $7.80 each for Ana, Jo and You.
+@caption Who pays whom, *to the cent*.
+Ana: homi settle up
+@card Homi {"id":"settle","head":"Here's who pays whom (2 expenses, $165.01):","rows":[{"l":"Ana → Ben","r":"$32.82"},{"l":"You → Ben","r":"$32.82"},{"l":"Maya → Ben","r":"$24.38"},{"l":"Jo → Ben","r":"$15.14"}],"foot":"Then everyone's even.","hold":2400}
+@divider *Fri* 8:30 PM | 8:30
+@caption No-show money goes where *the group agreed*.
+Homi: Pledge settled (SIMULATED): $10 back to Ana, Ben, Jo, Maya and You. Sam didn't check in, so Sam's $10 went to the group fund (now $10); Sam can dispute until Sat 8:30pm.
+@wait -300
+
+# ---- Act 4: shared album (demo link; generated placeholder photos) ----
+@chapter Shared album
+@caption Photos go to an album *only the group* can open.
+You: homi start an album for tonight
+Homi: Album "Ramen night · Fri Oct 23" is open to this group only: https://homi.example/a/… (demo link). Send photos with "homi add" or reply to this message; you can remove your own anytime with "homi remove my photos".
+@wait -800
+@photo Ana ramen | homi add
+@photo Jo friends,city | homi add
+@photo Maya neon | homi add
+Homi: 4 photos in the album from Ana, Jo and Maya.
+@wait 0
+@album {"title":"Ramen night · Fri Oct 23","header":"Members only","sub":"the crew · 4 photos from Ana, Jo and Maya","foot":"Only people in this chat can open it · demo link\nAdd: \"homi add\" · Remove yours: \"homi remove my photos\"","photos":[{"art":"ramen","by":"ana"},{"art":"friends","by":"jo"},{"art":"city","by":"jo"},{"art":"neon","by":"maya"}],"duration":2700}
+@caption Remove your own photos, *anytime*.
+Jo: homi remove my photos
+Homi: Removed Jo's 2 photos; 2 left in the album.
+@wait -150
+@album {"title":"Ramen night · Fri Oct 23","header":"Members only","sub":"the crew · 4 photos from Ana, Jo and Maya","subAfter":"the crew · 2 photos from Ana and Maya","foot":"Only people in this chat can open it · demo link\nAdd: \"homi add\" · Remove yours: \"homi remove my photos\"","photos":[{"art":"ramen","by":"ana"},{"art":"friends","by":"jo"},{"art":"city","by":"jo"},{"art":"neon","by":"maya"}],"remove":{"by":"jo","at":650,"toast":"Jo removed 2 photos · 2 left"},"duration":2600}
+
+# ---- Act 5: the next trip (every price is a labeled estimate) ----
+@chapter Plan the trip
+@divider *Sat, Oct 24* · 11:40 AM | 11:40
+@caption Next trip? Homi asks *what matters*.
+Ana: homi let's plan Japan for 2030
+Homi: Japan 2030, love it ✈️ Where are you flying from, roughly when and for how long, how many of you, and a budget per person?
+@wait -700
+Ana: boston, late march for cherry blossoms, 10 nights
+Ben: 5 of us, ~$3,000 each all in
+Maya: food, temples, one onsen night
+@caption Every price is a *labeled estimate*.
+@card Homi {"id":"trip","head":"Japan · late Mar 2030 · 10 nights · 5 from Boston. Too far ahead to book, so these are estimates in today's prices:","sections":[{"title":"Itinerary","rows":[{"k":"Days 1–4","l":"Tokyo (Asakusa base)"},{"k":"Day 5","l":"Hakone onsen night"},{"k":"Days 6–8","l":"Kyoto (+ Nara day trip)"},{"k":"Days 9–10","l":"Osaka, fly home from Kansai"}]},{"title":"Budget per person","rows":[{"icon":"✈️","l":"Flights BOS→Tokyo, Osaka→BOS (open-jaw, 1 stop)","r":"~$1,300"},{"icon":"🏠","l":"Stays, budget tier","r":"~$450","note":"Example listing · estimated price: 3-bedroom Airbnb-style apartment in Asakusa, ~$230/night for 5"},{"icon":"🚄","l":"Trains + transit","r":"~$220","note":"(individual Shinkansen tickets beat a nationwide JR Pass on this route)"},{"icon":"🍜","l":"Food + activities","r":"~$700"}]}],"foot":"Total ≈ $2,670 per person ($13,350 for 5), under your $3,000.","hold":5200}
+@caption Want comfort? Homi explains *the difference*.
+Homi: Want it more comfortable? 4★ hotels plus one ryokan night with dinner runs ≈ $3,620 per person (**+$950**: stays ~$1,300 instead of ~$450, food ~$800 instead of ~$700).
+@caption Plus the savings people *miss*.
+@card Homi {"id":"save","head":"Less obvious savings:","rows":["· Fly into Tokyo and home from Osaka: no backtracking","· Book the ryokan on a weeknight","· Late March is peak bloom; early April or mid-May is usually cheaper","· Convenience-store breakfasts"],"foot":"Last-minute deals: none yet; I'll watch fares once 2030 schedules open (about 11 months out).","hold":3000}
+Ben: comfortable please
+Homi: Comfort plan saved: ≈ $3,620 per person, all estimates. Say "homi trip" anytime to see it.
+@wait -400
+
+# ---- Act 6: privacy: ask what it knows, then it forgets ----
+@chapter Then it forgets
+@caption Ask it *what it knows*.
+Jo: homi what do you know
+@card Homi {"id":"know","head":"Here's everything I have for this chat:","rows":[{"k":"Plan","l":"dinner · Fri Oct 23, 7pm · Hokkaido Ramen Santouka · 5 in"},{"k":"Pledge","l":"settled (SIMULATED): $10 back to 5 · Sam's $10 to the group fund"},{"k":"Tab","l":"2 expenses, $165.01 · 4 payments to Ben"},{"k":"Trip","l":"Japan 2030 · comfort plan ≈ $3,620 per person (estimates)"},{"k":"Album","l":"Ramen night · 2 photos from Ana and Maya"}],"foot":"The plan deletes Sat 7pm. Say \"homi forget\" to delete it now.","hold":3000}
+@caption *Then it forgets.*
+Ana: homi forget
+Homi: Done: I've deleted this plan.
+@caption Album, tab and trip stay until *the group* deletes them.
+@wait 1100
+
+# ---- End card ----
+@end {"title":"Whats the Word","line":"Homi, the friend who makes plans happen.","tagline":"No app to install. Just add Homi to the group chat.","badge":"Built on Photon","qr":"Text Homi: (number TBA)","duration":4600}

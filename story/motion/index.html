@@ -17,6 +17,11 @@
 <div id="viewport">
   <div id="stage">
     <div class="bg"></div>
+    <div class="aurora" aria-hidden="true"><i class="b1" id="blob1"></i><i class="b2" id="blob2"></i><i class="b3" id="blob3"></i></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="sweep" id="sweep" aria-hidden="true"></div>
+    <div class="burst" id="burst" aria-hidden="true"></div>
+    <div class="chapnum" id="chapNum" aria-hidden="true"></div>
 
     <aside class="side side-left">
       <div class="brand">
@@ -114,10 +119,47 @@
             <div class="toast" id="albumToast"></div>
           </div>
 
+          <div class="dm" id="dm">
+            <header class="chat-header dm-header">
+              <div class="back"><svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg></div>
+              <div class="av homi dm-av" data-homi-face></div>
+              <div class="titles">
+                <div class="title" id="dmTitle">Homi</div>
+                <div class="subtitle" id="dmSub">direct message</div>
+              </div>
+              <div class="dm-tag" id="dmTag">Charlie's phone</div>
+            </header>
+            <div class="dm-list" id="dmList"></div>
+            <div class="compose dm-compose">
+              <div class="plus"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 2v12M2 8h12"/></svg></div>
+              <div class="field"><span class="ph">Message</span></div>
+            </div>
+            <div class="homebar"></div>
+          </div>
+
           <div class="homebar"></div>
         </div>
+        <div class="glare" id="glare" aria-hidden="true"></div>
       </div>
     </div>
+
+    <div class="glow" id="glow"></div>
+
+    <div class="stat" id="stat">
+      <div class="inner">
+        <div class="snumwrap">
+          <svg class="sring" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="track" cx="50" cy="50" r="46"/>
+            <circle class="fill" id="statArc" cx="50" cy="50" r="46"/>
+          </svg>
+          <div class="snum" id="statNum">88%</div>
+        </div>
+        <div class="sline" id="statLine"></div>
+        <div class="sfoot" id="statFoot"></div>
+      </div>
+    </div>
+
+    <div class="progress" id="progress"><i id="progressFill"></i></div>
 
     <div class="caption-zone">
       <div class="chapter-tag" id="chapterTag"></div>
@@ -126,7 +168,7 @@
 
     <div class="titlecard" id="titlecard">
       <div class="inner">
-        <div class="tmark av homi" data-homi-face id="tMark"></div>
+        <div class="tmarkwrap"><div class="tring" id="tRing"></div><div class="tring two" id="tRing2"></div><div class="tmark av homi" data-homi-face id="tMark"></div></div>
         <div class="ttitle" id="tTitle">Whats the Word</div>
         <div class="tline" id="tLine"></div>
       </div>

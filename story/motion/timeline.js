@@ -93,6 +93,7 @@
 
   // ---------- state ----------
   let S, members, items = [], captions = [], chapters = [], jumps = [], calls = [], composes = [], clocks = [], joins = [], albums = [];
+  let dms = [], stats = [], pulses = [];
   let endCard = null, titleCard = null;
   let DURATION = 60000, V_H = 600, clusterEls = [];
   const REACT_PAD = 16, TOP_PAD = 10, BOTTOM_PAD = 12;
@@ -154,6 +155,9 @@
         case 'end': endCard = e; break;
         case 'title': titleCard = e; break;
         case 'album': albums.push(e); break;
+        case 'dm': dms.push(e); break;
+        case 'stat': stats.push(e); break;
+        case 'pulse': pulses.push(e.t); break;
         default: console.warn('unknown event type', e.type);
       }
     }
@@ -318,7 +322,34 @@
       $('callNoteText').textContent = c.note || 'Simulated call audio';
     }
 
+    // DM threads: bubbles measured once, stacked from the bottom per frame (like the call transcript)
+    const dmList = $('dmList');
+    for (const d of dms) {
+      d.box = document.createElement('div');
+      d.box.style.cssText = 'position:absolute;inset:0;display:none';
+      dmList.appendChild(d.box);
+      $('dm').style.display = 'block';
+      d.lineEls = (d.lines || []).map((ln) => {
+        const el = document.createElement('div');
+        const mine = ln.from === 'me' || ln.from === 'you';
+        el.className = 'dline ' + (mine ? 'me' : 'homi');
+        el.innerHTML = `<div class="bubble">${fmt(ln.text || '')}</div>`;
+        d.box.style.display = 'block';
+        d.box.appendChild(el);
+        const h = el.offsetHeight;
+        d.box.style.display = 'none';
+        return { el, h, mine };
+      });
+      d.listH = dmList.clientHeight;
+      $('dm').style.display = 'none';
+    }
+
     if (endCard) {
+      if (endCard.qrImage) {
+        const box = document.querySelector('#eQr .qrbox');
+        box.className = 'qrbox real';
+        box.innerHTML = `<img src="${esc(endCard.qrImage)}" alt="">`;
+      }
       $('eTitle').textContent = endCard.title || 'Whats the Word';
       $('eLine').textContent = endCard.line || '';
       $('eTag').textContent = endCard.tagline || '';
@@ -354,8 +385,167 @@
       grid.appendChild(a.box);
     }
 
-    const pw = $('phoneWrap');
-    pw.style.transform = `translate(${PHONE_PLACE.x}px, ${PHONE_PLACE.y}px) scale(${PHONE_PLACE.s})`;
+    placePhone(0);
+  }
+
+  // The phone never sits perfectly still: a slow drift, a breath of scale, a few degrees of 3D tilt, a glass
+  // glare that sweeps on every chapter, plus a short swell on every @pulse. All from t, so frames stay deterministic.
+  const PHONE_CENTER = { x: PHONE_PLACE.x + (PHONE_W * PHONE_PLACE.s) / 2, y: PHONE_PLACE.y + (PHONE_H * PHONE_PLACE.s) / 2 };
+  function placePhone(t) {
+    let swell = 0;
+    for (const p of pulses) swell = Math.max(swell, Math.sin(Math.PI * prog(t, p, 1000)));
+    const s = PHONE_PLACE.s * (1 + 0.012 * Math.sin(t / 6500) + 0.018 * swell);
+    // transform-origin is the wrap's center: translate so the scaled box is centered where the layout wants it
+    const tx = PHONE_CENTER.x - PHONE_W / 2 + 4 * Math.sin(t / 7700);
+    const ty = PHONE_CENTER.y - PHONE_H / 2 + 7 * Math.sin(t / 9100);
+    const ay = 3.4 * Math.sin(t / 5200), ax = 1.7 * Math.sin(t / 7300 + 1);
+    $('phoneWrap').style.transform = `perspective(2600px) translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${s.toFixed(5)}) rotateY(${ay.toFixed(3)}deg) rotateX(${ax.toFixed(3)}deg)`;
+    let g = 0;
+    for (const p of pulses) g = Math.max(g, Math.sin(Math.PI * prog(t, p, 1400)));
+    $('glow').style.opacity = (0.9 * g).toFixed(3);
+    // glare: parked off the glass, sweeps across once per chapter (and on the title)
+    let gp = 200;
+    for (const c of chapters) { const e = prog(t, c.t, 1100); if (e > 0 && e < 1) gp = 200 - 260 * eInOut(e); }
+    $('glare').style.backgroundPosition = `${gp.toFixed(2)}% 0`;
+  }
+
+  // Aurora: three blurred color fields drifting on slow, incommensurate periods; brighter on a pulse.
+  function renderAurora(t) {
+    let g = 0;
+    for (const p of pulses) g = Math.max(g, Math.sin(Math.PI * prog(t, p, 1400)));
+    const W = STAGE.w, H = STAGE.h;
+    const put = (id, fx, fy, sc, op) => {
+      const el = $(id);
+      el.style.transform = `translate(${(fx * W).toFixed(1)}px, ${(fy * H).toFixed(1)}px) scale(${sc.toFixed(3)})`;
+      el.style.opacity = op.toFixed(3);
+    };
+    put('blob1', 0.5 + 0.22 * Math.sin(t / 11000), 0.42 + 0.14 * Math.cos(t / 13000), 1 + 0.12 * Math.sin(t / 9000) + 0.25 * g, 0.75 + 0.25 * g);
+    put('blob2', 0.25 + 0.26 * Math.sin(t / 9000 + 2), 0.78 + 0.16 * Math.sin(t / 12000 + 1), 1 + 0.1 * Math.cos(t / 10000), 0.7);
+    put('blob3', 0.78 + 0.2 * Math.cos(t / 10000 + 4), 0.2 + 0.14 * Math.sin(t / 8000 + 3), 1 + 0.1 * Math.sin(t / 7000 + 2), 0.6);
+  }
+
+  // A soft light band crosses the stage when a chapter starts.
+  function renderSweep(t) {
+    const el = $('sweep');
+    let a = 0, x = -600;
+    const starts = chapters.map((c) => c.t).concat(endCard ? [endCard.t] : []);
+    for (const s of starts) {
+      const e = prog(t, s, 800);
+      if (e > 0 && e < 1) { a = Math.sin(Math.PI * e); x = -500 + (STAGE.w + 1000) * eInOut(e); }
+    }
+    el.style.opacity = a.toFixed(3);
+    el.style.left = x.toFixed(1) + 'px';
+  }
+
+  // Particle burst from the phone's center on every @pulse (the lock, the address, the split).
+  let burstEls = null;
+  const BURST_N = 34;
+  function renderBurst(t) {
+    if (!burstEls) {
+      const box = $('burst');
+      burstEls = [];
+      for (let i = 0; i < BURST_N; i++) {
+        const el = document.createElement('i');
+        if (i % 4 === 0) el.className = 'w';
+        box.appendChild(el);
+        // deterministic pseudo-random spread
+        const r1 = ((i * 9301 + 49297) % 233280) / 233280, r2 = ((i * 7919 + 104729) % 233280) / 233280;
+        burstEls.push({ el, ang: r1 * Math.PI * 2, dist: 400 + 560 * r2, size: 6 + 10 * ((i * 31) % 7) / 7, spin: (r2 - 0.5) * 2 });
+      }
+    }
+    let active = null, lt = 0;
+    for (const p of pulses) { const d = t - p; if (d >= 0 && d < 1600) { active = p; lt = d; } }
+    if (active == null) { for (const b of burstEls) b.el.style.opacity = '0'; return; }
+    const e = eOut(prog(lt, 0, 1600));
+    const fade = 1 - eIn(prog(lt, 600, 1000));
+    const cx = STAGE.w / 2, cy = PHONE_CENTER.y;
+    const stretch = STAGE.w > STAGE.h ? 1.9 : 1.35; // clear the phone's sides early so the burst reads as coming from under it
+    for (const b of burstEls) {
+      const d = b.dist * e, ang = b.ang + b.spin * 0.35 * e;
+      const x = cx + Math.cos(ang) * d * stretch, y = cy + Math.sin(ang) * d - 160 * e * e;
+      const sc = (1 - 0.55 * e) * (b.size / 10);
+      b.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${sc.toFixed(3)})`;
+      b.el.style.opacity = (fade * 0.95).toFixed(3);
+    }
+  }
+
+  function renderChapNum(t) {
+    if (LAYOUT !== 'landscape') return;
+    let idx = -1;
+    chapters.forEach((c, i) => { if (t >= c.t) idx = i; });
+    const el = $('chapNum');
+    if (idx < 0 || (endCard && t >= endCard.t)) { el.style.opacity = '0'; return; }
+    const e = eOut(prog(t, chapters[idx].t, 700));
+    const label = String(idx + 1).padStart(2, '0');
+    if (el.textContent !== label) el.textContent = label;
+    el.style.opacity = e.toFixed(3);
+    el.style.transform = `translateY(${((1 - e) * 60).toFixed(1)}px)`;
+  }
+
+  function renderDm(t) {
+    let d = null;
+    for (const x of dms) if (t >= x.t && t < x.t + x.duration) d = x;
+    const el = $('dm');
+    if (!d) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const lt = t - d.t;
+    const up = eOut(prog(lt, 0, 420)), out = eIn(prog(lt, d.duration - 380, 380));
+    el.style.transform = `translateX(${((1 - up) * 100).toFixed(3)}%) translateY(${(out * 6).toFixed(2)}%)`;
+    el.style.opacity = (1 - out).toFixed(3);
+    for (const x of dms) x.box.style.display = x === d ? 'block' : 'none';
+    $('dmTag').textContent = d.tag || '';
+    $('dmTag').style.display = d.tag ? '' : 'none';
+    $('dmTitle').textContent = d.title || 'Homi';
+    $('dmSub').textContent = d.sub || 'direct message';
+    // newest at the bottom; older lines pushed up as each new one grows in
+    const H = d.listH || 600;
+    let bottom = H - 12;
+    for (let i = d.lines.length - 1; i >= 0; i--) {
+      const ln = d.lines[i], L = d.lineEls[i];
+      if (lt < ln.t) { L.el.style.display = 'none'; continue; }
+      const e = eOut(prog(lt, ln.t, 360));
+      const s = 0.84 + 0.16 * eBack(prog(lt, ln.t, 440));
+      const top = bottom - L.h * e;
+      L.el.style.display = 'flex';
+      L.el.style.top = top.toFixed(2) + 'px';
+      L.el.style.opacity = clamp(e * 1.6).toFixed(3);
+      L.el.style.transformOrigin = L.mine ? '100% 100%' : '0 100%';
+      L.el.style.transform = `scale(${s.toFixed(4)})`;
+      bottom = top - 8;
+    }
+  }
+
+  function renderStat(t) {
+    let s = null;
+    for (const x of stats) if (t >= x.t && t < x.t + x.duration) s = x;
+    const el = $('stat'), pw = $('phoneWrap');
+    if (!s) { el.style.display = 'none'; pw.style.filter = ''; return; }
+    el.style.display = 'block';
+    const lt = t - s.t;
+    const a = Math.min(eOut(prog(lt, 0, 360)), 1 - eIn(prog(lt, s.duration - 420, 420)));
+    el.style.opacity = a.toFixed(3);
+    pw.style.filter = `blur(${(9 * a).toFixed(2)}px) brightness(${(1 - 0.45 * a).toFixed(3)})`;
+    const fill = eOut(prog(lt, 120, 1100));
+    const n = Math.round((s.n || 0) * fill);
+    const num = $('statNum');
+    const label = `${s.prefix || ''}${n}${s.suffix || ''}`;
+    if (num.textContent !== label) num.textContent = label;
+    const pop = 0.9 + 0.1 * eBack(prog(lt, 0, 700));
+    num.style.transform = `scale(${pop.toFixed(4)})`;
+    // the ring draws to the percentage (or all the way round for a plain number)
+    const frac = s.suffix === '%' ? Math.min(1, (s.n || 0) / 100) : 1;
+    $('statArc').style.strokeDashoffset = (289.03 * (1 - frac * fill)).toFixed(2);
+    const l = eOut(prog(lt, 500, 500));
+    $('statLine').textContent = s.line || '';
+    $('statLine').style.opacity = l.toFixed(3);
+    $('statLine').style.transform = `translateY(${((1 - l) * 22).toFixed(2)}px)`;
+    const f = eOut(prog(lt, 900, 500));
+    $('statFoot').textContent = s.foot || '';
+    $('statFoot').style.opacity = (0.9 * f).toFixed(3);
+  }
+
+  function renderProgress(t) {
+    $('progressFill').style.width = ((t / DURATION) * 100).toFixed(3) + '%';
   }
 
   // ---------- per-frame ----------
@@ -594,10 +784,33 @@
     for (const c of captions) if (t >= c.t && t < c.until) cap = c;
     const el = $('caption');
     if (!cap) { el.style.opacity = '0'; return; }
-    if (cap !== lastCap) { el.innerHTML = `<div class="cap">${accent(cap.text)}</div>`; lastCap = cap; }
-    const a = Math.min(eOut(prog(t, cap.t, 380)), 1 - eIn(prog(t, cap.until - 300, 300)));
-    el.style.opacity = a.toFixed(3);
-    el.style.transform = `translateY(${((1 - eOut(prog(t, cap.t, 460))) * 20).toFixed(2)}px)`;
+    if (cap !== lastCap) {
+      // one span per word, so the line can rise in word by word; *accent* may span several words and
+      // punctuation stays glued to its word ("*nothing*." -> <em>nothing</em>.)
+      let on = false;
+      const html = cap.text.split(/\s+/).filter(Boolean).map((word) => {
+        let out = '', run = '', runOn = on;
+        const flush = () => { if (run) out += runOn ? `<em>${esc(run)}</em>` : esc(run); run = ''; };
+        for (const ch of word) {
+          if (ch === '*') { flush(); on = !on; runOn = on; continue; }
+          run += ch;
+        }
+        flush();
+        return `<span class="w">${out} </span>`;
+      }).join('');
+      el.innerHTML = `<div class="cap">${html}</div>`;
+      lastCap = cap;
+      cap.words = Array.from(el.querySelectorAll('.w'));
+    }
+    const out = 1 - eIn(prog(t, cap.until - 300, 300));
+    el.style.opacity = out.toFixed(3);
+    el.style.transform = 'none';
+    cap.words.forEach((w, i) => {
+      const e = eOut(prog(t, cap.t + i * 55, 460));
+      w.style.opacity = e.toFixed(3);
+      w.style.transform = `translateY(${((1 - e) * 26).toFixed(2)}px)`;
+      w.style.filter = e < 1 ? `blur(${((1 - e) * 6).toFixed(2)}px)` : 'none';
+    });
   }
 
   function renderChapters(t) {
@@ -689,22 +902,47 @@
     el.style.opacity = (1 - eIn(prog(lt, d - 450, 450))).toFixed(3);
     const m = Math.max(0, eBack(prog(lt, 0, 600)));
     $('tMark').style.transform = `scale(${(0.6 + 0.4 * m).toFixed(4)})`;
-    const e = eOut(prog(lt, 120, 500));
-    $('tTitle').style.transform = `translateY(${((1 - e) * 18).toFixed(2)}px)`;
-    $('tLine').style.opacity = eOut(prog(lt, 300, 500)).toFixed(3);
+    // two rings ripple out of the mark
+    [['tRing', 0], ['tRing2', 260]].forEach(([id, d0]) => {
+      const r = prog(lt, 200 + d0, 1300);
+      $(id).style.transform = `scale(${(1 + 1.4 * eOut(r)).toFixed(3)})`;
+      $(id).style.opacity = (r > 0 && r < 1 ? (1 - r) * 0.9 : 0).toFixed(3);
+    });
+    const title = $('tTitle');
+    if (!title.dataset.split) {
+      title.innerHTML = chars(title.textContent).map((c) => `<span class="ch">${esc(c)}</span>`).join('');
+      title.dataset.split = '1';
+    }
+    Array.from(title.children).forEach((ch, i) => {
+      const e = eOut(prog(lt, 140 + i * 34, 520));
+      ch.style.opacity = e.toFixed(3);
+      ch.style.transform = `translateY(${((1 - e) * 46).toFixed(2)}px) rotate(${((1 - e) * -6).toFixed(2)}deg)`;
+      ch.style.filter = e < 1 ? `blur(${((1 - e) * 8).toFixed(2)}px)` : 'none';
+    });
+    const l = eOut(prog(lt, 650, 500));
+    $('tLine').style.opacity = l.toFixed(3);
+    $('tLine').style.transform = `translateY(${((1 - l) * 16).toFixed(2)}px)`;
   }
 
   function render(t) {
     t = Math.max(0, Math.min(DURATION, t));
+    renderAurora(t);
+    placePhone(t);
+    renderSweep(t);
+    renderBurst(t);
+    renderChapNum(t);
     renderChat(t);
     renderHeader(t);
     renderCompose(t);
     renderJump(t);
     renderCall(t);
     renderAlbum(t);
+    renderDm(t);
     renderTitle(t);
+    renderStat(t);
     renderCaption(t);
     renderChapters(t);
+    renderProgress(t);
     renderEnd(t);
     return t;
   }

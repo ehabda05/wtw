@@ -32,9 +32,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 
 .bg { position: absolute; inset: 0; pointer-events: none; }
 .bg::before { content: ""; position: absolute; inset: 0;
-  background:
-    radial-gradient(60% 45% at 50% 42%, rgba(255, 181, 71, 0.10), transparent 70%),
-    radial-gradient(80% 60% at 50% 110%, rgba(59, 140, 255, 0.06), transparent 70%); }
+  background: radial-gradient(60% 45% at 50% 42%, rgba(255, 181, 71, 0.05), transparent 70%); }
 .bg::after { content: ""; position: absolute; inset: 0; opacity: .5;
   background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
   background-size: 28px 28px; }
@@ -106,7 +104,8 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .bubble.typing i { display: block; width: 8px; height: 8px; border-radius: 50%; background: #9a9aa2; }
 
 .reacts { position: absolute; top: -18px; display: flex; gap: 4px; z-index: 2; }
-.friend .reacts, .homi .reacts { right: -12px; }
+/* friend / Homi tapbacks hang off the bubble's right edge, so a short bubble's pill never covers the sender's name */
+.friend .reacts, .homi .reacts { left: 100%; margin-left: -14px; top: -15px; }
 .you .reacts { left: -12px; }
 .pill { display: flex; align-items: center; gap: 3px; height: 27px; padding: 0 8px 0 6px; border-radius: 14px; background: #34343a;
   box-shadow: 0 0 0 2.5px #000, 0 4px 10px rgba(0,0,0,.35); font-size: 15px; line-height: 1; }
@@ -251,7 +250,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 .layout-landscape .titlecard .tmark { width: 120px; height: 120px; }
 
 /* ---------- caption ---------- */
-.caption-zone { position: absolute; pointer-events: none; }
+.caption-zone { position: absolute; pointer-events: none; z-index: 6; }
 .layout-vertical .caption-zone { left: 70px; right: 70px; top: 1688px; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .layout-landscape .caption-zone { left: 1300px; width: 520px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
 .chapter-tag { font-size: 22px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--amber); opacity: 0; }
@@ -287,6 +286,84 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   justify-content: center; flex-direction: column; gap: 10px; color: rgba(255,255,255,0.5); font-size: 22px; font-weight: 600; background: rgba(255,255,255,0.03); }
 .endcard .qrbox .q { font-size: 64px; font-weight: 800; letter-spacing: 4px; color: rgba(255,255,255,0.18); }
 .endcard .qrlabel { font-size: 28px; font-weight: 650; color: #fff; }
+
+/* ---------- v2 look: aurora background, vignette, light sweep, particle burst, glass glare, 3D phone ---------- */
+.aurora { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.aurora i { position: absolute; left: 0; top: 0; width: 980px; height: 980px; margin: -490px 0 0 -490px; border-radius: 50%;
+  filter: blur(80px); mix-blend-mode: screen; will-change: transform, opacity; }
+.aurora .b1 { background: radial-gradient(circle, rgba(255, 170, 50, 0.50) 0%, rgba(255, 140, 26, 0.16) 45%, transparent 70%); }
+.aurora .b2 { background: radial-gradient(circle, rgba(60, 110, 255, 0.36) 0%, rgba(40, 80, 220, 0.12) 45%, transparent 70%); width: 1100px; height: 1100px; margin: -550px 0 0 -550px; }
+.aurora .b3 { background: radial-gradient(circle, rgba(220, 70, 140, 0.26) 0%, rgba(180, 50, 120, 0.08) 45%, transparent 70%); width: 820px; height: 820px; margin: -410px 0 0 -410px; }
+.vignette { position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  background: radial-gradient(85% 70% at 50% 48%, transparent 50%, rgba(0, 0, 0, 0.55) 100%); }
+.sweep { position: absolute; top: -40%; width: 320px; height: 180%; pointer-events: none; z-index: 5; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 236, 200, 0.10) 40%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 236, 200, 0.10) 60%, transparent);
+  transform: rotate(16deg); }
+.burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; } /* behind the phone: the burst comes out from under it */
+.burst i { position: absolute; left: 0; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--amber); opacity: 0;
+  box-shadow: 0 0 18px rgba(255, 181, 71, 0.8); }
+.burst i.w { background: #fff; box-shadow: 0 0 14px rgba(255, 255, 255, 0.7); }
+.chapnum { position: absolute; display: none; right: 70px; bottom: 30px; font-size: 420px; font-weight: 800; letter-spacing: -22px; line-height: 1;
+  color: rgba(255, 181, 71, 0.07); pointer-events: none; font-variant-numeric: tabular-nums; }
+.layout-landscape .chapnum { display: block; }
+.phone-wrap { transform-origin: 50% 50%; transform-style: preserve-3d; }
+.glare { position: absolute; inset: 14px; border-radius: 48px; pointer-events: none; z-index: 80; mix-blend-mode: screen;
+  background: linear-gradient(112deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.085) 50%, transparent 58%, transparent 100%);
+  background-size: 320% 100%; background-position: 200% 0; }
+
+/* kinetic captions and title: per-word / per-letter spans positioned by timeline.js */
+.caption .cap .w, .ttitle .ch { display: inline-block; white-space: pre; will-change: transform, opacity; }
+.titlecard .tmarkwrap { position: relative; width: 150px; height: 150px; }
+.titlecard .tmark { position: absolute; inset: 0; }
+.titlecard .tring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255, 181, 71, 0.6); opacity: 0; }
+.titlecard .tring.two { border-color: rgba(255, 181, 71, 0.35); }
+
+/* stat ring behind the count-up */
+.stat .snumwrap { position: relative; width: 640px; height: 640px; display: flex; align-items: center; justify-content: center; }
+.stat .sring { position: absolute; inset: 0; transform: rotate(-90deg); }
+.stat .sring circle { fill: none; stroke-width: 2.2; }
+.stat .sring .track { stroke: rgba(255, 255, 255, 0.08); }
+.stat .sring .fill { stroke: var(--amber); stroke-linecap: round; stroke-dasharray: 289.03; stroke-dashoffset: 289.03;
+  filter: drop-shadow(0 0 10px rgba(255, 181, 71, 0.6)); }
+.stat .snum { background: linear-gradient(180deg, #ffe3a8 0%, var(--amber) 55%, var(--amber-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; }
+.layout-landscape .stat .snumwrap { width: 520px; height: 520px; }
+
+/* ---------- v2 motion: DM screen (inside the phone), stat card, pulse glow, progress bar ---------- */
+.dm { position: absolute; inset: 0; z-index: 36; display: none; background: #000; }
+.dm .dm-tag { margin-left: auto; padding: 4px 11px; border-radius: 12px; flex: none;
+  background: rgba(255,181,71,0.16); color: var(--amber); font-size: 12px; font-weight: 700; letter-spacing: .3px; white-space: nowrap;
+  box-shadow: inset 0 0 0 1px rgba(255,181,71,0.35); }
+.dm .dm-header { gap: 12px; padding-left: 12px; }
+.dm .dm-av { width: 36px; height: 36px; }
+.dm .dm-list { position: absolute; left: 0; right: 0; top: 110px; bottom: 82px; overflow: hidden; }
+.dm .dline { position: absolute; left: 12px; right: 12px; display: flex; }
+.dm .dline.me { justify-content: flex-end; }
+.dm .dline .bubble { max-width: 290px; }
+.dm .dline.homi .bubble { background: var(--homi-bubble); border-bottom-left-radius: 7px; box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.16); }
+.dm .dline.me .bubble { background: linear-gradient(180deg, var(--you-a), var(--you-b)); border-bottom-right-radius: 7px; }
+.dm .dline .who { position: absolute; top: -17px; left: 2px; font-size: 12px; color: var(--amber); font-weight: 600; }
+.dm .dm-compose .field { padding-left: 14px; }
+
+.glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 1;
+  background: radial-gradient(55% 40% at 50% 46%, rgba(255, 181, 71, 0.55), rgba(255, 140, 26, 0.18) 45%, transparent 72%); }
+.phone-wrap { z-index: 2; }
+
+.stat { position: absolute; inset: 0; z-index: 98; display: none; opacity: 0; background: rgba(5, 5, 7, 0.78); }
+.stat .inner { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 110px; }
+.stat .snum { font-size: 300px; font-weight: 800; letter-spacing: -14px; line-height: 0.95; color: var(--amber); font-variant-numeric: tabular-nums;
+  text-shadow: 0 30px 90px rgba(255, 160, 40, 0.35); }
+.stat .sline { margin-top: 26px; font-size: 56px; line-height: 64px; font-weight: 700; letter-spacing: -1.4px; color: #fff; text-wrap: balance; max-width: 860px; }
+.stat .sfoot { margin-top: 30px; font-size: 24px; color: var(--ink-2); font-weight: 500; }
+.layout-landscape .stat .snum { font-size: 240px; letter-spacing: -10px; }
+.layout-landscape .stat .sline { font-size: 48px; line-height: 56px; max-width: 980px; }
+
+.progress { position: absolute; left: 0; right: 0; top: 0; height: 7px; z-index: 150; background: rgba(255,255,255,0.06); }
+.progress i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--amber-2), var(--amber)); }
+.layout-landscape .progress { height: 6px; }
+
+.endcard .qrbox.real { border: 0; background: #fff; padding: 18px; }
+.endcard .qrbox.real img { width: 100%; height: 100%; display: block; }
 
 /* ---------- live preview controls (hidden when rendering) ---------- */
 #controls { position: fixed; left: 12px; right: 12px; bottom: 10px; display: flex; gap: 10px; align-items: center; z-index: 1000;

@@ -73,7 +73,7 @@ export function startPlan(st: Step, from: MemberRef, msgRef: string | undefined,
   if (win) {
     const exW = excludedWeekdays(body);
     p.excludedDays = (win.range ?? win.days).filter((d) => exW.includes(weekdayOf(d)));
-    openAvailability(st, win, 'prompted');
+    openAvailability(st, win, 'prompted', from);
     return;
   }
   say(st, T.askWhen());
@@ -126,7 +126,7 @@ export function activityReply(st: Step, body: string, addressed: boolean): boole
 }
 
 /** Generates options for a window and opens collecting_availability: header + bubbles (or a poll), deadline, nudge. */
-export function openAvailability(st: Step, win: WindowSpec, prompting: Prompting): boolean {
+export function openAvailability(st: Step, win: WindowSpec, prompting: Prompting, proposer?: MemberRef): boolean {
   const p = P(st);
   const now = st.ctx.now;
   const tz = tzOf(st);
@@ -156,6 +156,13 @@ export function openAvailability(st: Step, win: WindowSpec, prompting: Prompting
   p.refs.headerSentAt = undefined;
   p.refs.poll = undefined;
   cancel(st, 'dates_nudge', 'dates_abandon', 'quorum_dm', 'quorum_close');
+  // DEMO_SIMPLE: whoever proposed one exact time ("dinner friday 7pm") is in for it; the poll is for everyone else.
+  // A window with several options ("next week") still asks the proposer like anyone else.
+  if (st.ctx.simple && proposer && opts.length === 1 && p.preferredTime) {
+    const m = member(st, proposer);
+    m.optionVotes[opts[0].id] = 'yes';
+    if (m.status !== 'out') m.status = 'answered';
+  }
   emitOptions(st, opts, prompting);
   schedule(st, 'availability_deadline', p.deadlineAt);
   const nt = nudgeTime(now, p.deadlineAt, tz, st.ctx.quietHours);

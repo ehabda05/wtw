@@ -19,7 +19,7 @@ import type { ActionHandler, PhotoStore } from './handlers/types.js';
 import { restorePlaceholders, type RepairFn } from '../llm/router.js';
 import type { ReceiptReadResult } from '../llm/receipt.js';
 import { TEMPLATES } from '../engine/templates.js';
-import { NameMemory, REPAIR_TIMEOUT_MS, RepairTimeout, knownNamesFor, onlyGenericFallback, repairContext, skipRepair, withTimeout } from './repair.js';
+import { NameMemory, REPAIR_TIMEOUT_MS, RepairTimeout, knownNamesFor, onlyGenericFallback, repairContext, skipRepair, withTimeout, withoutNetReplies } from './repair.js';
 
 export { type EngineApi } from './services.js';
 
@@ -460,7 +460,9 @@ export class Runner {
       const r = await withTimeout((signal) => repair({ text: ev.text, knownNames: names, context: repairContext(pre, seen.length) }, signal), this.#repairTimeoutMs);
       const rewrite = r ? restorePlaceholders(r.rewrite, ev.text, names) : null;
       if (rewrite && !NOT_FOR_LISTENING.test(rewrite)) {
-        const second = this.#engine.applyEvent(pre, { ...ev, text: rewrite, addressed: true, llmVote: undefined }, ctx);
+        const run = this.#engine.applyEvent(pre, { ...ev, text: rewrite, addressed: true, llmVote: undefined }, ctx);
+        // The engine saw an "addressed" message, so it may have added its safety-net reply; the group never asked.
+        const second = { ...run, actions: withoutNetReplies(run.actions) };
         if (!onlyGenericFallback(second.actions, pre)) {
           this.#log.info('runner: llm listen used: yes', { space });
           return second;

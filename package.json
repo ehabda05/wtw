@@ -14,6 +14,8 @@
     "sim": "tsx src/cli/sim.ts",
     "demo": "tsx src/cli/sim.ts --script demo/demo.sim.txt --start 2026-10-17T10:00:00-04:00",
     "web": "tsx src/web/server.ts",
+    "dining": "tsx src/dining/cli.ts",
+    "dining:seed": "tsx src/dining/seed.ts",
     "keys": "tsx src/cli/keys.ts",
     "photon2:check": "tsx src/cli/photon2-check.ts",
     "photon2:telegram": "tsx src/cli/photon2-telegram.ts",
