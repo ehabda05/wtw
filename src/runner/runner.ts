@@ -90,6 +90,8 @@ export interface RunnerConfig {
   defaultTz: string;
   /** Demo quorum timers (Ctx.quorum; config.ts parseQuorum). */
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
+  /** DEMO_SIMPLE=on (Ctx.simple). */
+  simple?: boolean;
 }
 
 export interface RunnerDeps {
@@ -132,6 +134,11 @@ export interface RunnerDeps {
   /** Extension action handlers and the album photo store (src/runner/handlers). */
   handlers?: ActionHandler[];
   photoStore?: PhotoStore;
+  /**
+   * Receipt reader (src/llm/receipt.ts): "homi split the bill" with a receipt photo (as the caption, or within ten
+   * minutes of the photo) reads the total off the image and runs the usual split. Off without the LLM switch.
+   */
+  readReceipt?: (bytes: Uint8Array, mime: string) => Promise<{ total: number } | null>;
   /** Public base URL for member-only links (album page). */
   publicBaseUrl?: string;
 }
@@ -141,6 +148,11 @@ const DEMO_FF = /^\s*@?homi[,:]?\s+demo\s+ff\s+((?:\d+[smhd])+)\s*$/i;
 /** Plan talk worth a redacted look when Claude-first listens to unaddressed messages (see #worthListening). */
 const LISTEN =
   /\b(?:mon|tue|tues|wed|weds|thu|thur|thurs|fri|sat|sun)[a-z]*\b|\btonight\b|\btomorrow\b|\btmrw?\b|\btoday\b|\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b|\bworks?\b|\bcan'?t\b|\bcant\b|\binstead\b|\bthinking\b|\bhow about\b|\bwhat about\b|\bmaybe\b|\bi'?m (?:in|out|down)\b|\bcount me\b/i;
+/** "homi split the bill / the check / the receipt / it" with no amount: read it off the last photo (see #receiptSplit). */
+const SPLIT_ASK = /\b(?:split|divide)\b.*\b(?:bill|check|receipt|tab|it|this|that)\b|\b(?:split|divide) (?:it|this|that)\b/i;
+/** A money amount in the text: "$84", "84.00", or any number of two or more digits (small numbers are head counts). */
+const HAS_AMOUNT = /\$\s?\d|\d+\.\d{1,2}\b|\b\d{2,}\b/;
+const RECEIPT_TTL_MS = 10 * 60_000;
 /** Rewrites the listener never acts on: money, pledges, trips, albums, and anything that deletes or leaves. */
 const NOT_FOR_LISTENING =
   /^homi (?:stop|forget|clear|undo|cancel|remove|delete|dispute|settle|split|itemize|tab|pledges?|i'?m (?:in|here)|let'?s (?:do|plan)|start an album|album|trip|comfortable|budget|privacy|help|what do you know|tone|notice|you can|remind|add to calendar|note|lock)\b/i;
@@ -170,12 +182,17 @@ export class Runner {
   readonly #demo?: RunnerDeps['demo'];
   readonly #hostedLlm?: RunnerDeps['hostedLlm'];
   readonly #photoStore?: PhotoStore;
+  readonly #readReceipt?: RunnerDeps['readReceipt'];
+  /** spaceKey -> the latest photo posted (memory only, ten minutes), so "homi split the bill" can refer to it. */
+  readonly #lastPhoto = new Map<string, { bytes: Uint8Array; mime: string; at: number }>();
   readonly #publicBaseUrl?: string;
   readonly #repair?: RepairFn;
   readonly #llmFirst: boolean;
   readonly #repairTimeoutMs: number;
   readonly #extraNames: string[];
   readonly #names = new NameMemory();
+  /** spaceKey -> memberKey -> raw handle from the last platform roster (memory only; DM fallback for silent members). */
+  readonly #rosterHandles = new Map<string, Map<string, string>>();
   #inflight = 0;
   #idleWaiters: (() => void)[] = [];
 
@@ -191,6 +208,7 @@ export class Runner {
     this.#demo = deps.demo;
     this.#hostedLlm = deps.hostedLlm;
     this.#photoStore = deps.photoStore;
+    this.#readReceipt = deps.readReceipt;
     this.#publicBaseUrl = deps.publicBaseUrl;
     this.#repair = deps.repairWithLlm;
     this.#llmFirst = !!deps.llmFirst && !!deps.repairWithLlm;
@@ -296,6 +314,8 @@ export class Runner {
         if (!m.members) return [];
         const members = m.members.map((u) => this.#memberRef(m.surface, m.spaceId, u));
         if (this.#repair) for (const r of members) this.#names.add(spaceKey, r.platformName);
+        // Roster handles stay in memory so a silent member can still be asked privately (executor dm fallback).
+        this.#rosterHandles.set(spaceKey, new Map(m.members.map((u) => [this.#ids.member(m.surface, m.spaceId, u.handle), u.handle])));
         return [{ kind: 'members_snapshot', members }];
       }
       case 'added_to_group':
@@ -318,6 +338,7 @@ export class Runner {
       retentionHours: this.#config.retentionHours,
       quietHours: this.#config.quietHours,
       ...(this.#config.quorum ? { quorum: this.#config.quorum } : {}),
+      ...(this.#config.simple ? { simple: true } : {}),
       newId: this.#newId,
       publicBaseUrl: this.#publicBaseUrl,
     };
@@ -355,10 +376,12 @@ export class Runner {
         now: ctx.now,
         inboundHandle: origin.inboundHandle,
         inboundMemberKey: origin.inboundMemberKey,
+        rosterHandle: (k) => this.#rosterHandles.get(origin.spaceKey)?.get(k),
       });
       if (out.left) {
         this.#refs.drop(origin.spaceKey);
         this.#names.drop(origin.spaceKey);
+        this.#rosterHandles.delete(origin.spaceKey);
         return null;
       }
       queue.push(...out.followUps);
@@ -411,6 +434,8 @@ export class Runner {
   #worthListening(ev: MessageEvent, pre: GroupState, first: ApplyResult): boolean {
     if (!pre.plan || pre.plan.state === 'purged' || pre.plan.state === 'completed') return false;
     if (first.actions.some((a) => a.type === 'send' || a.type === 'reply' || a.type === 'react' || a.type === 'edit')) return false;
+    // DEMO_SIMPLE: while the date poll or the cuisine question is open, anything the engine could not read is worth asking about.
+    if (this.#config.simple && (pre.plan.state === 'collecting_availability' || pre.plan.state === 'collecting_place')) return true;
     return LISTEN.test(ev.text);
   }
 
@@ -487,7 +512,8 @@ export class Runner {
           return;
         }
         let state: GroupState = this.#repo.loadGroup(spaceKey) ?? this.#engine.newGroupState(spaceKey, this.#config.defaultTz);
-        const events = m.kind === 'photo' ? await this.#photoEvents(m) : this.#toEvents(m, spaceKey, state);
+        const receipt = await this.#receiptSplit(m, spaceKey, state, adapter, now);
+        const events = receipt ?? (m.kind === 'photo' ? await this.#photoEvents(m) : this.#toEvents(m, spaceKey, state));
         if (events.length === 0) return;
         await this.#annotateWithHostedLlm(events, state);
         const origin: Origin = { spaceKey, surface: m.surface, spaceId: m.spaceId, adapter };
@@ -569,6 +595,42 @@ export class Runner {
       return true;
     }
     return false;
+  }
+
+  /**
+   * "homi split the bill" (no amount) with a receipt photo, as the caption or within ten minutes of the photo: Claude
+   * reads the total and the engine gets "homi split <total> ..." with whatever the message said about who ("between
+   * ana ben me", "3 ways", "paid by ana"); with nothing said and no plan, the roster or member count sets the ways.
+   * Returns the events to run (empty = handled, nothing more), or null when this is not a receipt split.
+   */
+  async #receiptSplit(m: ChannelInbound, spaceKey: SpaceKey, state: GroupState, adapter: ChannelAdapter, now: number): Promise<EngineEvent[] | null> {
+    if (m.kind === 'photo' && m.photo) this.#lastPhoto.set(spaceKey, { bytes: m.photo.bytes, mime: m.photo.mime, at: now });
+    if (!this.#readReceipt || !m.from) return null;
+    const text = m.text?.trim() ?? '';
+    if (!text || !SPLIT_ASK.test(text) || HAS_AMOUNT.test(text)) return null;
+    if (!(m.mentionsAgent || this.#engine.detectAddressed(text))) return null;
+    const photo = this.#lastPhoto.get(spaceKey);
+    if (!photo || now - photo.at > RECEIPT_TTL_MS) return null;
+    const space = shortKey(spaceKey);
+    const r = await this.#readReceipt(photo.bytes, photo.mime).catch(() => null);
+    if (!r || !(r.total > 0)) {
+      this.#log.info('runner: receipt not readable', { space });
+      await adapter.send(m.spaceId, TEMPLATES.receiptUnreadable()).catch(() => undefined);
+      return [];
+    }
+    this.#lastPhoto.delete(spaceKey);
+    const clean = (s: string) => s.replace(/\band\b/gi, ' ').replace(/[,&]/g, ' ').replace(/\s+/g, ' ').trim();
+    const payer = text.match(/\bpaid by\b[^.!?,]*/i)?.[0];
+    const whoRaw = text.match(/\b(?:between|among|amongst|with)\b[^.!?]*/i)?.[0] ?? text.match(/\b\d{1,2}\s*(?:ways?|people|ppl|of us)\b/i)?.[0];
+    const who = whoRaw?.replace(/,?\s*\bpaid by\b.*$/i, '');
+    let tail = who ? clean(who) : '';
+    if (!tail && !state.plan) {
+      const n = state.space.roster?.length ?? state.space.headcount ?? 0;
+      if (n >= 2) tail = `${n} ways`;
+    }
+    const rewritten = `homi split ${r.total.toFixed(2)}${tail ? ` ${tail}` : ''}${payer ? `, ${clean(payer)}` : ''}`;
+    this.#log.info('runner: receipt read, splitting', { space });
+    return [{ kind: 'message', from: this.#memberRef(m.surface, m.spaceId, m.from), text: rewritten, msgRef: m.msgId, addressed: true }];
   }
 
   /** Photos: bytes go straight to the album store (never the engine, never logs); the engine gets an opaque id. */

@@ -23,6 +23,11 @@ export interface ExecContext {
   inboundHandle?: string;
   /** Member key of that sender (remember_handle must match it). */
   inboundMemberKey?: MemberKey;
+  /**
+   * Fallback for a DM when no handle was sealed for the member: the platform roster (dedicated iMessage lines list
+   * members with their handles). In memory only, for the current process.
+   */
+  rosterHandle?: (member: MemberKey) => string | undefined;
 }
 
 export interface ExecOutcome {
@@ -171,7 +176,7 @@ export class Executor {
       }
       case 'dm': {
         const planId = ctx.state.plan?.id;
-        const handle = planId ? this.#repo.delivery.get(action.member, planId) : undefined;
+        const handle = (planId ? this.#repo.delivery.get(action.member, planId) : undefined) ?? ctx.rosterHandle?.(action.member);
         if (!handle) {
           this.#log.warn('executor: dm skipped, no delivery handle', { member: shortKey(action.member), surface: ctx.surface });
           return;

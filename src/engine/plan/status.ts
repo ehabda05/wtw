@@ -8,6 +8,7 @@ import { whoLabel } from '../nudge.js';
 import { ICS_MIME, ics, icsText } from '../ics.js';
 import { cardWhen, fmtTime, listJoin, money, relLabel, shortDay } from '../util.js';
 import { type Step, P, planOf, say, tzOf } from './core.js';
+import { lockWhen } from './availability.js';
 
 function chosenCounts(st: Step): { yes: number; maybe: number } {
   const p = P(st);
@@ -37,7 +38,7 @@ export function statusText(st: Step): string {
       const pend = Object.values(p.members).filter((m) => m.status === 'pending');
       const unknown = Math.max(0, groupSize(p) - activeMembers(p).length);
       const who = pend.length || unknown ? whoLabel(pend, unknown) : undefined;
-      return T.statusAvail({ activity: p.activity, window: p.windowLabel ?? 'soon', lead, tally: tallyLine(p), who, deadline: relLabel(p.deadlineAt as number, now, tz) });
+      return T.statusAvail({ activity: p.activity, window: p.windowLabel ?? 'soon', lead, tally: tallyLine(p), who, deadline: lockWhen(st) });
     }
     case 'collecting_details': {
       const c = chosenCounts(st);

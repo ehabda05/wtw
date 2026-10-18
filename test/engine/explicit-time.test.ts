@@ -141,3 +141,18 @@ test('"saturday 7pm" said on a Saturday evening means next Saturday, not a time 
   const late = g.say('riad', 'homi dinner tonight at 6pm');
   assert.ok(ofType(late, 'send').filter((s) => s.tag?.startsWith('option:')).every((s) => /Sat Oct 17/.test(s.text)));
 });
+
+test('"tonight" late in the evening stays tonight (30 min lead), and after the evening is over Homi offers tomorrow, never next week', () => {
+  const h = new Harness({ start: '2026-10-17T19:56:00-04:00' }); // Saturday, 7:56pm
+  const out = h.say('riad', 'homi plan something for dinner tonight');
+  const opts = ofType(out, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text);
+  assert.ok(opts.length >= 2 && opts.every((t) => /Sat Oct 17/.test(t)), opts.join(' | '));
+  assert.ok(opts.some((t) => /8:30pm/.test(t)), opts.join(' | '));
+
+  const late = new Harness({ start: '2026-10-17T23:40:00-04:00' }); // Saturday, 11:40pm
+  const out2 = late.say('riad', 'homi dinner tonight');
+  const opts2 = ofType(out2, 'send').filter((s) => s.tag?.startsWith('option:')).map((s) => s.text);
+  assert.ok(opts2.length >= 1 && opts2.every((t) => /Sun Oct 18/.test(t)), opts2.join(' | '));
+  assert.ok(ofType(out2, 'send').some((s) => s.text === "Tonight's too late to pull off, so here's tomorrow:"));
+  assert.ok(!opts2.some((t) => /Oct 2[0-9]/.test(t)), 'no next-week dates');
+});

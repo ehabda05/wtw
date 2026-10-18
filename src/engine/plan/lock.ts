@@ -9,6 +9,7 @@ import {
 import { outOfQuiet, whoLabel } from '../nudge.js';
 import { DAY, HOUR, MIN, cardWhen } from '../util.js';
 import { type Step, P, cancel, purgePlan, say, schedule, tzOf } from './core.js';
+import { askCuisine } from './place.js';
 
 export function cancelAvailabilityJobs(st: Step): void {
   cancel(st, 'availability_nudge', 'availability_escalate', 'availability_deadline', 'escalate-timeout', 'dates_abandon', 'dates_nudge', 'bridge_timeout', 'quorum_dm', 'quorum_close');
@@ -156,12 +157,14 @@ export function lockOption(st: Step, id: number, how: LockReason, prompting: Pro
           ? T.lockDeadline(st.s.space.tone, { label: o.label, yes: c.yes, maybe: c.maybe, absent: absentLabel(st) })
           : T.lockEarly({ label: o.label, yes: c.yes, maybe: c.maybe });
       const missing = stranded && soon ? stranded.stranded.map((k) => p.members[k]) : [];
-      const s2 = missing.length ? T.missYou({ names: missing.every((m) => m.name) ? whoLabel(missing) : undefined }) : T.whereTo();
-      text = `${fold(s1, maybeClause(st, id))} ${s2}`;
+      // DEMO_SIMPLE: no "Where to" question; the curated spots follow right away.
+      const s2 = missing.length ? T.missYou({ names: missing.every((m) => m.name) ? whoLabel(missing) : undefined }) : st.ctx.simple ? '' : T.whereTo();
+      text = `${fold(s1, maybeClause(st, id))} ${s2}`.trim();
     }
   }
   say(st, text, prompting);
   scheduleEventJobs(st);
+  if (st.ctx.simple && p.state === 'collecting_details' && !p.bridge) askCuisine(st, prompting);
 }
 
 /**

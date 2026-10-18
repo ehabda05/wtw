@@ -104,3 +104,11 @@ test('quorum: after the ping, a pending member\'s bare "yes" in the group counts
   assert.ok(out.some((a) => a.type === 'react' || a.type === 'edit'), 'the vote was taken');
   assert.equal(h.plan!.members['k-charlie'].status, 'answered');
 });
+
+test('quorum: a tapback makes the voter reachable privately, like a message does', () => {
+  const h = new Harness({ start: START, surface: 'telegram', quorum: Q });
+  h.apply({ kind: 'headcount', n: 2 });
+  h.say('riad', 'homi dinner friday 7pm');
+  const out = h.react('charlie', '🤔', 'option:1'); // maybe: answered, but still worth a nudge? no: answered. Use a non-vote emoji instead.
+  assert.ok(ofType(out, 'remember_handle').some((a) => a.member === 'k-charlie'));
+});

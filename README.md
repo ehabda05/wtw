@@ -131,6 +131,8 @@ npm start
 
 **Choosing surfaces:** set `SURFACES` to `photon2`, `telegram-direct`, `telegram`, `imessage` or `imessage-local`.
 
+**The simple demo profile (`DEMO_SIMPLE=on`):** one flow and nothing else. "homi dinner friday 7pm" → everyone votes (with the demo quorum: `QUORUM_DM_AFTER_MS=30000`, `QUORUM_REPLY_MS=15000`, `MIN_ATTENDEES=2`) → the lock asks one question ("What are we feeling?"), the group deliberates until one cuisine has a majority (each person's latest answer counts; a split gets a tally nudge, "surprise us" ends it), Claude maps whatever people say onto one of 15 cuisines (Mexican, Italian, Chinese, Japanese, Thai, Indian, burgers, pizza, Mediterranean, Korean, Vietnamese, Middle Eastern, seafood, Ethiopian, Spanish tapas; Mexican when nobody says) → three curated Boston spots for it (`src/engine/curated.ts`) → the group votes 1/2/3 or ❤️ → done, with the address and a maps link. Afterwards, send the receipt and say "homi split the bill" (optionally "between ana ben me", "3 ways", "paid by ana"): Claude reads the total off the photo and the usual split does the math. Pledges, trips, albums, notes and the budget/neighborhood questions are off; "homi where are we at", "homi forget" and "homi help" stay. The full app is unchanged underneath.
+
 **Photon 2.0 chat (`SURFACES=photon2`):** a Telegram group through Photon 2.0's free managed bot, plus SMS and iMessage DMs, on `api.photon.codes/v1`. It is implemented and tested, but **not yet run against a live Photon 2.0 project**. Create a project and a project API key at app.beta.photon.codes, put `PHOTON2_API_KEY` and `PHOTON2_PROJECT_ID` in `.env` yourself, then:
 
 ```bash

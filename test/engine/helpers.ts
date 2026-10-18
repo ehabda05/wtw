@@ -30,18 +30,21 @@ export class Harness {
   private seq = 0;
 
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
+  simple?: boolean;
 
-  constructor(opts: { start: string; surface?: Surface; caps?: Partial<Capabilities>; tz?: string; spaceKey?: string; quorum?: { dmAfterMs: number; replyMs: number; minYes: number } }) {
+  constructor(opts: { start: string; surface?: Surface; caps?: Partial<Capabilities>; tz?: string; spaceKey?: string; quorum?: { dmAfterMs: number; replyMs: number; minYes: number }; simple?: boolean }) {
     this.now = Date.parse(opts.start);
     this.caps = { ...CAPS[opts.surface ?? 'sim'], ...(opts.caps ?? {}) };
     this.state = newGroupState(opts.spaceKey ?? 'space-1', opts.tz ?? TZ);
     this.quorum = opts.quorum;
+    this.simple = opts.simple;
   }
 
   private ctx() {
     return {
       now: this.now, caps: this.caps, retentionHours: 24, quietHours: [23, 9] as [number, number], newId: () => `id${++this.ids}`,
       ...(this.quorum ? { quorum: this.quorum } : {}),
+      ...(this.simple ? { simple: true } : {}),
     };
   }
 

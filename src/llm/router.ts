@@ -61,12 +61,16 @@ Rules:
 - When date options are open and the person says any day, whichever day, whatever most people pick, or that they are flexible, answer "all work". If they rule days out, answer like "anything but thu".
 - A message that names a time or a day for going out is a PLAN ("homi dinner tonight at 8pm", "homi lunch friday at 12:30"), even when it talks about eating; keep the exact time and day from the message. "homi find food" is only for picking a restaurant right now with no time named.
 - A day nobody proposed, while options are open, is a vote for that day ("wednesday works"). Correcting the time is "homi make it 8pm".
+- When the open flow is "food vote" and someone says what they feel like eating, answer with the cuisine word(s) as "homi <cuisine>", using these names: mexican, italian, chinese, japanese, thai, indian, burgers, pizza, mediterranean, korean, vietnamese, middle eastern, seafood, ethiopian, tapas. Dishes map to their cuisine ("pad thai" -> thai, "ramen" / "sushi" -> japanese, "shawarma" / "halal" -> middle eastern, "pho" -> vietnamese, "dumplings" -> chinese). "whatever" / "surprise us" / "you pick" -> "homi go". A plain "no" to a cuisine is a veto ("homi no sushi").
 Worked examples:
 "wait who's actually coming so far" -> "homi where are we at"
 "plan something for 8 pm to eat out" -> "homi dinner tonight at 8pm"
 "can we grab lunch sat around 1" -> "homi lunch saturday at 1pm"
 "i was thinking wednesday tbh" (options Thu, Fri, Sat) -> "wednesday works"
 "i said 8 not 9" -> "homi make it 8pm"
+"honestly i could murder some pad thai rn" (open flows: food vote) -> "homi thai"
+"idk somewhere with good dumplings" (open flows: food vote) -> "homi chinese"
+"literally anything, you choose" (open flows: food vote) -> "homi go"
 "can u break down the 84 dollar uber between the 3 of us" -> "homi split 84 3 ways"
 "honestly whatever day most people can do is fine by me" -> "all work"
 "im down for whenever just not the weekend" (options Thu, Fri, Sat) -> "anything but sat"

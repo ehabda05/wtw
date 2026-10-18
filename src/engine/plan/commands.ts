@@ -12,7 +12,7 @@ import { DAY, MIN, isValidZone } from '../util.js';
 import { type Step, P, newGroupState, planOf, purgePlan, say, schedule, member, tzOf } from './core.js';
 import { confirmPlan, lockOption, maybeEarlyLock } from './lock.js';
 import { openAvailability, setTime, startPlan } from './availability.js';
-import { closePlaces, pushHungry, setPlaceText, startInstant, startSearch } from './place.js';
+import { askCuisine, closePlaces, pushHungry, setPlaceText, startInstant, startSearch } from './place.js';
 import { calendar, noteGet, notesList, splitText, statusText, whyText } from './status.js';
 import { EXTENSIONS } from '../ext/index.js';
 
@@ -89,9 +89,29 @@ function onYes(st: Step, ev: MessageEvent): boolean {
   return false;
 }
 
+/** DEMO_SIMPLE: commands that belong to the flows the demo switches off. */
+const SIMPLE_OFF = new Set<Command['kind']>(['note_set', 'note_get', 'notes', 'tone', 'notice', 'threshold', 'headcount', 'tz']);
+
 export function onCommand(st: Step, ev: MessageEvent, cmd: Command, body: string, addressed: boolean): boolean {
   const p = planOf(st);
   const now = st.ctx.now;
+  if (st.ctx.simple) {
+    if (SIMPLE_OFF.has(cmd.kind)) {
+      say(st, T.simpleOnly());
+      return true;
+    }
+    if (cmd.kind === 'help') {
+      say(st, T.helpSimple());
+      return true;
+    }
+    if (cmd.kind === 'food' || cmd.kind === 'change_place') {
+      if (!p) startPlan(st, ev.from, ev.msgRef, body);
+      else if (p.state === 'collecting_place') return false;
+      else if (p.state === 'collecting_details' || p.state === 'confirmed' || p.state === 'reminded') askCuisine(st, 'prompted');
+      else say(st, T.simpleDayFirst());
+      return true;
+    }
+  }
   switch (cmd.kind) {
     case 'stop': stop(st); return true;
     case 'forget':

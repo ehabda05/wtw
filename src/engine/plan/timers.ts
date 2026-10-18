@@ -144,7 +144,8 @@ function quorumDm(st: Step): void {
   const dmOptions = listJoin(activeOptions(p).map((o) => `${o.id} · ${o.label}`), 'or');
   let dmd = 0;
   for (const m of pend) {
-    if (!st.ctx.caps.dm || !m.hasDelivery) continue;
+    // A sealed handle (they spoke or tapped), or a platform roster the runner can resolve (dedicated iMessage line).
+    if (!st.ctx.caps.dm || !(m.hasDelivery || st.ctx.caps.roster)) continue;
     st.acts.push({ type: 'dm', member: m.key, text: T.dmQuorum({ activity: p.activity, options: dmOptions }), planId: p.id });
     p.nudges.push({ at: now, kind: 'dm', target: m.key });
     m.nudgeCount++;

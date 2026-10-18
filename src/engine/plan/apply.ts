@@ -5,7 +5,7 @@ import type { ApplyResult, Ctx, EngineEvent, GroupState } from '../types.js';
 import type { EngineHungry } from '../model.js';
 import { emojiVote } from '../parse.js';
 import { activeOptions, tallyLine } from '../schedule.js';
-import { type Step, availabilityOpen, intro, isOpen, member, planOf, refKey, touch } from './core.js';
+import { type Step, availabilityOpen, intro, isOpen, member, planOf, reachable, refKey, touch } from './core.js';
 import { afterVote } from './availability.js';
 import { onMessage } from './messages.js';
 import { onPlacesResult, placeVote } from './place.js';
@@ -22,6 +22,7 @@ function onReaction(st: Step, ev: Ev<'reaction'>): void {
   if (!p || !isOpen(p)) return;
   const m = touch(st, ev.from);
   if (!m || ev.removed) return;
+  reachable(st, m); // a tapback is enough to be asked privately later (demo quorum)
   const vote = emojiVote(ev.emoji);
   if (!vote) return;
   const optId = refKey(p.refs.options, ev.target);

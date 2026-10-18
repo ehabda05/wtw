@@ -134,6 +134,7 @@ const CUISINES: Array<[string, RegExp]> = [
   ['ethiopian', /\bethiopian\b|\binjera\b/],
   ['french', /\bfrench\b(?! fries)|\bbistro\b|\bcrepes?\b/],
   ['spanish', /\bspanish\b|\btapas\b|\bpaella\b/],
+  ['spanish', /\bspanish\b|\btapas\b|\bpaella\b/],
   ['caribbean', /\bcaribbean\b|\bjamaican\b|\bjerk chicken\b/],
   ['peruvian', /\bperuvian\b|\bceviche\b/],
   ['halal', /\bhalal\b/],

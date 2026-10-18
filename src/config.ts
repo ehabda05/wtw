@@ -56,6 +56,8 @@ export interface Config {
    * later they count as not coming; the plan locks with MIN_ATTENDEES yes votes or is cancelled.
    */
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
+  /** DEMO_SIMPLE=on: the one-flow demo profile (engine Ctx.simple). */
+  simple: boolean;
   retentionHours: number;
   /** [startHour, endHour] in group-local time, e.g. [23, 9]. */
   quietHours: [number, number];
@@ -280,6 +282,7 @@ export function loadConfig(opts: LoadConfigOptions = {}): Config {
     anthropicApiKey: str(env, 'ANTHROPIC_API_KEY'),
     llmFirst: bool(env, 'HOMI_LLM_FIRST', false),
     quorum: parseQuorum(env),
+    simple: bool(env, 'DEMO_SIMPLE', false),
     retentionHours,
     quietHours: parseQuietHours(str(env, 'QUIET_HOURS')),
     defaultTz: str(env, 'DEFAULT_TZ') ?? 'America/New_York',

@@ -225,6 +225,12 @@ export interface Ctx {
    * with at least `minYes` yes votes or is cancelled. Off in production unless set.
    */
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
+  /**
+   * DEMO_SIMPLE=on: one flow only. A plan is a hangout with a date; the moment it locks Homi posts the three curated
+   * Mexican spots (src/engine/curated.ts) and the group votes. Bills, pledges, trips, albums, notes and the food
+   * questionnaire are off; "where are we at", "forget" and a short help stay.
+   */
+  simple?: boolean;
   hostedLlm?: false;          // the pure engine never calls an LLM; runner may pre-annotate events
 }
 

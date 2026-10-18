@@ -15,6 +15,10 @@ export interface EngineHungry extends HungryState {
   source?: string;
   /** Lookups made so far (an empty result is retried once with new answers, then the flow gives up). */
   searches?: number;
+  /** DEMO_SIMPLE deliberation: how many times the cuisine window was extended for lack of a majority. */
+  extensions?: number;
+  /** DEMO_SIMPLE deliberation: the last split tally Homi announced, so it is not repeated verbatim. */
+  lastSplit?: string;
 }
 
 export type LockReason = 'deadline' | 'everyone' | 'threshold' | 'forced' | 'bridge';

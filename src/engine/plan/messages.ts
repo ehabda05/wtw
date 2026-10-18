@@ -30,8 +30,9 @@ function onIdle(st: Step, ev: MessageEvent, body: string, addressed: boolean): v
   if (addressed) {
     const kind = planOrFood(body, now, tz);
     if (kind === 'plan') return startPlan(st, ev.from, ev.msgRef, body);
-    if (kind === 'food') return startInstant(st, ev.from, ev.msgRef, body, 'prompted');
-    return say(st, T.help());
+    // DEMO_SIMPLE: "where should we eat" starts the one flow (a date first), never an instant search.
+    if (kind === 'food') return st.ctx.simple ? startPlan(st, ev.from, ev.msgRef, body) : startInstant(st, ev.from, ev.msgRef, body, 'prompted');
+    return say(st, st.ctx.simple ? T.helpSimple() : T.help());
   }
   // Notice mode (opt-in, off by default): at most one offer per 24h, unprompted, so budget + quiet hours apply.
   if (!sp.notice) return;
@@ -51,15 +52,21 @@ export function onMessage(st: Step, ev: MessageEvent): void {
   const addressed = ev.addressed || detectAddressed(text) || isHomiRef(planOf(st), ev.replyTo);
   const body = stripAddress(text);
   if (planOf(st)) reachable(st, touch(st, ev.from, ev.msgRef), ev.msgRef);
-  // Bills, travel, commitments and the album get first look (src/engine/ext).
-  for (const x of EXTENSIONS) if (x.onMessage?.(st, ev, body, addressed)) return;
+  // Bills, travel, commitments and the album get first look (src/engine/ext); the simple demo keeps only bills.
+  for (const x of EXTENSIONS) if ((!st.ctx.simple || x.name === 'bills') && x.onMessage?.(st, ev, body, addressed)) return;
   const cmd = parseCommand(body);
   if (cmd && (addressed || UNADDRESSED_COMMANDS.has(cmd.kind)) && onCommand(st, ev, cmd, body, addressed)) return;
   const p = planOf(st);
   if (!p) return onIdle(st, ev, body, addressed);
   const now = st.ctx.now;
   const tz = tzOf(st);
-  const food = () => foodTrigger(body, addressed, now, tz);
+  // DEMO_SIMPLE: no food questionnaire; an addressed "where are we eating" before the lock gets "day first".
+  const food = () => {
+    if (!foodTrigger(body, addressed, now, tz)) return false;
+    if (!st.ctx.simple) return true;
+    if (addressed) say(st, T.simpleDayFirst());
+    return false;
+  };
   const unknown = () => {
     if (addressed) say(st, planOrFood(body, now, tz) === 'plan' ? T.alreadyPlan() : T.unknown());
   };
@@ -79,7 +86,8 @@ export function onMessage(st: Step, ev: MessageEvent): void {
     case 'collecting_availability': {
       // Someone Homi just asked (demo quorum) answers with a bare "yes" / "no" / "1": that is their vote, addressed or not.
       const askedMe = p.quorumAskedAt !== undefined && member(st, ev.from).status === 'pending' && (isBareYes(body) || isBareNo(body) || /^[1-9]$/.test(body.trim()));
-      const voteAddressed = addressed || askedMe;
+      // DEMO_SIMPLE: while the poll is open every message in the group is an answer to it ("yeah 1 works", "can't do fri").
+      const voteAddressed = addressed || askedMe || !!st.ctx.simple;
       if (timeShiftAnswer(st, ev, body)) {
         if (!tryTextVote(st, ev, body, voteAddressed)) maybeEarlyLock(st, 'prompted');
         return;

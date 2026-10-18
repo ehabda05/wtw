@@ -6,9 +6,10 @@ import type { EngineEvent, MemberKey, MemberRef, MessageEvent, PlanState, Prompt
 import type { EngineHungry, EnginePlan } from '../model.js';
 import { TEMPLATES as T } from '../templates.js';
 import {
-  hasTaste, mergeTaste, placeEmoji, placesHeader, nearOf, newHungry, parseTaste, placeBubbleParts, placesQuery, rankPlaces,
+  hasTaste, mergeTaste, placeEmoji, placesHeader, nearOf, newHungry, parseTaste, placeBubbleParts, placesQuery, rankPlaces, rankedCuisines,
 } from '../hungry.js';
 import { TRAIL, detectActivity, stripAddress } from '../parse.js';
+import { CURATED, CURATED_LABEL, type CuratedKey, curatedKeyOf, curatedPrice, pickCuratedKey } from '../curated.js';
 import { activeMembers, groupSize } from '../schedule.js';
 import { MIN, local, normText } from '../util.js';
 import { type Step, P, availabilityOpen, cancel, howOf, member, planOf, purgePlan, reachable, react, say, schedule, seedRoster, touch, tzOf } from './core.js';
@@ -72,6 +73,11 @@ function allAnswered(p: EnginePlan, h: EngineHungry): boolean {
 export function startSearch(st: Step): void {
   const p = P(st);
   const h = p.hungry as EngineHungry;
+  // DEMO_SIMPLE: no lookup; the window closed, so decide (majority, or extend the deliberation, or the top cuisine).
+  if (st.ctx.simple) {
+    resolveCuisine(st, true);
+    return;
+  }
   const near = nearOf(h, p.neighborhood);
   if (!near) {
     // No neighborhood yet: ask once (Homi never uses device location), then give up quietly.
@@ -110,13 +116,21 @@ export function onPlaceMessage(st: Step, ev: MessageEvent, body: string, address
   if (h.phase === 'asking') {
     const taste = parseTaste(body);
     if (hasTaste(taste) || taste.go) {
+      // DEMO_SIMPLE deliberation: a person's latest cuisine answer replaces their earlier one ("ok fine, thai then").
+      if (st.ctx.simple && taste.cuisines.length) retractCuisines(h, m.key);
       mergeTaste(h, m.key, taste);
       // Acknowledge each answer so nobody wonders whether Homi heard it while the others reply.
       if (!taste.go) react(st, ev.msgRef);
+      if (st.ctx.simple) {
+        if (taste.go) presentCurated(st, 'prompted');
+        else resolveCuisine(st, false);
+        return;
+      }
       // One message with food, budget and area ("something spicy, not too pricey, near central square") is enough.
-      const complete = (taste.cuisines.length > 0 || taste.wildcard) && taste.price !== undefined && taste.neighborhoods.length > 0;
-      if (taste.go || complete || (h.searches ?? 0) > 0) return startSearch(st);
-      if (taste.vague && !h.askedWhere && !Object.keys(h.neighborhoods).length && !p.neighborhood) {
+      // DEMO_SIMPLE: one cuisine word is never "complete"; the question waits for the group (or "surprise us" / the window).
+      const complete = !st.ctx.simple && (taste.cuisines.length > 0 || taste.wildcard) && taste.price !== undefined && taste.neighborhoods.length > 0;
+      if (taste.go || complete || (!st.ctx.simple && (h.searches ?? 0) > 0)) return startSearch(st);
+      if (!st.ctx.simple && taste.vague && !h.askedWhere && !Object.keys(h.neighborhoods).length && !p.neighborhood) {
         h.askedWhere = true;
         say(st, T.foodWhere());
       }
@@ -197,6 +211,127 @@ export function closePlaces(st: Step, prompting: Prompting): void {
   const remindOffer = back !== 'idle' && p.eventAt !== undefined && p.eventAt > st.ctx.now + 45 * MIN;
   say(st, T.placeClose({ name: place.name, address: place.address, url: place.mapsUrl, noVotes, remindOffer, emoji: placeEmoji(place.cuisine) }), prompting);
   popTo(st, back, prompting);
+}
+
+/**
+ * DEMO_SIMPLE, step 1: one question after the date locks ("What are we feeling?"). Answers are merged by the usual
+ * taste rules (Claude maps free text onto a cuisine word first); when everyone known has answered, someone says
+ * "surprise us" / "homi go", or the window closes, the curated picks for the top cuisine go out (presentCurated).
+ */
+export function askCuisine(st: Step, prompting: Prompting): boolean {
+  const p = P(st);
+  if (p.state === 'collecting_place') return false;
+  const now = st.ctx.now;
+  p.stack.push(p.state);
+  p.state = 'collecting_place';
+  const h = newHungry(now, false);
+  // Demo timers: the question closes as fast as the date poll did; otherwise the usual 10 minutes.
+  h.deadlineAt = now + (st.ctx.quorum ? st.ctx.quorum.dmAfterMs : WINDOW);
+  p.hungry = h;
+  say(st, T.cuisineAsk(), prompting);
+  schedule(st, 'hungry_deadline', h.deadlineAt, { suffix: 'where' });
+  return true;
+}
+
+/** Forget a member's earlier cuisine answers (their latest message replaces them). */
+function retractCuisines(h: EngineHungry, member: MemberKey): void {
+  const mine = h.memberCuisines?.[member] ?? [];
+  for (const c of mine) h.cuisineVotes[c] = Math.max(0, (h.cuisineVotes[c] ?? 1) - 1);
+  if (h.memberCuisines) h.memberCuisines[member] = [];
+}
+
+/** Votes per curated cuisine: one per member, their first mappable tag, vetoed keys excluded. */
+function curatedTally(h: EngineHungry): Array<[CuratedKey, number]> {
+  const counts = new Map<CuratedKey, number>();
+  const order: CuratedKey[] = [];
+  const vetoed = new Set(h.vetoes.map(curatedKeyOf).filter((k): k is CuratedKey => !!k));
+  for (const tags of Object.values(h.memberCuisines ?? {})) {
+    const key = tags.map(curatedKeyOf).find((k): k is CuratedKey => !!k && !vetoed.has(k));
+    if (!key) continue;
+    if (!counts.has(key)) order.push(key);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return order.map((k) => [k, counts.get(k) ?? 0] as [CuratedKey, number]).sort((a, b) => b[1] - a[1] || order.indexOf(a[0]) - order.indexOf(b[0]));
+}
+
+/** DEMO_SIMPLE deliberation: extensions of the cuisine window before the top cuisine goes ahead anyway. */
+const MAX_EXTENSIONS = 3;
+
+/**
+ * DEMO_SIMPLE, between the question and the picks: the group deliberates until one cuisine has a majority of the
+ * group. Each answer re-checks; when everyone known has answered and it is still split, Homi posts the tally once
+ * per change ("Thai 1 · Japanese 1, need 2 of 2 on one"). The window closing (`timer`) extends the deliberation up to
+ * three times with the same nudge, then the top cuisine goes ahead. "surprise us" skips all of this.
+ */
+export function resolveCuisine(st: Step, timer: boolean): void {
+  const p = P(st);
+  const h = p.hungry as EngineHungry;
+  if (h.phase !== 'asking') return;
+  const tally = curatedTally(h);
+  const n = Math.max(groupSize(p), 1);
+  const need = Math.floor(n / 2) + 1;
+  const top = tally[0];
+  if (top && top[1] >= need) {
+    presentCurated(st, 'prompted', top[0]);
+    return;
+  }
+  const line = tally.map(([k, c]) => `${CURATED_LABEL[k]} ${c}`).join(' · ');
+  const nudge = () => {
+    if (!line || h.lastSplit === line) return;
+    h.lastSplit = line;
+    say(st, T.cuisineSplit({ tally: line, need, n }), 'prompted');
+  };
+  if (!timer) {
+    if (allAnswered(p, h)) nudge();
+    return;
+  }
+  if ((h.extensions ?? 0) < MAX_EXTENSIONS && tally.length > 1) {
+    h.extensions = (h.extensions ?? 0) + 1;
+    h.deadlineAt = st.ctx.now + (st.ctx.quorum ? st.ctx.quorum.dmAfterMs : WINDOW);
+    schedule(st, 'hungry_deadline', h.deadlineAt, { suffix: 'where' });
+    h.lastSplit = undefined;
+    nudge();
+    return;
+  }
+  presentCurated(st, 'prompted', top?.[0]);
+}
+
+/**
+ * DEMO_SIMPLE, step 2: the three curated spots for the top cuisine (Mexican when nobody named one), straight to the
+ * vote (no lookup). Also what "homi find food" does after the lock. The usual place vote and close apply.
+ */
+export function presentCurated(st: Step, prompting: Prompting, key?: CuratedKey): boolean {
+  const p = P(st);
+  const now = st.ctx.now;
+  const prev = p.hungry as EngineHungry | undefined;
+  if (p.state !== 'collecting_place') {
+    p.stack.push(p.state);
+    p.state = 'collecting_place';
+  } else if (prev?.phase === 'voting') {
+    return false;
+  }
+  const cuisine = key ?? pickCuratedKey(prev ? rankedCuisines(prev) : []);
+  const picks = CURATED[cuisine];
+  const h = prev && prev.phase === 'asking' ? prev : newHungry(now, false);
+  h.cuisineVotes = { [cuisine]: Math.max(1, h.cuisineVotes[cuisine] ?? 0) };
+  h.phase = 'voting';
+  h.options = picks.map((o) => ({ ...o }));
+  h.votes = {};
+  h.deadlineAt = now + WINDOW;
+  p.hungry = h;
+  p.refs.placeOptions = {};
+  p.refs.placePoll = undefined;
+  cancel(st, 'hungry_deadline');
+  schedule(st, 'hungry_deadline', h.deadlineAt, { suffix: 'vote' });
+  const header = T.curatedHeader({ cuisine: CURATED_LABEL[cuisine], how: howOf(st) });
+  const bubbles = picks.map((o) => T.placeBubble({ id: o.id, name: o.name, cuisine: o.hood, price: curatedPrice(o.priceBand), open: '' }));
+  if (st.ctx.caps.polls) {
+    st.acts.push({ type: 'poll', question: header, options: bubbles, prompting, tag: 'poll:place' });
+    return true;
+  }
+  say(st, header, prompting, 'place:header');
+  bubbles.forEach((b, i) => say(st, b, prompting, `place:${picks[i].id}`));
+  return true;
 }
 
 /** No usable result: say so once, pop back without a place (an instant plan with nothing in it is deleted). */

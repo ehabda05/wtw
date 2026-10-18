@@ -79,6 +79,7 @@ export function generateOptions(input: GenerateInput): Option[] {
   const { activity, window, now, tz } = input;
   const exD = new Set(input.excludeDays ?? []);
   const exW = new Set(input.excludeWeekdays ?? []);
+  const sameDay = /^(?:tonight|today)$/.test(window.label);
   const minStart = now + MIN_LEAD;
   const days = window.days.filter((d) => !exD.has(d) && !exW.has(weekdayOf(d)));
   const startId = input.startId ?? 1;
@@ -96,16 +97,22 @@ export function generateOptions(input: GenerateInput): Option[] {
     // not ours). Only when it has already passed do we fall back to generated times.
     if (input.time && atLocal(day, input.time, tz) >= now + 30 * MIN) return mk([{ day, time: input.time }]);
     const base = input.time ? [shiftTime(input.time, -60), input.time, shiftTime(input.time, 60)] : dayTimes(activity);
-    const slots = base.map((time) => ({ day, time })).filter((s) => atLocal(s.day, s.time, tz) >= minStart);
-    // Late in the day: offer what is left, in one-hour steps until 22:30.
-    let cursor = slots.length ? atLocal(day, slots[slots.length - 1].time, tz) + HOUR : roundUp(minStart, 30 * MIN);
-    const lastOk = atLocal(day, '22:30', tz);
-    while (slots.length < 3 && cursor <= lastOk && isoDay(cursor, tz) === day) {
-      const time = timeOfMs(cursor, tz);
-      if (!slots.some((s) => s.time === time)) slots.push({ day, time });
-      cursor += HOUR;
-    }
-    return mk(slots.slice(0, 3));
+    const fill = (floor: number, lastTime: string) => {
+      const slots = base.map((time) => ({ day, time })).filter((s) => atLocal(s.day, s.time, tz) >= floor);
+      // Late in the day: offer what is left, in one-hour steps.
+      let cursor = slots.length ? atLocal(day, slots[slots.length - 1].time, tz) + HOUR : roundUp(floor, 30 * MIN);
+      const lastOk = atLocal(day, lastTime, tz);
+      while (slots.length < 3 && cursor <= lastOk && isoDay(cursor, tz) === day) {
+        const time = timeOfMs(cursor, tz);
+        if (!slots.some((s) => s.time === time)) slots.push({ day, time });
+        cursor += HOUR;
+      }
+      return slots.slice(0, 3);
+    };
+    let slots = fill(minStart, '22:30');
+    // "tonight" with nothing 3h out (asked at 8pm): tonight still means tonight, down to 30 minutes' notice and 11:30pm.
+    if (!slots.length && sameDay) slots = fill(now + 30 * MIN, '23:30');
+    return mk(slots);
   }
 
   // An explicit time keeps a same-day option that is less than 3h away ("fri or sat at 8" said Friday at 6).

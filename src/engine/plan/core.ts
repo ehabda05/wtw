@@ -131,7 +131,7 @@ export function touch(st: Step, ref: MemberRef, msgRef?: MsgRef): Member | null 
 export function intro(st: Step): void {
   if (st.s.space.introSent) return;
   st.s.space.introSent = true;
-  say(st, T.intro({ hours: st.ctx.retentionHours }), 'prompted', 'intro');
+  say(st, st.ctx.simple ? T.introSimple() : T.intro({ hours: st.ctx.retentionHours }), 'prompted', 'intro');
 }
 
 /** Deletes the plan: every job, the plan row, the delivery lookup (runner). State goes back to idle. */

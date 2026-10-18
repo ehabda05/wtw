@@ -18,6 +18,7 @@ import { createLogger } from './privacy/logger.js';
 import { Retention } from './privacy/retention.js';
 import { OffsetClock, SystemClock } from './runner/clock.js';
 import { classifyAvailability, isEnabled as hostedLlmEnabled } from './llm/redacted.js';
+import { readReceipt } from './llm/receipt.js';
 import { routerFromConfig } from './llm/router.js';
 import { createExtHandlers } from './runner/handlers/index.js';
 import { galleryFor } from './album/gallery.js';
@@ -80,6 +81,7 @@ async function main(): Promise<void> {
         }
       : undefined,
     hostedLlm: hostedLlmEnabled(llmCfg) ? (text, labels, names) => classifyAvailability(llmCfg, text, labels, names) : undefined,
+    readReceipt: hostedLlmEnabled(llmCfg) ? (bytes, mime) => readReceipt(llmCfg, bytes, mime) : undefined,
     repairWithLlm: llmRouter.repair ?? undefined,
     llmFirst: config.llmFirst,
     handlers: ext.handlers,
@@ -153,6 +155,8 @@ async function main(): Promise<void> {
     hostedLlm: !config.disableHostedLlm && !!config.anthropicApiKey,
     llmFallback: llmRouter.note,
     llmFirst: config.llmFirst ? (llmRouter.repair ? 'on (Claude reads every addressed message first)' : 'requested, but the LLM switch is off') : 'off',
+    simple: config.simple ? 'on (hangout, one cuisine question, 3 curated Boston spots)' : 'off',
+    quorum: config.quorum ? `on (ping ${config.quorum.dmAfterMs} ms, close ${config.quorum.replyMs} ms, min ${config.quorum.minYes})` : 'off',
     ephemeralKeys: config.ephemeralKeys,
   });
 

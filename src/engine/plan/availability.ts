@@ -16,11 +16,15 @@ export function weekendPref(activity: string): boolean {
   return ['brunch', 'hike', 'picnic', 'park'].includes(activity);
 }
 
+/** "I'll lock it in <when>": the decide-by time, or, with the demo quorum on, as soon as everyone has answered. */
+export function lockWhen(st: Step): string {
+  const p = P(st);
+  return st.ctx.quorum ? 'once everyone answers' : relLabel(p.deadlineAt as number, st.ctx.now, tzOf(st));
+}
+
 export function headerText(st: Step, tally?: string): string {
   const p = P(st);
-  return T.header({
-    activity: p.activity, window: p.windowLabel ?? 'soon', deadline: relLabel(p.deadlineAt as number, st.ctx.now, tzOf(st)), how: howOf(st), tally,
-  });
+  return T.header({ activity: p.activity, window: p.windowLabel ?? 'soon', deadline: lockWhen(st), how: howOf(st), tally });
 }
 
 /** "@homi dinner next week?" -> a plan, with options right away when the trigger names a window. */
@@ -55,8 +59,10 @@ export function startPlan(st: Step, from: MemberRef, msgRef: string | undefined,
   reachable(st, touch(st, from, msgRef), msgRef);
   seedRoster(st);
   if (place) say(st, T.placeSetOpen({ place }));
+  // DEMO_SIMPLE: a hangout is dinner unless told otherwise; never ask.
+  if (st.ctx.simple && !act.named && !clock) p.activity = 'dinner';
   // "homi plan something next week": ask what first; the window (if any) waits for the answer.
-  if (!act.named && !clock && !hint.length) {
+  if (!act.named && !clock && !hint.length && !st.ctx.simple) {
     p.activityUnknown = true;
     if (win) p.pendingWindow = win;
     say(st, T.askActivity());
@@ -129,6 +135,12 @@ export function openAvailability(st: Step, win: WindowSpec, prompting: Prompting
     generateOptions({ activity: p.activity, window: w, now, tz, excludeDays: p.excludedDays, time: p.preferredTime, weekendPref: weekendPref(p.activity), startId });
   let w = win;
   let opts = gen(w);
+  if (!opts.length && /^(?:tonight|today)$/.test(win.label)) {
+    // The evening is over: say so and offer tomorrow, never a silent jump to next week.
+    w = parseWindow('tomorrow', now, tz) as WindowSpec;
+    opts = gen(w);
+    if (opts.length) say(st, T.tonightGone(), prompting);
+  }
   if (!opts.length) {
     w = parseWindow('soon', now, tz) as WindowSpec;
     opts = gen(w);
@@ -157,7 +169,7 @@ function emitOptions(st: Step, opts: Option[], prompting: Prompting): void {
   const p = P(st);
   const bubbles = opts.map((o) => T.optionBubble({ id: o.id, label: o.label }));
   if (st.ctx.caps.polls) {
-    const question = T.pollQuestion({ activity: p.activity, window: p.windowLabel ?? 'soon', deadline: relLabel(p.deadlineAt as number, st.ctx.now, tzOf(st)) });
+    const question = T.pollQuestion({ activity: p.activity, window: p.windowLabel ?? 'soon', deadline: lockWhen(st) });
     st.acts.push({ type: 'poll', question, options: bubbles, prompting, tag: 'poll:dates' });
     return;
   }

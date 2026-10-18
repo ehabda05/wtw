@@ -131,3 +131,19 @@ test('llmFirst without a router is simply off', async () => {
   await env.runner.handleInbound(textIn('g1', 'persona:ana', 'homi echo hi'));
   assert.ok(env.adapter.sends().includes('ok: homi echo hi'));
 });
+
+test('simple profile: while the poll is open, any unaddressed message the engine ignored goes to Claude', async () => {
+  const r = router(() => 'homi echo all work');
+  const planEngine = engine();
+  const base = planEngine.applyEvent;
+  planEngine.applyEvent = (s, ev, ctx) => {
+    const out = base(s, ev, ctx);
+    if (ev.kind === 'message' && ev.text === 'make plan') out.state.plan = makePlan(ctx.newId());
+    return out;
+  };
+  const env = makeEnv({ engine: planEngine, simple: true, runnerDeps: { repairWithLlm: r.repair, llmFirst: true } });
+  await env.runner.handleInbound(textIn('g1', 'persona:ana', 'make plan'));
+  await env.runner.handleInbound(textIn('g1', 'persona:ben', 'honestly whenever is fine by me'));
+  assert.equal(r.calls.length, 1, 'no day/time words, but the poll is open and the demo listens to everything');
+  assert.ok(env.adapter.sends().includes('ok: homi echo all work'));
+});

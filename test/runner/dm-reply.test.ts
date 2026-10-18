@@ -39,3 +39,19 @@ test('quorum DM round trip: handle sealed on the group message, DM sent at 30 s,
   assert.equal(env.repo.hasSpace(env.ids.space('telegram', 'c1')), false, 'no DM space was created for the reply');
   assert.ok(!env.lines.join('\n').includes('yes'), 'the reply text never reaches the logs');
 });
+
+test('quorum DM to a silent roster member: the handle comes from the iMessage roster, no message or tapback needed', async () => {
+  const engine = (await loadEngine()) as never;
+  const env = makeEnv({ engine, caps: CAPS['imessage-dedicated'], quorum: Q });
+  const group = (handle: string, text: string) => textIn('g1', handle, text, { surface: 'imessage-dedicated' });
+  await env.runner.handleInbound({ surface: 'imessage-dedicated', spaceId: 'g1', isGroup: true, kind: 'members', members: [{ handle: 'r1', platformName: 'Riad' }, { handle: 'e1', platformName: 'Escander' }], msgId: 'roster', mentionsAgent: false, at: 0 });
+  await env.runner.handleInbound(group('r1', 'homi dinner friday 7pm'));
+  await env.runner.handleInbound(group('r1', 'homi 1'));
+  const spaceKey = env.ids.space('imessage-dedicated', 'g1');
+  const planId = env.repo.loadGroup(spaceKey)!.plan!.id;
+  await env.clock.advance(30_000);
+  await env.runner.dispatch(spaceKey, { kind: 'timer', job: 'quorum_dm', planId });
+  const dm = env.adapter.calls.find((c) => c.method === 'dm');
+  assert.ok(dm, 'Escander never spoke, but the roster knows his handle');
+  assert.equal(dm!.args[0], 'e1');
+});

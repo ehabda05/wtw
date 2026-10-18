@@ -140,6 +140,19 @@ export const TEMPLATES = {
 
   // ── intake ──
   askActivity: () => `I'm in. What are we doing: dinner, drinks, brunch, or something else?`,
+  tonightGone: () => `Tonight's too late to pull off, so here's tomorrow:`,
+
+  // ── DEMO_SIMPLE: one flow ──
+  introSimple: () => `Hi, I'm Homi 👋 Say "homi dinner friday 7pm" and I'll get everyone's answer, lock the date, and pick a Mexican spot in Boston with you.`,
+  helpSimple: () => `Say "homi dinner friday 7pm" (or any day and time); everyone votes, I lock it, ask what we're feeling and post 3 spots to pick from. After: send the receipt and say "homi split the bill"; "homi where are we at" shows the plan, "homi forget" drops it.`,
+  simpleOnly: () => `In this demo I only plan the hangout, the spot and the bill; say "homi dinner friday 7pm" to start one.`,
+  receiptUnreadable: () => `I couldn't read a total on that receipt; say "homi split <amount>" and I'll do the rest.`,
+  simpleDayFirst: () => `Let's lock the day first; I'll post the spots right after.`,
+  cuisineAsk: () => `What are we feeling? Tacos, sushi, pizza, Thai, anything; or say "surprise us".`,
+  cuisineSplit: (p: { tally: string; need: number; n: number }) =>
+    `No majority yet: ${p.tally}. Need ${p.need} of ${p.n} on one; say the one you'd switch to, or "surprise us".`,
+  curatedHeader: (p: { cuisine: string; how: 'tap' | 'reply' }) =>
+    `${p.cuisine} in Boston, here are 3. ${p.how === 'tap' ? 'Tap ❤️ on your pick (or reply 1, 2 or 3).' : 'Reply 1, 2 or 3 with your pick.'}`,
 
   // ── demo quorum (QUORUM_DM_AFTER_MS) ──
   quorumPing: (p: { who: string; dmd: boolean; by: string }) =>
@@ -331,6 +344,15 @@ export const TEMPLATE_SAMPLES: { [K in keyof Tpl]: Parameters<Tpl[K]>[] } = {
   timeTooSoon: [[{ time: '8pm' }]],
   timeAlready: [[{ time: '8pm', ids: '1 and 2', how: 'tap' }], [{ time: '8pm', ids: '1 and 2', how: 'reply' }]],
   askActivity: [[]],
+  tonightGone: [[]],
+  introSimple: [[]],
+  helpSimple: [[]],
+  simpleOnly: [[]],
+  simpleDayFirst: [[]],
+  receiptUnreadable: [[]],
+  cuisineAsk: [[]],
+  cuisineSplit: [[{ tally: 'Thai 1 · Japanese 1', need: 2, n: 2 }]],
+  curatedHeader: [[{ cuisine: 'Mexican', how: 'tap' }], [{ cuisine: 'Thai', how: 'reply' }]],
   quorumPing: [[{ who: 'Sam and Jo', dmd: true, by: '6:45pm' }], [{ who: '2 people', dmd: false, by: 'tonight 6:45pm' }]],
   dmQuorum: [[{ activity: 'dinner', options: '1 · Fri Oct 23 · 7pm' }]],
   dmThanks: [[]],

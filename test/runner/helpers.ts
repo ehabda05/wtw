@@ -164,6 +164,8 @@ export interface EnvOptions {
   runnerDeps?: Partial<RunnerDeps>;
   /** Demo quorum timers (Ctx.quorum). */
   quorum?: { dmAfterMs: number; replyMs: number; minYes: number };
+  /** DEMO_SIMPLE (Ctx.simple). */
+  simple?: boolean;
 }
 
 export const SALT = 'test-salt-0123456789abcdef';
@@ -187,7 +189,7 @@ export function makeEnv(opts: EnvOptions = {}): Env {
     ids,
     clock,
     logger,
-    config: { retentionHours: 24, quietHours: [23, 9], defaultTz: 'America/New_York', ...(opts.quorum ? { quorum: opts.quorum } : {}) },
+    config: { retentionHours: 24, quietHours: [23, 9], defaultTz: 'America/New_York', ...(opts.quorum ? { quorum: opts.quorum } : {}), ...(opts.simple ? { simple: true } : {}) },
     adapters: [adapter],
     places: opts.places,
     voice: opts.voice,
